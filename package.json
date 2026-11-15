@@ -31,6 +31,7 @@
     "@pkmn/protocol": "^0.7.4",
     "@pkmn/sim": "^0.11.0",
     "esbuild": "^0.28.2",
+    "inkjs": "^2.4.0",
     "phaser": "4.0.0",
     "terser": "^5.39.0"
   }
