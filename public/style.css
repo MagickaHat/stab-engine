@@ -1,15 +1,20 @@
+html,
 body {
     margin: 0;
     padding: 0;
     color: rgba(255, 255, 255, 0.87);
     background-color: #0f0f0f;
+    /* Stop pull-to-refresh and rubber-band scrolling in mobile browsers and WebViews. */
+    overscroll-behavior: none;
 }
 
-#app {
+#app,
+#game-container {
     width: 100%;
+    /* 100vh is the fallback; 100dvh follows the Android URL bar showing and hiding. */
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
+
+/* No centering here: Phaser centers the canvas itself (Scale.CENTER_BOTH). */

@@ -9,6 +9,7 @@ This is a Phaser project template that uses Vite for bundling. It supports hot-r
 This template has been updated for:
 
 - [Phaser 4](https://github.com/phaserjs/phaser)
+- [React 19](https://github.com/facebook/react)
 - [Vite 6.3.1](https://github.com/vitejs/vite)
 - [TypeScript 5.7.2](https://github.com/microsoft/TypeScript)
 
@@ -25,6 +26,10 @@ Battles are powered by the Pokémon Showdown simulator ([`@pkmn/sim`](https://ww
 ## Dialogue System
 
 Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudios.com/ink/) and run with [inkjs](https://github.com/y-lohse/inkjs). Put `.ink` files in `content/dialogue/` and import them from TypeScript; a Vite plugin compiles them at build time. The runtime wrapper lives in `src/dialogue/`. See **[docs/DIALOGUE_SYSTEM.md](docs/DIALOGUE_SYSTEM.md)** for writing stories, choices, tags, variables, external functions, saving and using it from a Phaser scene.
+
+## UI
+
+The UI is built with [React](https://react.dev) and drawn as HTML on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. Components go inside `<UiLayer>`, are laid out in game pixels (the game runs at 256×192) and follow the canvas when the screen or the game resolution changes. React and the scenes talk through an event bus. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
 
 ## Game Data
 
@@ -72,9 +77,14 @@ We have provided a default project structure to get you started:
 | `index.html`                 | A basic HTML page to contain the game.                     |
 | `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
 | `public/style.css`           | Global layout styles.                                      |
-| `src/main.ts`                | Application bootstrap.                                     |
+| `src/main.tsx`               | Application bootstrap: mounts the React app.               |
+| `src/App.tsx`                | Root React component: the game plus the UI layer.          |
+| `src/PhaserGame.tsx`         | React component that creates the Phaser game.              |
+| `src/ui`                     | React UI layer. See `docs/UI_SYSTEM.md`.                   |
 | `src/game`                   | Folder containing the game code.                           |
 | `src/game/main.ts`           | Game entry point: configures and starts the game.          |
+| `src/game/config.ts`         | Game resolution (256×192).                                 |
+| `src/game/EventBus.ts`       | Events between React and Phaser.                           |
 | `src/game/scenes`            | Folder with all Phaser game scenes.                        |
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
