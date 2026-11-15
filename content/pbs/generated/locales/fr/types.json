@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "Insecte",
+    "types.dark.name": "Ténèbres",
+    "types.dragon.name": "Dragon",
+    "types.electric.name": "Électrik",
+    "types.fairy.name": "Fée",
+    "types.fighting.name": "Combat",
+    "types.fire.name": "Feu",
+    "types.flying.name": "Vol",
+    "types.ghost.name": "Spectre",
+    "types.grass.name": "Plante",
+    "types.ground.name": "Sol",
+    "types.ice.name": "Glace",
+    "types.normal.name": "Normal",
+    "types.poison.name": "Poison",
+    "types.psychic.name": "Psy",
+    "types.rock.name": "Roche",
+    "types.steel.name": "Acier",
+    "types.water.name": "Eau"
+}

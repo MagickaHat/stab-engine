@@ -1,0 +1,31 @@
+{
+    "title": "PBS items.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "type": "object",
+        "properties": {
+            "num": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+            "name": { "type": "string", "minLength": 1 },
+            "fling": { "type": "object", "properties": { "basePower": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }, "status": { "type": "string" }, "volatileStatus": { "type": "string" } }, "required": ["basePower"] },
+            "isBerry": { "type": "boolean" },
+            "naturalGift": { "type": "object", "properties": { "basePower": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }, "type": { "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" } }, "required": ["basePower", "type"] },
+            "megaStone": { "anyOf": [{ "type": "string" }, { "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "type": "string" } }] },
+            "megaEvolves": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+            "onPlate": { "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" },
+            "onMemory": { "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" },
+            "onDrive": { "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" },
+            "zMove": { "anyOf": [{ "type": "string" }, { "type": "boolean", "const": true }] },
+            "zMoveType": { "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" },
+            "itemUser": { "type": "array", "items": { "type": "string" } },
+            "isPokeball": { "type": "boolean" },
+            "isGem": { "type": "boolean" },
+            "gen": { "type": "integer", "minimum": 1, "maximum": 99 },
+            "isNonstandard": { "anyOf": [{ "type": "string", "enum": ["Past", "Future", "Unobtainable", "CAP", "LGPE", "Custom", "Gigantamax", "Thing"] }, { "type": "null" }] }
+        },
+        "required": ["num", "name"],
+        "additionalProperties": {}
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}

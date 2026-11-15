@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "Käfer",
+    "types.dark.name": "Unlicht",
+    "types.dragon.name": "Drache",
+    "types.electric.name": "Elektro",
+    "types.fairy.name": "Fee",
+    "types.fighting.name": "Kampf",
+    "types.fire.name": "Feuer",
+    "types.flying.name": "Flug",
+    "types.ghost.name": "Geist",
+    "types.grass.name": "Pflanze",
+    "types.ground.name": "Boden",
+    "types.ice.name": "Eis",
+    "types.normal.name": "Normal",
+    "types.poison.name": "Gift",
+    "types.psychic.name": "Psycho",
+    "types.rock.name": "Gestein",
+    "types.steel.name": "Stahl",
+    "types.water.name": "Wasser"
+}

@@ -26,6 +26,10 @@ Battles are powered by the Pokémon Showdown simulator ([`@pkmn/sim`](https://ww
 
 Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudios.com/ink/) and run with [inkjs](https://github.com/y-lohse/inkjs). Put `.ink` files in `content/dialogue/` and import them from TypeScript; a Vite plugin compiles them at build time. The runtime wrapper lives in `src/dialogue/`. See **[docs/DIALOGUE_SYSTEM.md](docs/DIALOGUE_SYSTEM.md)** for writing stories, choices, tags, variables, external functions, saving and using it from a Phaser scene.
 
+## Game Data
+
+Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSON files in `content/pbs/`, in Pokémon Showdown's data format. The official data is imported from [PokeAPI](https://pokeapi.co) with `npm run pokeapi:import` into `content/pbs/generated/`. Your own content and changes go in `content/pbs/custom/`, which is merged on top and can be split into content packs. Everything is validated with [Zod](https://zod.dev). See **[docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)**.
+
 ## Available Commands
 
 | Command | Description |
@@ -36,6 +40,10 @@ Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudio
 | `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
 | `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
 | `npm run typecheck` | Check all TypeScript code for type errors without building |
+| `npm run pokeapi:import` | Import PokeAPI data into `content/pbs/generated` (see `docs/DATA_PIPELINE.md`) |
+| `npm run pbs:validate` | Validate game data (generated + custom) |
+| `npm run pbs:compare` | Compare game data with Pokémon Showdown's and list differences |
+| `npm run pbs:schemas` | Regenerate JSON Schemas for editor autocompletion |
 
 ## Writing Code
 
@@ -65,6 +73,10 @@ We have provided a default project structure to get you started:
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
 | `content/dialogue`           | ink story files (`.ink`), compiled by `vite/plugins/ink.mjs`. |
+| `src/data`                   | Game data loader, Zod schemas and Showdown bridge. See `docs/DATA_PIPELINE.md`. |
+| `content/pbs/generated`      | Game data imported from PokeAPI (do not edit). |
+| `content/pbs/custom`         | Your data overrides and new content (content packs). |
+| `tools`                      | Node tools: PokeAPI importer (`tools/pokeapi`), validator etc. (`tools/pbs`). |
 
 
 ## Handling Assets

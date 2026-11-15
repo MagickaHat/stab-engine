@@ -1,0 +1,13 @@
+{
+    "title": "PBS custom override for natures.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "anyOf": [
+            { "type": "object", "properties": { "name": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] }, "plus": { "anyOf": [{ "type": "string", "enum": ["atk", "def", "spa", "spd", "spe"] }, { "type": "null" }] }, "minus": { "anyOf": [{ "type": "string", "enum": ["atk", "def", "spa", "spd", "spe"] }, { "type": "null" }] } }, "additionalProperties": { "anyOf": [{}, { "type": "null" }] } },
+            { "type": "null" }
+        ]
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}

@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "Bicho",
+    "types.dark.name": "Siniestro",
+    "types.dragon.name": "Dragón",
+    "types.electric.name": "Eléctrico",
+    "types.fairy.name": "Hada",
+    "types.fighting.name": "Lucha",
+    "types.fire.name": "Fuego",
+    "types.flying.name": "Volador",
+    "types.ghost.name": "Fantasma",
+    "types.grass.name": "Planta",
+    "types.ground.name": "Tierra",
+    "types.ice.name": "Hielo",
+    "types.normal.name": "Normal",
+    "types.poison.name": "Veneno",
+    "types.psychic.name": "Psíquico",
+    "types.rock.name": "Roca",
+    "types.steel.name": "Acero",
+    "types.water.name": "Agua"
+}

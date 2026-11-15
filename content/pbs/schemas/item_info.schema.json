@@ -1,0 +1,19 @@
+{
+    "title": "PBS item_info.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "type": "object",
+        "properties": {
+            "price": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "pocket": { "type": "string", "enum": ["misc", "medicine", "pokeballs", "machines", "berries", "mail", "battle", "key"] },
+            "category": { "type": "string" },
+            "flags": { "type": "array", "items": { "type": "string" } },
+            "teaches": { "type": "string" }
+        },
+        "required": ["price", "pocket", "category", "flags"],
+        "additionalProperties": {}
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}
