@@ -22,6 +22,10 @@ This template has been updated for:
 
 Battles are powered by the Pokémon Showdown simulator ([`@pkmn/sim`](https://www.npmjs.com/package/@pkmn/sim)). The integration lives in `src/battle/`. See **[docs/BATTLE_SYSTEM.md](docs/BATTLE_SYSTEM.md)** for how it works, how to edit teams and formats, and how to use it from a Phaser scene.
 
+## Dialogue System
+
+Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudios.com/ink/) and run with [inkjs](https://github.com/y-lohse/inkjs). Put `.ink` files in `content/dialogue/` and import them from TypeScript; a Vite plugin compiles them at build time. The runtime wrapper lives in `src/dialogue/`. See **[docs/DIALOGUE_SYSTEM.md](docs/DIALOGUE_SYSTEM.md)** for writing stories, choices, tags, variables, external functions, saving and using it from a Phaser scene.
+
 ## Available Commands
 
 | Command | Description |
@@ -59,6 +63,8 @@ We have provided a default project structure to get you started:
 | `src/game/main.ts`           | Game entry point: configures and starts the game.          |
 | `src/game/scenes`            | Folder with all Phaser game scenes.                        |
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
+| `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
+| `content/dialogue`           | ink story files (`.ink`), compiled by `vite/plugins/ink.mjs`. |
 
 
 ## Handling Assets
