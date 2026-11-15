@@ -25,3 +25,6 @@ dist-ssr
 
 # PokeAPI CSV download cache (tools/pokeapi)
 tools/pokeapi/.cache
+
+# Asset importer bookkeeping and last report (tools/assets)
+tools/assets/.cache

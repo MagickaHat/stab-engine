@@ -12,4 +12,8 @@ Team Lead - MagickaHat
 - **[Zod](https://zod.dev)** by Colin McDonnell (MIT License). Schema validation for game data.
 - **[Phaser](https://phaser.io)** by Phaser Studio Inc. (MIT License). Game framework.
 
+## Imported assets
+
+Sprites, icons and cries are not part of this repository. They are imported with `npm run assets:import` (see [ASSET_PIPELINE.md](ASSET_PIPELINE.md)) from community resource packs such as the **[Generation 9 Resource Pack](https://eeveeexpo.com/resources/1101)** compiled by Caruban. The importer copies each pack's own credits file to `public/assets/credits/`; games built with these assets must credit the artists listed there.
+
 Pokémon and all related names are trademarks of Nintendo, Game Freak and Creatures Inc. STAB-engine is a non-commercial fan project and is not affiliated with or endorsed by them.

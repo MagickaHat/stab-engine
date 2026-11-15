@@ -30,6 +30,10 @@ Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudio
 
 Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSON files in `content/pbs/`, in Pokémon Showdown's data format. The official data is imported from [PokeAPI](https://pokeapi.co) with `npm run pokeapi:import` into `content/pbs/generated/`. Your own content and changes go in `content/pbs/custom/`, which is merged on top and can be split into content packs. Everything is validated with [Zod](https://zod.dev). See **[docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)**.
 
+## Sprites, Icons and Cries
+
+Pokémon and item graphics and cries are imported from a Pokémon Essentials resource pack (such as the Generation 9 Resource Pack) with `npm run assets:import -- --pack <folder>`. Files land in `public/assets/pokemon/<species>/` and `public/assets/items/`, named with Showdown IDs and reduced to 1× scale (battle sprites are 96×96). See **[docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md)**.
+
 ## Available Commands
 
 | Command | Description |
@@ -44,6 +48,8 @@ Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSO
 | `npm run pbs:validate` | Validate game data (generated + custom) |
 | `npm run pbs:compare` | Compare game data with Pokémon Showdown's and list differences |
 | `npm run pbs:schemas` | Regenerate JSON Schemas for editor autocompletion |
+| `npm run assets:import -- --pack <folder>` | Import sprites, icons and cries from an Essentials resource pack (see `docs/ASSET_PIPELINE.md`) |
+| `npm test` | Run the tools' unit tests |
 
 ## Writing Code
 
@@ -76,7 +82,7 @@ We have provided a default project structure to get you started:
 | `src/data`                   | Game data loader, Zod schemas and Showdown bridge. See `docs/DATA_PIPELINE.md`. |
 | `content/pbs/generated`      | Game data imported from PokeAPI (do not edit). |
 | `content/pbs/custom`         | Your data overrides and new content (content packs). |
-| `tools`                      | Node tools: PokeAPI importer (`tools/pokeapi`), validator etc. (`tools/pbs`). |
+| `tools`                      | Node tools: PokeAPI importer (`tools/pokeapi`), validator etc. (`tools/pbs`), asset importer (`tools/assets`). |
 
 
 ## Handling Assets
