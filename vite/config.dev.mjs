@@ -6,7 +6,8 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    phaser: ['phaser']
+                    phaser: ['phaser'],
+                    pkmn: ['@pkmn/sim']
                 }
             }
         },

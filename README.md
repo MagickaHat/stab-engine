@@ -18,6 +18,10 @@ This template has been updated for:
 
 [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
 
+## Battle System
+
+Battles are powered by the Pokémon Showdown simulator ([`@pkmn/sim`](https://www.npmjs.com/package/@pkmn/sim)). The integration lives in `src/battle/`. See **[docs/BATTLE_SYSTEM.md](docs/BATTLE_SYSTEM.md)** for how it works, how to edit teams and formats, and how to use it from a Phaser scene.
+
 ## Available Commands
 
 | Command | Description |
@@ -27,6 +31,7 @@ This template has been updated for:
 | `npm run build` | Create a production build in the `dist` folder |
 | `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
 | `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
+| `npm run typecheck` | Check all TypeScript code for type errors without building |
 
 ## Writing Code
 
@@ -52,7 +57,8 @@ We have provided a default project structure to get you started:
 | `src/main.ts`                | Application bootstrap.                                     |
 | `src/game`                   | Folder containing the game code.                           |
 | `src/game/main.ts`           | Game entry point: configures and starts the game.          |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        | 
+| `src/game/scenes`            | Folder with all Phaser game scenes.                        |
+| `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 
 
 ## Handling Assets
