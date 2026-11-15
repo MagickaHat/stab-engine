@@ -1,0 +1,67 @@
+/*
+ * Styles for the React UI layer (see UiLayer.tsx and docs/UI_SYSTEM.md).
+ * Sizes inside .ui-layer are in game pixels: the layer is scaled as a whole.
+ */
+
+.ui-layer {
+    position: fixed;
+    transform-origin: 0 0;
+    overflow: hidden;
+    /* Let touches and clicks through to the game canvas. */
+    pointer-events: none;
+
+    font-family: sans-serif;
+    font-size: 8px;
+    line-height: 1.25;
+    color: #ffffff;
+
+    /* Touch devices: no text selection, tap flash, long-press menu or font boosting. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+}
+
+/* Images in the UI are pixel art too: scale them without smoothing. */
+.ui-layer img {
+    image-rendering: pixelated;
+}
+
+/* Put this class on anything that should receive touches or clicks. */
+.ui-interactive {
+    pointer-events: auto;
+    /* The game handles gestures itself: no browser pan, zoom or double-tap delay. */
+    touch-action: none;
+}
+
+/* --- Sample HUD (App.tsx). Safe to delete together with it. --- */
+
+.sample-hud-label {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    padding: 1px 3px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 2px;
+}
+
+.sample-hud-button {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    /* About 48 CSS pixels tall on a phone, the usual minimum touch target. */
+    min-width: 48px;
+    min-height: 20px;
+    padding: 0 6px;
+    font: inherit;
+    color: #ffffff;
+    background: #2b6cb0;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+}
+
+.sample-hud-button:active {
+    background: #1a4a80;
+}

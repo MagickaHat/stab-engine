@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import inkPlugin from './plugins/ink.mjs';
 
 export default defineConfig({
@@ -8,6 +9,7 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     phaser: ['phaser'],
+                    react: ['react', 'react-dom'],
                     pkmn: ['@pkmn/sim', '@pkmn/protocol', '@pkmn/client', '@pkmn/data'],
                     ink: ['inkjs']
                 }
@@ -15,6 +17,7 @@ export default defineConfig({
         },
     },
     plugins: [
+        react(),
         inkPlugin()
     ],
     server: {
