@@ -19,10 +19,12 @@
  *
  * Output layout (one folder per species, like pokeemerald-expansion):
  * @code
- * public/assets/pokemon/charizard/front.png          96×96
- * public/assets/pokemon/charizard/back_shiny.png     96×96
- * public/assets/pokemon/charizard/megax/front.png    formes are sub-folders
- * public/assets/pokemon/unfezant/frontf.png          female gender difference
+ * public/assets/img/pokemon/charizard/front.png          96×96
+ * public/assets/img/pokemon/charizard/back_shiny.png     96×96
+ * public/assets/img/pokemon/charizard/megax/front.png    formes are sub-folders
+ * public/assets/img/pokemon/unfezant/frontf.png          female gender difference
+ * public/assets/sound/se/cries/charizard.ogg             cries: one flat folder,
+ * public/assets/sound/se/cries/charizardmegax.ogg        named by full Showdown ID
  * public/assets/items/charizarditex.png              24×24
  * @endcode
  */

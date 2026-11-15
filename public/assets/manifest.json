@@ -1,5 +1,5 @@
 {
-    "$comment": "Written by `npm run assets:import`. Lists every file in pokemon/ and items/; PNG sizes are [width, height].",
+    "$comment": "Written by `npm run assets:import`. Lists every file in img/pokemon/, items/ and sound/se/cries/; PNG sizes are [width, height].",
     "pokemon": {
         "abomasnow": {"files":{"back_shiny.png":[96,96],"back.png":[96,96],"front_shiny.png":[96,96],"front.png":[96,96],"frontf_shiny.png":[96,96],"frontf.png":[96,96],"icon_shiny.png":[64,32],"icon.png":[64,32],"overworld_shiny.png":[128,128],"overworld.png":[128,128]},"formes":{"mega":{"back_shiny.png":[96,96],"back.png":[96,96],"front_shiny.png":[96,96],"front.png":[96,96],"icon_shiny.png":[64,32],"icon.png":[64,32]}}},
         "abra": {"files":{"back_shiny.png":[96,96],"back.png":[96,96],"front_shiny.png":[96,96],"front.png":[96,96],"icon_shiny.png":[64,32],"icon.png":[64,32],"overworld_shiny.png":[128,128],"overworld.png":[128,128]}},
@@ -1833,5 +1833,6 @@
         "zoomlens": [24,24],
         "zygardecube": [24,24],
         "zygardite": [24,24]
-    }
+    },
+    "cries": []
 }

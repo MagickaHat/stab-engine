@@ -32,7 +32,7 @@ Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSO
 
 ## Sprites, Icons and Cries
 
-Pokémon and item graphics and cries are imported from a Pokémon Essentials resource pack (such as the Generation 9 Resource Pack) with `npm run assets:import -- --pack <folder>`. Files land in `public/assets/pokemon/<species>/` and `public/assets/items/`, named with Showdown IDs and reduced to 1× scale (battle sprites are 96×96). See **[docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md)**.
+Pokémon and item graphics and cries are imported from a Pokémon Essentials resource pack (such as the Generation 9 Resource Pack) with `npm run assets:import -- --pack <folder>`. Sprites land in `public/assets/img/pokemon/<species>/`, cries in `public/assets/sound/se/cries/` and item icons in `public/assets/items/`, named with Showdown IDs and reduced to 1× scale (battle sprites are 96×96). See **[docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md)**.
 
 ## Available Commands
 

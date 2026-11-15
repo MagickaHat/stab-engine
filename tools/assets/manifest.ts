@@ -8,7 +8,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ITEMS_DIR, POKEMON_DIR } from './config.ts';
+import { CRIES_DIR, ITEMS_DIR, POKEMON_DIR } from './config.ts';
 import { pngSize } from './png.ts';
 
 /** @brief File name → `[width, height]` for PNGs, `0` for other files. */
@@ -28,6 +28,8 @@ export interface AssetManifest
     pokemon: Record<string, SpeciesAssets>;
     /** Keyed by item ID (file name without `.png`). */
     items: Record<string, [number, number] | 0>;
+    /** Showdown IDs that have a cry (file name without `.ogg`), sorted. */
+    cries: string[];
 }
 
 /**
@@ -84,7 +86,7 @@ function subFolders (dir: string): string[]
  */
 export function buildManifest (assetsDir: string): AssetManifest
 {
-    const manifest: AssetManifest = { pokemon: {}, items: {} };
+    const manifest: AssetManifest = { pokemon: {}, items: {}, cries: [] };
     const pokemonDir = path.join(assetsDir, POKEMON_DIR);
     for (const species of subFolders(pokemonDir))
     {
@@ -103,6 +105,11 @@ export function buildManifest (assetsDir: string): AssetManifest
             if (name.toLowerCase().endsWith('.png')) manifest.items[name.slice(0, -4)] = size;
         }
     }
+    const criesDir = path.join(assetsDir, CRIES_DIR);
+    if (fs.existsSync(criesDir))
+    {
+        manifest.cries = Object.keys(listFolder(criesDir)).filter((name) => name.toLowerCase().endsWith('.ogg')).map((name) => name.slice(0, -4));
+    }
     return manifest;
 }
 
@@ -119,9 +126,10 @@ export function writeManifest (assetsDir: string): AssetManifest
     fs.mkdirSync(assetsDir, { recursive: true });
     fs.writeFileSync(path.join(assetsDir, 'manifest.json'), [
         '{',
-        '    "$comment": "Written by `npm run assets:import`. Lists every file in pokemon/ and items/; PNG sizes are [width, height].",',
+        `    "$comment": "Written by \`npm run assets:import\`. Lists every file in ${POKEMON_DIR}/, items/ and ${CRIES_DIR}/; PNG sizes are [width, height].",`,
         `    "pokemon": {\n${lines(manifest.pokemon)}\n    },`,
-        `    "items": {\n${lines(manifest.items)}\n    }`,
+        `    "items": {\n${lines(manifest.items)}\n    },`,
+        `    "cries": ${JSON.stringify(manifest.cries)}`,
         '}',
         '',
     ].join('\n'));

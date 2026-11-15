@@ -56,12 +56,13 @@ npm run assets:import -- --pack ~/packs/Generation_9_Pack \
 
 ## 2. Output layout
 
-One folder per species, as in pokeemerald-expansion, named with Showdown IDs. Formes are
-sub-folders named with the Showdown forme ID.
+Sprites: one folder per species, as in pokeemerald-expansion, named with Showdown IDs. Formes
+are sub-folders named with the Showdown forme ID. Cries: one flat folder, each file named with
+the full Showdown ID.
 
 ```
 public/assets/
-├─ pokemon/
+├─ img/pokemon/
 │  ├─ charizard/
 │  │  ├─ front.png            front_shiny.png
 │  │  ├─ back.png             back_shiny.png
@@ -77,6 +78,10 @@ public/assets/
 │  ├─ meowstic/
 │  │  └─ f/                   Meowstic-F is a forme in Showdown, so it is a folder
 │  └─ tauros/paldeacombat/    Tauros-Paldea-Combat
+├─ sound/se/cries/
+│  ├─ charizard.ogg
+│  ├─ charizardmegax.ogg      formes that have their own cry: species ID + forme ID
+│  └─ meowsticf.ogg
 ├─ items/
 │  ├─ potion.png              Showdown item ID
 │  ├─ charizarditex.png
@@ -86,8 +91,9 @@ public/assets/
 └─ manifest.json              list of everything above (see section 7)
 ```
 
-To find a species' folder from its pokedex entry: base species ID, then the forme ID if it has
-one — `toID(baseSpecies ?? name)` + `/` + `toID(forme)`.
+To find a species' sprite folder from its pokedex entry: base species ID, then the forme ID if
+it has one — `toID(baseSpecies ?? name)` + `/` + `toID(forme)`. Its cry is the same two IDs
+joined without the slash, which is simply the species' own Showdown ID (`charizardmegax`).
 
 ## 3. Sizes
 
@@ -141,7 +147,7 @@ in `tools/assets/.cache/report.json`.
 ## 6. Your own art
 
 Put your own files straight into the same folders — for example
-`public/assets/pokemon/pikachu/delta/front.png`. The importer only ever touches files it wrote
+`public/assets/img/pokemon/pikachu/delta/front.png`. The importer only ever touches files it wrote
 itself, and it will not overwrite yours unless the pack has a file for exactly the same path.
 Run `npm run assets:import -- --manifest-only` afterwards so the manifest lists them.
 
@@ -156,11 +162,12 @@ Templates: `front.png` / `back.png` 96×96, `icon.png` 64×32 (two frames), `ove
 {
     "pokemon": {
         "charizard": {
-            "files": { "front.png": [96, 96], "cry.ogg": 0, "overworld.png": [128, 128] },
+            "files": { "front.png": [96, 96], "overworld.png": [128, 128] },
             "formes": { "megax": { "front.png": [96, 96] } }
         }
     },
-    "items": { "potion": [24, 24] }
+    "items": { "potion": [24, 24] },
+    "cries": ["charizard", "charizardmegax"]
 }
 ```
 
@@ -174,14 +181,18 @@ const [base, forme] = folder.split('/');
 const files = forme ? manifest.pokemon[base]?.formes?.[forme] : manifest.pokemon[base]?.files;
 // Fall back to the base species when a forme has no sprite of its own.
 const dir = files?.['front.png'] ? folder : base;
-this.load.image(`front:${species.id}`, `assets/pokemon/${dir}/front.png`);
-this.load.audio(`cry:${species.id}`, `assets/pokemon/${dir}/cry.ogg`);
+this.load.image(`front:${species.id}`, `assets/img/pokemon/${dir}/front.png`);
+// Most formes share the base species' cry.
+const cry = manifest.cries.includes(species.id) ? species.id : base;
+this.load.audio(`cry:${species.id}`, `assets/sound/se/cries/${cry}.ogg`);
 ```
 
 ## 8. Changing what is imported
 
 Everything pack-specific is data in `tools/assets/packs/gen9.ts`:
 
+- The output folders themselves (`img/pokemon`, `sound/se/cries`, `items`) are constants in
+  `tools/assets/config.ts`.
 - `rules`: one line per pack folder — where it is, the output file name, and the size
   (`size: [96, 96]` for a fixed canvas, `divide: 2` to halve). Change a size here and run again.
 - `forms`: aliases, `'<ESSENTIALS NAME>': '<species>/<forme>'`.
@@ -195,5 +206,5 @@ For a pack with a different folder layout, copy the file, adjust it, register it
 
 Sprites in these packs newer than Generation 5 are fan-made. The importer copies the pack's
 credits file to `public/assets/credits/`; keep it with your game and credit the artists in your
-own credits screen. Imported assets are not committed to this repository by default — decide
-for your project whether to commit them or have each developer run the import.
+own credits screen. This repository has the imported sprites and item icons committed; cries
+are not, so run the import once to get them.
