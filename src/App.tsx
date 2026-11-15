@@ -2,9 +2,10 @@
  * @file App.tsx
  * @brief Root React component: the game with the UI layer on top.
  */
+import { useEffect } from 'react';
 import { PhaserGame, useCurrentScene } from './PhaserGame';
 import { EventBus, GameEvents } from './game/EventBus';
-import { UiLayer } from './ui';
+import { lockLandscape, RotateDevicePrompt, UiLayer } from './ui';
 
 /**
  * @brief Sample HUD showing both directions of React ↔ Phaser communication.
@@ -40,11 +41,15 @@ function SampleHud ()
  */
 export default function App ()
 {
+    // The game is landscape only on phones and tablets.
+    useEffect(lockLandscape, []);
+
     return (
         <PhaserGame>
             <UiLayer>
                 <SampleHud />
             </UiLayer>
+            <RotateDevicePrompt />
         </PhaserGame>
     );
 }

@@ -36,6 +36,46 @@
     touch-action: none;
 }
 
+/* --- Rotate prompt (RotateDevicePrompt.tsx): landscape only on touch devices. --- */
+
+.rotate-prompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px;
+    font-family: sans-serif;
+    font-size: 20px;
+    text-align: center;
+    color: #ffffff;
+    background: #0f0f0f;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.rotate-prompt p {
+    margin: 0;
+}
+
+/* A phone outline, drawn lying on its side. */
+.rotate-prompt-icon {
+    width: 96px;
+    height: 56px;
+    border: 4px solid #ffffff;
+    border-radius: 10px;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+    .rotate-prompt {
+        display: flex;
+    }
+}
+
 /* --- Sample HUD (App.tsx). Safe to delete together with it. --- */
 
 .sample-hud-label {
@@ -51,9 +91,9 @@
     position: absolute;
     right: 4px;
     bottom: 4px;
-    /* About 48 CSS pixels tall on a phone, the usual minimum touch target. */
+    /* About 48 CSS pixels tall on a phone in landscape, the usual minimum touch target. */
     min-width: 48px;
-    min-height: 20px;
+    min-height: 24px;
     padding: 0 6px;
     font: inherit;
     color: #ffffff;

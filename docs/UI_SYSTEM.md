@@ -26,6 +26,7 @@ index.html
 | `src/game/EventBus.ts` | `EventBus` and `GameEvents`: messages between React and Phaser. |
 | `src/ui/UiLayer.tsx` | `<UiLayer>`: the container for all UI. |
 | `src/ui/useGameViewport.ts` | Hook that tracks the game's resolution and on-screen size. |
+| `src/ui/orientation.ts`, `src/ui/RotateDevicePrompt.tsx` | Landscape lock and the "rotate your device" message. |
 | `src/ui/ui.css` | Styles for the layer and the sample HUD. |
 
 ## 2. Adding UI
@@ -138,9 +139,16 @@ Two things to keep in mind when that is built:
 
 ## 5. Android notes
 
-- **Touch targets.** A finger needs about 48 CSS pixels. On a phone held upright one game
-  pixel is roughly 1.6 CSS pixels, so make buttons at least ~30 game pixels in their
-  smaller dimension where you can (the sample button is deliberately small).
+- **Landscape only.** The game is played horizontally on Android. `lockLandscape()`
+  (`src/ui/orientation.ts`) asks the browser to lock the screen, and
+  `<RotateDevicePrompt>` covers the game with a "rotate your device" message whenever a
+  touch device is held upright, because browsers often refuse the lock. Desktop windows
+  are never blocked. When the Android app is packaged, also set
+  `android:screenOrientation="sensorLandscape"` on its activity so the app never rotates
+  to portrait in the first place.
+- **Touch targets.** A finger needs about 48 CSS pixels. On a phone in landscape one game
+  pixel is roughly 2 CSS pixels, so make buttons at least ~24 game pixels in their
+  smaller dimension.
 - **No hover.** Touch screens have none. Do not hide information or actions behind `:hover`.
 - **Small text.** Android WebView does not draw fonts smaller than 8px. Keep `font-size`
   at 8 (game pixels) or more inside the layer.
@@ -149,6 +157,7 @@ Two things to keep in mind when that is built:
 - **Notches.** `index.html` sets `viewport-fit=cover`. If the game is ever drawn under a
   notch, pad with `env(safe-area-inset-top)` and friends.
 - **Rotation.** `src/game/main.ts` contains a small workaround (`keepFitted`) for Phaser
-  4.0.0 keeping the old canvas size after a rotation. Remove it once Phaser fixes this.
+  4.0.0 keeping the old canvas size after a rotation (it still matters when the player
+  turns the phone from upright to landscape). Remove it once Phaser fixes this.
 - **Packaging.** The repository has no Android project yet. `npm run build` produces a
   static site in `dist/` with relative paths, which is what Capacitor and similar tools wrap.
