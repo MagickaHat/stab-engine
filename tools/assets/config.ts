@@ -23,7 +23,7 @@ export const POKEMON_DIR = 'img/pokemon';
 export const CRIES_DIR = 'sound/se/cries';
 
 /** @brief Folder (inside the output folder) holding item icons. */
-export const ITEMS_DIR = 'items';
+export const ITEMS_DIR = 'img/items';
 
 /** @brief Importer bookkeeping: what was imported from where, and the last report (gitignored). */
 export const CACHE_DIR = path.join(ROOT, 'tools/assets/.cache');
