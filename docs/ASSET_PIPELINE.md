@@ -68,7 +68,6 @@ public/assets/
 │  │  ├─ icon.png             icon_shiny.png          two frames side by side
 │  │  ├─ overworld.png        overworld_shiny.png     4 directions × 4 frames
 │  │  ├─ footprint.png                                (where the pack has one)
-│  │  ├─ cry.ogg
 │  │  ├─ megax/               Charizard-Mega-X → charizard/megax
 │  │  │  └─ front.png …
 │  │  └─ megay/

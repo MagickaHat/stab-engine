@@ -23,7 +23,6 @@
  * public/assets/pokemon/charizard/back_shiny.png     96×96
  * public/assets/pokemon/charizard/megax/front.png    formes are sub-folders
  * public/assets/pokemon/unfezant/frontf.png          female gender difference
- * public/assets/pokemon/charizard/cry.ogg
  * public/assets/items/charizarditex.png              24×24
  * @endcode
  */
