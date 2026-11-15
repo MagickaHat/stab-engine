@@ -7,7 +7,7 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     phaser: ['phaser'],
-                    pkmn: ['@pkmn/sim']
+                    pkmn: ['@pkmn/sim', '@pkmn/protocol', '@pkmn/client', '@pkmn/data']
                 }
             }
         },

@@ -18,8 +18,9 @@
  * engine.start();
  * @endcode
  */
-import { BattleStreams, RandomPlayerAI, Streams } from '@pkmn/sim';
-import type { PRNGSeed } from '@pkmn/sim';
+import { BattleStreams, Dex, RandomPlayerAI, Streams } from '@pkmn/sim';
+import type { ModdedDex, PRNGSeed } from '@pkmn/sim';
+import { BattleState } from './BattleState';
 import type { BattleRequest, SideID } from './types';
 
 /** @brief How a side is controlled. `false`/omitted = controlled by your code. */
@@ -56,6 +57,11 @@ export interface BattleEngineOptions {
     perspective?: Perspective;
     /** Print every raw message to the console. */
     debug?: boolean;
+    /**
+     * Dex to run the battle with. Only needed for formats that come from a mod:
+     * pass the result of `await loadMod(...)` (see mods.ts). Default: the standard Dex.
+     */
+    dex?: ModdedDex;
 }
 
 /**
@@ -102,6 +108,14 @@ export class BattleEngine
     /** @brief `true` once the battle has finished. */
     ended = false;
 
+    /**
+     * @brief Everything known about the battle (teams, HP, boosts, field...), via @pkmn/client.
+     *
+     * Updated automatically before each `onProtocol` / `onRequest` call, so you
+     * can read it from inside those callbacks. See `BattleState.ts`.
+     */
+    readonly state: BattleState;
+
     private readonly options: BattleEngineOptions;
     private readonly battleStream: BattleStreams.BattleStream;
     private readonly streams: ReturnType<typeof BattleStreams.getPlayerStreams>;
@@ -110,12 +124,24 @@ export class BattleEngine
     /**
      * @brief Create a battle (it does not start until `start()` is called).
      * @param options Format, teams, AI and other settings.
+     * @throws Error if `formatid` does not exist in the chosen Dex.
      */
     constructor (options: BattleEngineOptions)
     {
         this.options = options;
-        this.battleStream = new BattleStreams.BattleStream({ debug: options.debug });
+        const dex = options.dex ?? Dex;
+        const formatid = options.formatid ?? 'gen9customgame';
+        if (!dex.formats.get(formatid).exists)
+        {
+            throw new Error(
+                `BattleEngine: unknown format "${formatid}". ` +
+                `If it comes from a mod, pass \`dex: await loadMod('<mod>')\` in the options.`
+            );
+        }
+        this.battleStream = new BattleStreams.BattleStream({ debug: options.debug }, dex);
         this.streams = BattleStreams.getPlayerStreams(this.battleStream);
+        const perspective = options.perspective ?? 'p1';
+        this.state = new BattleState(perspective === 'p2' ? 'p2' : 'p1');
     }
 
     /**
@@ -143,6 +169,11 @@ export class BattleEngine
         if (perspective === 'spectator' || perspective === 'omniscient')
         {
             void this.readProtocolStream(this.streams[perspective]);
+        }
+        else if (this.options[perspective].ai)
+        {
+            //  The AI consumes that player's stream, so watch as a spectator instead.
+            void this.readProtocolStream(this.streams.spectator);
         }
 
         const startOptions: { formatid: string; seed?: PRNGSeed } = { formatid };
@@ -205,6 +236,7 @@ export class BattleEngine
     {
         this.ended = true;
         void this.battleStream.writeEnd();
+        this.state.destroy();
     }
 
     /** @brief Read a player's stream: requests and errors, plus protocol if it is the chosen perspective. */
@@ -213,15 +245,13 @@ export class BattleEngine
         for await (const chunk of this.streams[side as 'p1' | 'p2'])
         {
             const protocol: string[] = [];
+            const requests: string[] = [];
             for (const line of chunk.split('\n'))
             {
                 if (line.startsWith('|request|'))
                 {
                     const json = line.slice('|request|'.length);
-                    if (!json) continue;
-                    const request = JSON.parse(json) as BattleRequest;
-                    this.requests[side] = request;
-                    this.onRequest(side, request);
+                    if (json) requests.push(json);
                 }
                 else if (line.startsWith('|error|'))
                 {
@@ -232,7 +262,15 @@ export class BattleEngine
                     protocol.push(line);
                 }
             }
+            //  Protocol first, then requests, so `state` is current when `onRequest` runs.
             if (protocol.length) this.handleProtocol(protocol);
+            for (const json of requests)
+            {
+                if (side === this.state.player) this.state.addRequest(json);
+                const request = JSON.parse(json) as BattleRequest;
+                this.requests[side] = request;
+                this.onRequest(side, request);
+            }
         }
     }
 
@@ -248,6 +286,7 @@ export class BattleEngine
     /** @brief Forward protocol lines and detect the end of the battle. */
     private handleProtocol (lines: string[]): void
     {
+        for (const line of lines) this.state.add(line);
         this.onProtocol(lines);
         if (this.ended) return;
         for (const line of lines)

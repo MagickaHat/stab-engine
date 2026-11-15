@@ -10,6 +10,7 @@
  * Full protocol reference:
  * https://github.com/smogon/pokemon-showdown/blob/master/sim/SIM-PROTOCOL.md
  */
+import { Protocol } from '@pkmn/protocol';
 import type {
     BattleRequest, MoveRequest, SideID, SwitchRequest, TeamPreviewRequest, WaitRequest
 } from './types';
@@ -198,4 +199,20 @@ export function isTeamPreviewRequest (req: BattleRequest): req is TeamPreviewReq
 export function isWaitRequest (req: BattleRequest): req is WaitRequest
 {
     return req.wait === true;
+}
+
+/**
+ * @brief Parse a chunk of protocol text into fully typed lines using @pkmn/protocol.
+ *
+ * This is the strongly typed alternative to `parseLine()`: `args[0]` is the
+ * command, and TypeScript knows the exact type of every other argument
+ * (e.g. for `'-damage'`, `args[1]` is a `PokemonIdent` and `args[2]` a `PokemonHPStatus`).
+ * Pair it with a `Handler` (see docs/BATTLE_SYSTEM.md) to react to each command.
+ *
+ * @param chunk One or more protocol lines separated by `\n`.
+ * @return A generator of `{ args, kwArgs }` for each line.
+ */
+export function parseTyped (chunk: string)
+{
+    return Protocol.parse(chunk);
 }
