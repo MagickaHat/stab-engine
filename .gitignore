@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# PokeAPI CSV download cache (tools/pokeapi)
+tools/pokeapi/.cache

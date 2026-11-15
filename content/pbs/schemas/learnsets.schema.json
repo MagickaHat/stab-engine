@@ -1,0 +1,14 @@
+{
+    "title": "PBS learnsets.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "type": "object",
+        "properties": {
+            "learnset": { "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "type": "array", "items": { "type": "string", "pattern": "^\\d+[LMTESDVRC]\\d*$" } } }
+        },
+        "additionalProperties": {}
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}

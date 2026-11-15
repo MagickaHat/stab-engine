@@ -1,0 +1,13 @@
+{
+    "title": "PBS custom override for learnsets.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "anyOf": [
+            { "type": "object", "properties": { "learnset": { "anyOf": [{ "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "anyOf": [{ "type": "array", "items": { "type": "string", "pattern": "^\\d+[LMTESDVRC]\\d*$" } }, { "type": "null" }] } }, { "type": "null" }] } }, "additionalProperties": { "anyOf": [{}, { "type": "null" }] } },
+            { "type": "null" }
+        ]
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}

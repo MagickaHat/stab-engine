@@ -1,0 +1,17 @@
+{
+    "title": "PBS natures.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "type": "object",
+        "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "plus": { "type": "string", "enum": ["atk", "def", "spa", "spd", "spe"] },
+            "minus": { "type": "string", "enum": ["atk", "def", "spa", "spd", "spe"] }
+        },
+        "required": ["name"],
+        "additionalProperties": {}
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}

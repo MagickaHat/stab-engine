@@ -1,0 +1,13 @@
+{
+    "title": "PBS custom override for typechart.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "type": "string", "pattern": "^([a-z0-9]+|\\$[A-Za-z]+)$" },
+    "additionalProperties": {
+        "anyOf": [
+            { "type": "object", "properties": { "name": { "anyOf": [{ "type": "string", "pattern": "^[A-Z][A-Za-z?]*$" }, { "type": "null" }] }, "damageTaken": { "anyOf": [{ "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "anyOf": [{ "anyOf": [{ "type": "number", "const": 0 }, { "type": "number", "const": 1 }, { "type": "number", "const": 2 }, { "type": "number", "const": 3 }] }, { "type": "null" }] } }, { "type": "null" }] }, "HPivs": { "anyOf": [{ "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "anyOf": [{ "type": "number" }, { "type": "null" }] } }, { "type": "null" }] }, "HPdvs": { "anyOf": [{ "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": { "anyOf": [{ "type": "number" }, { "type": "null" }] } }, { "type": "null" }] }, "isNonstandard": { "anyOf": [{ "anyOf": [{ "type": "string", "enum": ["Past", "Future", "Unobtainable", "CAP", "LGPE", "Custom", "Gigantamax", "Thing"] }, { "type": "null" }] }, { "type": "null" }] } }, "additionalProperties": { "anyOf": [{}, { "type": "null" }] } },
+            { "type": "null" }
+        ]
+    },
+    "properties": { "$schema": { "type": "string" }, "$comment": { "type": "string" } }
+}
