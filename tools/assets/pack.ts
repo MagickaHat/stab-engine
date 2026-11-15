@@ -11,8 +11,14 @@ export interface Rule
 {
     /** Short label used in reports and with `--only`, e.g. `'front'`. */
     kind: string;
-    /** `pokemon` files go into a species folder; `item` files into `items/`. */
-    target: 'pokemon' | 'item';
+    /**
+     * Where the files go:
+     * - `pokemon`: into the species folder, `img/pokemon/<species>[/<forme>]/<output>`.
+     * - `cry`: into the flat cries folder, named with the full Showdown ID:
+     *   `sound/se/cries/<species><forme>.ogg` (e.g. `charizardmegax.ogg`).
+     * - `item`: into `items/`, named with the item ID.
+     */
+    target: 'pokemon' | 'cry' | 'item';
     /** Folder inside the pack, e.g. `'Graphics/Pokemon/Front'` (case is ignored). */
     dir: string;
     /** File extension to pick up, lowercase with the dot, e.g. `'.png'`. */
@@ -20,7 +26,7 @@ export interface Rule
     /**
      * Output file name inside the species folder, e.g. `'front{f}.png'`.
      * `{f}` becomes `f` for female gender-difference sprites and is removed
-     * otherwise. Not used by `item` rules (the file is named after the item).
+     * otherwise. Only used by `pokemon` rules (`cry` and `item` files are named after their ID).
      */
     output?: string;
     /** How to resize images. Leave out to copy the file as it is (audio, or art already at 1×). */

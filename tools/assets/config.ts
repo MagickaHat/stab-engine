@@ -16,8 +16,11 @@ export const PBS_DIR = path.join(ROOT, 'content/pbs');
 /** @brief Default output folder. Served by Vite/Phaser as `assets/`. */
 export const ASSETS_DIR = path.join(ROOT, 'public/assets');
 
-/** @brief Folder (inside the output folder) holding one folder per species. */
-export const POKEMON_DIR = 'pokemon';
+/** @brief Folder (inside the output folder) holding one folder of sprites per species. */
+export const POKEMON_DIR = 'img/pokemon';
+
+/** @brief Folder (inside the output folder) holding Pokémon cries, one file per species/forme. */
+export const CRIES_DIR = 'sound/se/cries';
 
 /** @brief Folder (inside the output folder) holding item icons. */
 export const ITEMS_DIR = 'items';

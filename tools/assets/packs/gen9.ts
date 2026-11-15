@@ -31,6 +31,7 @@ export const gen9: PackDefinition = {
         { kind: 'overworld', target: 'pokemon', dir: 'Graphics/Characters/Followers', ext: '.png', output: 'overworld{f}.png', image: { divide: 2 } },
         { kind: 'overworld', target: 'pokemon', dir: 'Graphics/Characters/Followers shiny', ext: '.png', output: 'overworld{f}_shiny.png', image: { divide: 2 } },
         { kind: 'footprint', target: 'pokemon', dir: 'Graphics/Pokemon/Footprints', ext: '.png', output: 'footprint.png', image: { divide: 2 } },
+        { kind: 'cry', target: 'cry', dir: 'Audio/SE/Cries', ext: '.ogg' },
         // Item icons: 48×48 at 2× → 24×24.
         { kind: 'item', target: 'item', dir: 'Graphics/Items', ext: '.png', image: { divide: 2 } },
     ],

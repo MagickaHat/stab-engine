@@ -5,7 +5,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ITEMS_DIR, POKEMON_DIR } from './config.ts';
+import { CRIES_DIR, ITEMS_DIR, POKEMON_DIR } from './config.ts';
 import { findDir, formKey, parseAssetName } from './essentials.ts';
 import type { AssetName } from './essentials.ts';
 import type { ImageOp } from './image.ts';
@@ -20,7 +20,7 @@ export interface PlannedFile
     src: string;
     /** Source path relative to the pack, with `/`. */
     srcRel: string;
-    /** Destination relative to the output folder, with `/`, e.g. `pokemon/charizard/megax/front.png`. */
+    /** Destination relative to the output folder, with `/`, e.g. `img/pokemon/charizard/megax/front.png`. */
     dest: string;
     /** Rule label, e.g. `'front'`. */
     kind: string;
@@ -98,7 +98,7 @@ export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, 
 
     // Pokémon: gather every file first, because forms are resolved per species as a group.
     const found: { rule: Rule; src: string; name: AssetName }[] = [];
-    for (const rule of pack.rules.filter((r) => r.target === 'pokemon'))
+    for (const rule of pack.rules.filter((r) => r.target !== 'item'))
     {
         const listing = ruleFiles(packDir, rule);
         if (!listing)
@@ -137,6 +137,12 @@ export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, 
         {
             forme = 'f';
             female = false;
+        }
+        if (rule.target === 'cry')
+        {
+            // Flat folder, so the file name is the full Showdown ID: species + forme.
+            add(src, `${CRIES_DIR}/${where.species}${forme}${female ? 'f' : ''}${rule.ext}`, rule);
+            continue;
         }
         const output = (rule.output ?? `${rule.kind}{f}${rule.ext}`).replace('{f}', female ? 'f' : '');
         add(src, [POKEMON_DIR, where.species, ...(forme ? [forme] : []), output].join('/'), rule);

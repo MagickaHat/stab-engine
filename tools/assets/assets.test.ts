@@ -3,10 +3,14 @@
  * @brief Tests for the asset importer. Run with `npm test`.
  */
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import { formKey, parseAssetName, parseFormNames } from './essentials.ts';
 import { detectScale, transform } from './image.ts';
 import { gen9 } from './packs/gen9.ts';
+import { planPack } from './plan.ts';
 import { decodePng, encodePng, pngSize } from './png.ts';
 import type { Image } from './png.ts';
 import { SpeciesResolver, formWords, toID } from './resolve.ts';
@@ -224,4 +228,35 @@ test('gen9 pack: Alcremie, Minior and item names', () =>
     assert.equal(gen9.item!('machine_tr_WATER'), 'tr_water');
     assert.equal(gen9.item!('back'), null);
     assert.equal(gen9.item!('BLACKAUGURITE'), undefined);
+});
+
+test('plan: sprites go to img/pokemon/<species>, cries to one flat sound/se/cries folder', () =>
+{
+    const packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stab-pack-'));
+    try
+    {
+        for (const file of [
+            'Graphics/Pokemon/Front/CHARIZARD.png', 'Graphics/Pokemon/Front/CHARIZARD_1.png', 'Graphics/Pokemon/Back shiny/UNFEZANT_female.png',
+            'Audio/SE/Cries/CHARIZARD.ogg', 'Audio/SE/Cries/CHARIZARD_1.ogg', 'Audio/SE/Cries/KYUREM_3.ogg', 'Graphics/Items/POTION.png',
+        ])
+        {
+            fs.mkdirSync(path.dirname(path.join(packDir, file)), { recursive: true });
+            fs.writeFileSync(path.join(packDir, file), '');
+        }
+        const dex = makeDex([['Charizard'], ['Charizard-Mega-X', { baseSpecies: 'Charizard', forme: 'Mega-X' }], ['Unfezant'], ['Kyurem']]);
+        const plan = planPack(packDir, gen9, dex, new Map([['CHARIZARD_1', 'Mega Charizard X']]));
+        assert.deepEqual(plan.files.map((file) => file.dest).sort(), [
+            'img/pokemon/charizard/front.png',
+            'img/pokemon/charizard/megax/front.png',
+            'img/pokemon/unfezant/backf_shiny.png',
+            'items/potion.png',
+            'sound/se/cries/charizard.ogg',
+            'sound/se/cries/charizardmegax.ogg',
+            'sound/se/cries/kyuremform3.ogg',
+        ]);
+    }
+    finally
+    {
+        fs.rmSync(packDir, { recursive: true, force: true });
+    }
 });
