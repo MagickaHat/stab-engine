@@ -1,0 +1,16 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "magical torque placeholder",
+    "kind": "other",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

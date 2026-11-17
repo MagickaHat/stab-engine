@@ -1,0 +1,43 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Beat Up hit 4",
+    "kind": "other",
+    "graphic": "pras_strike",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_beat_up.wav"},
+        {"frame":3,"type":"sound","sound":"prsfx_beat_up.wav","pitch":120}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":172.5,"y":36.5,"pattern":1,"focus":"target","opacity":130}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":172.5,"y":36.5,"pattern":1,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":172.5,"y":36.5,"pattern":1,"focus":"target","opacity":175},
+            {"x":207,"y":60,"pattern":1,"focus":"target","opacity":130}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":207,"y":60,"pattern":1,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":207,"y":60,"pattern":1,"focus":"target","opacity":175}
+        ]
+    ]
+}

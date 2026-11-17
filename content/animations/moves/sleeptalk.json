@@ -1,0 +1,85 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:SLEEPTALK",
+    "kind": "move",
+    "id": "sleeptalk",
+    "graphic": "pras_sleep_talk",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_sleep_talk.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":74.5,"y":104,"pattern":0,"focus":"user","opacity":130,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":82.5,"y":98.5,"pattern":0,"focus":"user","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":91,"y":93,"pattern":0,"focus":"user","priority":"back"},
+            {"x":74.5,"y":104,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"opacity":140,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":99,"y":87.5,"pattern":0,"focus":"user"},
+            {"x":82,"y":98.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":107.5,"y":82,"pattern":0,"focus":"user"},
+            {"x":91,"y":93.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"priority":"back"},
+            {"x":74,"y":104,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"opacity":135,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":115.5,"y":76.5,"pattern":0,"focus":"user"},
+            {"x":99,"y":87.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"priority":"back"},
+            {"x":82,"y":98,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":124,"y":71.5,"pattern":0,"focus":"user","opacity":135},
+            {"x":107,"y":81.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"priority":"back"},
+            {"x":91,"y":93.5,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":116,"y":76.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"priority":"back"},
+            {"x":99,"y":87.5,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":124,"y":71.5,"pattern":0,"focus":"user","zoomX":80,"zoomY":80,"opacity":140,"priority":"back"},
+            {"x":107,"y":81.5,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":116,"y":77,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":124,"y":71.5,"pattern":0,"focus":"user","zoomX":60,"zoomY":60,"opacity":140,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

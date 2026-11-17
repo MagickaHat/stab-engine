@@ -1,0 +1,109 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:SIMPLEBEAM",
+    "kind": "move",
+    "id": "simplebeam",
+    "graphic": "pras_orbs",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_simple_beam.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":56,"y":108,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":104,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":72,"y":108,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76,"y":107.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":104,"y":94.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":76,"y":107.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"},
+            {"x":92,"y":100.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"},
+            {"x":84,"y":105,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":132,"y":82,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":104,"y":94.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":76,"y":107.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"},
+            {"x":120,"y":87,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":113,"y":91,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":92,"y":100.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"},
+            {"x":84,"y":105,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":160,"y":69,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":132,"y":82,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":104,"y":94.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":120,"y":87,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":113,"y":91,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":152,"y":72,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":141,"y":78,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","tone":[100,100,100,0],"locked":true},
+            {"x":188,"y":56.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":160,"y":69,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":132,"y":82,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":180,"y":60,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":170,"y":65,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":152,"y":72,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":141,"y":78,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","tone":[200,200,200,0],"locked":true},
+            {"x":180,"y":60,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":188,"y":56.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":160,"y":69,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180},
+            {"x":170,"y":65,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","tone":[255,255,255,0],"locked":true},
+            null,
+            null,
+            {"x":188,"y":56.5,"pattern":2,"focus":"userAndTarget","blend":"add","opacity":180}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","tone":[200,200,200,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","tone":[100,100,100,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

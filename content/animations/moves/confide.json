@@ -1,0 +1,103 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:CONFIDE",
+    "kind": "move",
+    "id": "confide",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [
+        {"frame":4,"type":"sound","sound":"prsfx_confide.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":93,"y":98,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":122,"y":84,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":151,"y":70,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":56,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":180,"y":52,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":160.5,"y":62,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":141,"y":72,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":122,"y":82,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":102.5,"y":92,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":83,"y":102,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

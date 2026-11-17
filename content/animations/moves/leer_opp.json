@@ -1,0 +1,52 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:LEER",
+    "kind": "move",
+    "id": "leer",
+    "opponent": true,
+    "graphic": "pras_leer",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_leer.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":0,"focus":"userAndTarget","mirror":true,"opacity":150}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":0,"focus":"userAndTarget","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":1,"focus":"userAndTarget","angle":307,"mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":2,"focus":"userAndTarget","angle":307,"mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":3,"focus":"userAndTarget","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":4,"focus":"userAndTarget","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":159,"y":32,"pattern":4,"focus":"userAndTarget","mirror":true,"opacity":150}
+        ]
+    ]
+}

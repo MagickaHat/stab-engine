@@ -1,0 +1,49 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Common:HealthDown",
+    "kind": "common",
+    "id": "healthdown",
+    "graphic": "exclamation",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"normaldamage.ogg","volume":50,"pitch":180},
+        {"frame":2,"type":"sound","sound":"normaldamage.ogg","volume":80}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":0},
+            {"x":192,"y":48,"pattern":"target","focus":"user","opacity":0}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":138},
+            {"x":192,"y":48,"pattern":"target","focus":"user","opacity":0}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":0},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":0}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

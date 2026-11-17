@@ -1,0 +1,70 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Arm Thrust hit 4",
+    "kind": "other",
+    "graphic": "pras_strike",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":5,"type":"sound","sound":"prsfx_arm_thrust.wav","pitch":75}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":14,"focus":"target","opacity":50,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":14,"focus":"target","opacity":100,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":14,"focus":"target","opacity":140,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":14,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":102.5,"y":106,"pattern":14,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":85,"y":112,"pattern":14,"focus":"target","priority":"back"},
+            {"x":64,"y":112,"pattern":0,"focus":"target","opacity":140,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":118.5,"pattern":14,"focus":"target","priority":"back"},
+            {"x":64,"y":111.5,"pattern":0,"focus":"target","priority":"behindFocus"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":118.5,"pattern":14,"focus":"target","opacity":140,"priority":"back"},
+            {"x":64,"y":112,"pattern":0,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":118.5,"pattern":14,"focus":"target","opacity":100,"priority":"back"},
+            {"x":64,"y":112.5,"pattern":0,"focus":"target","opacity":150,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":118.5,"pattern":14,"focus":"target","opacity":50,"priority":"back"},
+            {"x":64,"y":112.5,"pattern":0,"focus":"target","opacity":50,"priority":"back"}
+        ]
+    ]
+}

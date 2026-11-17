@@ -1,0 +1,87 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:QUASH",
+    "kind": "move",
+    "id": "quash",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_quash.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":104,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":100,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":104,"pattern":"user","focus":"user","locked":true},
+            {"x":190,"y":50,"pattern":"target","focus":"target","tone":[-29,-29,-29,0]}
+        ],
+        [
+            {"x":64,"y":108,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":52,"pattern":"target","focus":"target","tone":[-57,-57,-57,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":190,"y":54,"pattern":"target","focus":"target","tone":[-85,-85,-85,0]}
+        ],
+        [
+            {"x":64,"y":116,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":56,"pattern":"target","focus":"target","tone":[-114,-114,-114,0]}
+        ],
+        [
+            {"x":64,"y":120,"pattern":"user","focus":"user","locked":true},
+            {"x":190,"y":58,"pattern":"target","focus":"target","tone":[-142,-142,-142,0]}
+        ],
+        [
+            {"x":64,"y":124,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":60,"pattern":"target","focus":"target","tone":[-170,-170,-170,0]}
+        ],
+        [
+            {"x":64,"y":128,"pattern":"user","focus":"user","locked":true},
+            {"x":190,"y":62,"pattern":"target","focus":"target","tone":[-199,-199,-199,0]}
+        ],
+        [
+            {"x":64,"y":132,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":64,"pattern":"target","focus":"target","tone":[-227,-227,-227,0]}
+        ],
+        [
+            {"x":64,"y":136,"pattern":"user","focus":"user"},
+            {"x":190,"y":66,"pattern":"target","focus":"target","tone":[-255,-255,-255,0]}
+        ],
+        [
+            {"x":64,"y":132,"pattern":"user","focus":"user","locked":true},
+            {"x":190,"y":62,"pattern":"target","focus":"target","tone":[-204,-204,-204,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":128,"pattern":"user","focus":"user","locked":true},
+            {"x":190.5,"y":58.5,"pattern":"target","focus":"target","tone":[-153,-153,-153,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":124,"pattern":"user","focus":"user","locked":true},
+            {"x":191,"y":55,"pattern":"target","focus":"target","tone":[-102,-102,-102,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":120,"pattern":"user","focus":"user","locked":true},
+            {"x":191.5,"y":51.5,"pattern":"target","focus":"target","tone":[-51,-51,-51,0],"locked":true}
+        ],
+        [
+            {"x":64,"y":116,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

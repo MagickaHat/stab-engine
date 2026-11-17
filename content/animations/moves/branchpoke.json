@@ -1,0 +1,62 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:BRANCHPOKE",
+    "kind": "move",
+    "id": "branchpoke",
+    "graphic": "pras_wood_hammer",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":4,"type":"sound","sound":"blow1.ogg","volume":80}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":212.5,"y":-8.5,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":212.5,"y":-8.5,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":201.5,"y":6,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":191.5,"y":25.5,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":189,"y":42,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":188.5,"y":41.5,"pattern":2,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":188,"y":42,"pattern":3,"focus":"target"},
+            {"x":224.5,"y":37,"pattern":1,"focus":"target"},
+            {"x":163,"y":35.5,"pattern":1,"focus":"target"},
+            {"x":187,"y":78,"pattern":1,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":188,"y":42,"pattern":3,"focus":"target"},
+            {"x":239,"y":32.5,"pattern":1,"focus":"target"},
+            {"x":146,"y":31,"pattern":1,"focus":"target"},
+            {"x":182,"y":90,"pattern":1,"focus":"target"}
+        ]
+    ]
+}

@@ -1,0 +1,103 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:MEDITATE",
+    "kind": "move",
+    "id": "meditate",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_meditate.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":117,"pattern":"user","focus":"user","zoomY":87},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":122,"pattern":"user","focus":"user","zoomY":75,"tone":[20,20,40,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":127,"pattern":"user","focus":"user","zoomY":62,"tone":[30,30,60,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":132,"pattern":"user","focus":"user","zoomY":50,"tone":[40,40,80,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":125,"pattern":"user","focus":"user","zoomY":66,"tone":[50,50,100,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":118.5,"pattern":"user","focus":"user","zoomY":83,"tone":[60,60,120,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[70,70,140,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":111,"pattern":"user","focus":"user","tone":[80,80,160,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":110,"pattern":"user","focus":"user","tone":[100,100,200,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":110,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":108,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":108,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":104,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":108,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[120,120,240,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[60,60,120,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[30,30,60,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

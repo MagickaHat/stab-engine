@@ -1,0 +1,87 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:AERIALACE",
+    "kind": "move",
+    "id": "aerialace",
+    "graphic": "pras_slash",
+    "hue": 170,
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_aerial_ace.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":208,"y":28,"pattern":17,"focus":"target"}
+        ],
+        [
+            {"x":60,"y":116,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":200,"y":36,"pattern":18,"focus":"target"}
+        ],
+        [
+            {"x":56,"y":120,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":188,"y":52,"pattern":19,"focus":"target"}
+        ],
+        [
+            {"x":52,"y":124,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":180,"y":60,"pattern":19,"focus":"target"}
+        ],
+        [
+            {"x":52,"y":124,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":172,"y":68,"pattern":20,"focus":"target"}
+        ],
+        [
+            {"x":52,"y":124,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":164,"y":76,"pattern":20,"focus":"target","opacity":120}
+        ],
+        [
+            {"x":52,"y":124,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":164,"y":76,"pattern":21,"focus":"target"}
+        ],
+        [
+            {"x":52,"y":124,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":176,"y":64,"pattern":22,"focus":"target"}
+        ],
+        [
+            {"x":56,"y":120,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":188,"y":52,"pattern":23,"focus":"target"}
+        ],
+        [
+            {"x":60,"y":116,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":200,"y":40,"pattern":23,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":212,"y":28,"pattern":23,"focus":"target"}
+        ],
+        [
+            {"x":68,"y":108,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":220,"y":20,"pattern":24,"focus":"target"}
+        ],
+        [
+            {"x":68,"y":108,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":220,"y":20,"pattern":24,"focus":"target","opacity":175}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":228,"y":12,"pattern":24,"focus":"target","opacity":75}
+        ]
+    ]
+}

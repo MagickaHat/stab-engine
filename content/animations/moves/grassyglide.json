@@ -1,0 +1,61 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:GRASSYGLIDE",
+    "kind": "move",
+    "id": "grassyglide",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","tone":[0,128,0,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":106.5,"y":90.5,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":149,"y":69,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":192,"y":48,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":192,"y":48,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0]},
+            {"x":196,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":192,"y":48,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0]},
+            {"x":204,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":192,"y":48,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0]},
+            {"x":204,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":192,"y":48,"pattern":"user","focus":"userAndTarget","tone":[0,192,0,0]},
+            {"x":196,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

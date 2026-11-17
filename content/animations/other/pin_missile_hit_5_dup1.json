@@ -1,0 +1,118 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Pin Missile hit 5",
+    "kind": "other",
+    "graphic": "pras_leech_life",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":7,"type":"sound","sound":"prsfx_pin_missile.wav","pitch":90}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":81.5,"y":102.5,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":150,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":81.5,"y":102.5,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":96,"y":95,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":110.5,"y":87.5,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"},
+            {"x":81.5,"y":102.5,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":145,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":125,"y":80,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":81.5,"y":102.5,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":140,"y":72.5,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":96,"y":95,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":154.5,"y":65,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":110.5,"y":87.5,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"},
+            {"x":84,"y":102,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":145,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":169,"y":57.5,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":125,"y":80,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":84,"y":102,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":140,"y":72.5,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":98,"y":94.5,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":145},
+            {"x":154.5,"y":65,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":112.5,"y":87,"pattern":0,"focus":"userAndTarget","angle":125,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":169,"y":57.5,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":126.5,"y":79.5,"pattern":0,"focus":"userAndTarget","angle":125}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125},
+            {"x":141,"y":72,"pattern":0,"focus":"userAndTarget","angle":125}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":145},
+            {"x":155,"y":64.5,"pattern":0,"focus":"userAndTarget","angle":125}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            null,
+            {"x":169.5,"y":57,"pattern":0,"focus":"userAndTarget","angle":125}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            null,
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            null,
+            {"x":184,"y":50,"pattern":0,"focus":"userAndTarget","angle":125,"opacity":145}
+        ]
+    ]
+}

@@ -1,0 +1,87 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:COUNTER",
+    "kind": "move",
+    "id": "counter",
+    "graphic": "pras_strike",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_counter1.wav"},
+        {"frame":8,"type":"sound","sound":"prsfx_counter2.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":75,"y":122.5,"pattern":"user","focus":"userAndTarget","tone":[50,50,50,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":75,"y":132,"pattern":"user","focus":"userAndTarget","tone":[100,100,100,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":62.5,"y":144.5,"pattern":"user","focus":"userAndTarget","tone":[50,50,50,0]},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":50,"y":129.5,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":58,"y":119.5,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":68.5,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":82,"y":101,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":88.5,"y":95.5,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":51,"pattern":"target","focus":"userAndTarget","locked":true},
+            {"x":187,"y":46.5,"pattern":4,"focus":"userAndTarget","opacity":100},
+            {"x":187,"y":46.5,"pattern":17,"focus":"userAndTarget","opacity":180,"tone":[220,0,0,0]}
+        ],
+        [
+            {"x":76,"y":103.5,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":41,"pattern":"target","focus":"userAndTarget","locked":true},
+            {"x":187,"y":46.5,"pattern":3,"focus":"userAndTarget"},
+            {"x":187,"y":46.5,"pattern":17,"focus":"userAndTarget","tone":[220,0,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":53.5,"pattern":"target","focus":"userAndTarget","locked":true},
+            {"x":186,"y":46,"pattern":3,"focus":"userAndTarget"},
+            {"x":187,"y":46.5,"pattern":17,"focus":"userAndTarget","tone":[220,0,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":44,"pattern":"target","focus":"userAndTarget","locked":true},
+            {"x":186,"y":46,"pattern":3,"focus":"userAndTarget"},
+            {"x":187,"y":46.5,"pattern":17,"focus":"userAndTarget","tone":[220,0,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":52,"pattern":"target","focus":"userAndTarget","locked":true},
+            {"x":186,"y":46,"pattern":4,"focus":"userAndTarget","opacity":170},
+            {"x":187,"y":46.5,"pattern":17,"focus":"userAndTarget","opacity":170,"tone":[220,0,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ]
+    ]
+}

@@ -1,0 +1,80 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:THUNDERCLAP",
+    "kind": "move",
+    "id": "thunderclap",
+    "opponent": true,
+    "graphic": "pras_electro_ball",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"substitute.ogg","volume":80},
+        {"frame":8,"type":"sound","sound":"blow4.ogg","volume":80},
+        {"frame":8,"type":"sound","sound":"thunder3.ogg","volume":80}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":193,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":68,"y":110,"pattern":"user","focus":"user","locked":true},
+            {"x":196,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":72,"y":108,"pattern":"user","focus":"user","locked":true},
+            {"x":200,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":76,"y":106,"pattern":"user","focus":"user","locked":true},
+            {"x":204,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":80,"y":104,"pattern":"user","focus":"user","locked":true},
+            {"x":208,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":80,"y":104,"pattern":"user","focus":"user","locked":true},
+            {"x":208,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":80,"y":104,"pattern":"user","focus":"user","locked":true},
+            {"x":208,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":80,"y":104,"pattern":"user","focus":"user","locked":true},
+            {"x":208,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":72,"y":108,"pattern":"user","focus":"user","locked":true},
+            {"x":200,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":72,"y":108,"pattern":4,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":64,"y":112,"pattern":5,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":64,"y":112,"pattern":6,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":64,"y":112,"pattern":7,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":64,"y":112,"pattern":8,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

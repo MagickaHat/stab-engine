@@ -1,0 +1,60 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:CUT",
+    "kind": "move",
+    "id": "cut",
+    "graphic": "pras_slash",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_cut.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":52,"pattern":"target","focus":"target"},
+            {"x":200,"y":48,"pattern":52,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":196,"y":48,"pattern":53,"focus":"target"},
+            {"x":192,"y":62,"pattern":26,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":52,"pattern":"target","focus":"target"},
+            {"x":180,"y":64,"pattern":54,"focus":"target"},
+            {"x":176,"y":78,"pattern":26,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":176,"y":68,"pattern":55,"focus":"target"},
+            null,
+            {"x":172,"y":83,"pattern":26,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":52,"pattern":"target","focus":"target"},
+            {"x":172,"y":72,"pattern":55,"focus":"target"},
+            {"x":168,"y":87,"pattern":26,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":168,"y":76,"pattern":55,"focus":"target","opacity":123},
+            {"x":163.5,"y":91,"pattern":26,"focus":"target","opacity":95}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":52,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

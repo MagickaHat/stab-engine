@@ -1,0 +1,41 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "population bomb hit 6",
+    "kind": "other",
+    "graphic": "pras_slash",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_false_swipe.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":182,"y":42,"pattern":9,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":50.5,"pattern":"target","focus":"target"},
+            {"x":194,"y":43.5,"pattern":10,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":52,"pattern":"target","focus":"target"},
+            {"x":193,"y":51,"pattern":11,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":50.5,"pattern":"target","focus":"target"},
+            {"x":197.5,"y":48.5,"pattern":12,"focus":"target","angle":270},
+            {"x":201,"y":68.5,"pattern":10,"focus":"target","angle":270}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":187.5,"y":72,"pattern":9,"focus":"target","angle":204}
+        ]
+    ]
+}

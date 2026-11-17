@@ -1,0 +1,70 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:ROLLINGKICK",
+    "kind": "move",
+    "id": "rollingkick",
+    "opponent": true,
+    "graphic": "pras_strike",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_rolling_kick.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":200,"y":56,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":212,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":200,"y":36,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":184,"y":40,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76,"y":120.5,"pattern":11,"focus":"target","opacity":150,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76,"y":120.5,"pattern":11,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":56,"y":116,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target"},
+            {"x":76,"y":120.5,"pattern":11,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":48,"y":120,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target"},
+            {"x":76,"y":120.5,"pattern":11,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":56,"y":116,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target"},
+            {"x":76,"y":120.5,"pattern":11,"focus":"target","opacity":150,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

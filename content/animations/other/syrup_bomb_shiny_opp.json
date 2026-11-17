@@ -1,0 +1,75 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "syrup bomb shiny opp",
+    "kind": "other",
+    "graphic": "gen_9_syrup_bomb",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_sludge_bomb1.wav","pitch":80},
+        {"frame":3,"type":"sound","sound":"gen_9_syrup_bomb.ogg","pitch":90}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":177.5,"y":31.5,"pattern":0,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":155.5,"y":27,"pattern":0,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":134.5,"y":36.5,"pattern":0,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":135,"y":43.5,"pattern":1,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":114.5,"y":59,"pattern":1,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":99.5,"y":73.5,"pattern":1,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":90.5,"y":97.5,"pattern":1,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76.5,"y":118.5,"pattern":2,"focus":"screen","tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76.5,"y":126.5,"pattern":2,"focus":"screen","opacity":160,"tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76.5,"y":130.5,"pattern":2,"focus":"screen","opacity":85,"tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":76.5,"y":134.5,"pattern":2,"focus":"screen","opacity":35,"tone":[0,94,0,0]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

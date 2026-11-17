@@ -1,0 +1,98 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:ESPERWING",
+    "kind": "move",
+    "id": "esperwing",
+    "opponent": true,
+    "graphic": "pras_psycho_cut",
+    "defaultFocus": "user",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"saint4.ogg"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":127.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":115.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":103.5,"y":92,"pattern":0,"focus":"user","angle":135},
+            {"x":127.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":60,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":91.5,"y":92,"pattern":0,"focus":"user","angle":135},
+            {"x":115.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":79.5,"y":92,"pattern":0,"focus":"user","angle":135},
+            {"x":103.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            {"x":127.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":60,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":91.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            {"x":115.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":139.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            {"x":79.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            {"x":103.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":60,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":127.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            null,
+            {"x":91.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":115.5,"y":131.5,"pattern":0,"focus":"user","angle":135},
+            null,
+            {"x":79.5,"y":92,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":60,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":103.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":91.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":60,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":79.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":67.5,"y":131.5,"pattern":0,"focus":"user","angle":135}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

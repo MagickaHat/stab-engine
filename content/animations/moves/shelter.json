@@ -1,0 +1,123 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:SHELTER",
+    "kind": "move",
+    "id": "shelter",
+    "graphic": "pras_shell_smash",
+    "defaultFocus": "user",
+    "fps": 20,
+    "timings": [
+        {"frame":5,"type":"sound","sound":"prsfx_withdraw.wav","volume":80},
+        {"frame":7,"type":"sound","sound":"harden.ogg","volume":80}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":16.5,"y":112,"pattern":0,"focus":"user","opacity":100},
+            {"x":111.5,"y":112,"pattern":0,"focus":"user","mirror":true,"opacity":100}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":24.5,"y":112,"pattern":0,"focus":"user","opacity":175},
+            {"x":103.5,"y":112,"pattern":0,"focus":"user","mirror":true,"opacity":175}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":28.5,"y":112,"pattern":0,"focus":"user"},
+            {"x":99.5,"y":112,"pattern":0,"focus":"user","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":36.5,"y":112,"pattern":0,"focus":"user"},
+            {"x":91.5,"y":112,"pattern":0,"focus":"user","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,100],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":44.5,"y":112,"pattern":0,"focus":"user"},
+            {"x":83.5,"y":112,"pattern":0,"focus":"user","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,185],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user"},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user"},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","mirror":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","tone":[0,0,0,80]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","mirror":true,"tone":[0,0,0,80]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","tone":[0,0,0,150]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","mirror":true,"tone":[0,0,0,150]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":90,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":90,"mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":80,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":80,"mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":70,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":70,"mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,255],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"mirror":true,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,80],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"opacity":150,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"mirror":true,"opacity":150,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","tone":[0,0,0,80],"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":52.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"opacity":60,"tone":[0,0,0,255]},
+            {"x":75.5,"y":112,"pattern":0,"focus":"user","zoomY":60,"mirror":true,"opacity":60,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

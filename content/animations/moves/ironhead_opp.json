@@ -1,0 +1,86 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:IRONHEAD",
+    "kind": "move",
+    "id": "ironhead",
+    "opponent": true,
+    "graphic": "pras_iron_head",
+    "defaultFocus": "userAndTarget",
+    "fps": 20,
+    "timings": [
+        {"frame":8,"type":"sound","sound":"prsfx_iron_head.wav","pitch":65}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":196,"y":44.5,"pattern":"target","focus":"userAndTarget","angle":6,"tone":[0,0,0,120],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":200,"y":41,"pattern":"target","focus":"userAndTarget","angle":11,"tone":[0,0,0,255],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":204,"y":38,"pattern":"target","focus":"userAndTarget","angle":16,"tone":[0,0,0,255],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":208,"y":34,"pattern":"target","focus":"userAndTarget","angle":20,"tone":[0,0,0,255],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":196,"y":43.5,"pattern":"target","focus":"userAndTarget","angle":22,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":184,"y":53,"pattern":"target","focus":"userAndTarget","angle":25,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":172,"y":62.5,"pattern":"target","focus":"userAndTarget","angle":27,"tone":[0,0,0,255]}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":160,"y":72,"pattern":"target","focus":"userAndTarget","angle":30,"tone":[0,0,0,255]},
+            {"x":64,"y":112,"pattern":1,"focus":"userAndTarget","opacity":150}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":166,"y":67,"pattern":"target","focus":"userAndTarget","angle":24,"tone":[0,0,0,255],"locked":true},
+            {"x":64,"y":112,"pattern":1,"focus":"userAndTarget"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":172.5,"y":62,"pattern":"target","focus":"userAndTarget","angle":18,"tone":[0,0,0,255]},
+            {"x":64,"y":112,"pattern":0,"focus":"userAndTarget"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":179,"y":57.5,"pattern":"target","focus":"userAndTarget","angle":12,"tone":[0,0,0,255]},
+            {"x":64,"y":112,"pattern":0,"focus":"userAndTarget","zoomX":110,"zoomY":110}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget"},
+            {"x":185.5,"y":52.5,"pattern":"target","focus":"userAndTarget","angle":6,"tone":[0,0,0,255],"locked":true},
+            {"x":64,"y":112,"pattern":0,"focus":"userAndTarget","zoomX":120,"zoomY":120,"opacity":150}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","tone":[0,0,0,170],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","tone":[0,0,0,85],"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true}
+        ]
+    ]
+}

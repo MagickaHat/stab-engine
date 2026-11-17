@@ -1,0 +1,84 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Common:HealthUp",
+    "kind": "common",
+    "id": "healthup",
+    "graphic": "pras_recovery",
+    "defaultFocus": "user",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_health_up.wav","volume":80,"pitch":95},
+        {"frame":2,"type":"sound","sound":"prsfx_health_up.wav","volume":80,"pitch":110},
+        {"frame":2,"type":"sound","sound":"prsfx_health_up.wav","volume":80,"pitch":125}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":106,"pattern":0,"focus":"user"},
+            {"x":73,"y":116,"pattern":0,"focus":"user","priority":"behindFocus"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":106,"pattern":0,"focus":"user"},
+            {"x":73,"y":116,"pattern":0,"focus":"user","priority":"behindFocus"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":102,"pattern":1,"focus":"user"},
+            {"x":73,"y":116,"pattern":0,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":132.5,"pattern":0,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":102,"pattern":2,"focus":"user"},
+            {"x":73,"y":112,"pattern":0,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":128.5,"pattern":0,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":102,"pattern":3,"focus":"user"},
+            {"x":73,"y":112,"pattern":1,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":128.5,"pattern":1,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":98,"pattern":4,"focus":"user"},
+            {"x":73,"y":108,"pattern":2,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":124.5,"pattern":2,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":98,"pattern":5,"focus":"user"},
+            {"x":73,"y":108,"pattern":3,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":124.5,"pattern":5,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":48,"y":94,"pattern":6,"focus":"userAndTarget"},
+            {"x":73,"y":108,"pattern":4,"focus":"user","priority":"behindFocus"},
+            {"x":58,"y":124.5,"pattern":6,"focus":"user"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":73,"y":104,"pattern":5,"focus":"user","priority":"behindFocus"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            null,
+            {"x":73,"y":104,"pattern":6,"focus":"user","priority":"behindFocus"}
+        ]
+    ]
+}

@@ -1,0 +1,113 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "OppMove:FORCEPALM",
+    "kind": "move",
+    "id": "forcepalm",
+    "opponent": true,
+    "graphic": "pras_force_palm",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_force_palm2.wav"},
+        {"frame":2,"type":"sound","sound":"prsfx_force_palm1.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":0,"focus":"target","opacity":130,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":120,"y":100,"pattern":0,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":102.5,"y":104,"pattern":0,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":85,"y":108.5,"pattern":0,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":120,"zoomY":120,"opacity":200,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":120,"zoomY":120,"opacity":200,"priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":140,"zoomY":140,"opacity":160,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":120,"zoomY":120,"opacity":200,"priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":140,"zoomY":140,"opacity":160,"priority":"back"},
+            {"x":68,"y":113,"pattern":0,"focus":"target","zoomX":160,"zoomY":160,"opacity":130,"priority":"back"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":120,"zoomY":120,"opacity":200,"priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":140,"zoomY":140,"opacity":160,"priority":"back"},
+            {"x":52,"y":107.5,"pattern":1,"focus":"target","opacity":130}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":68,"y":113.5,"pattern":0,"focus":"target","zoomX":120,"zoomY":120,"opacity":200,"priority":"back"},
+            {"x":52,"y":107.5,"pattern":2,"focus":"target"},
+            {"x":84,"y":116.5,"pattern":1,"focus":"target","opacity":130}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":113,"pattern":0,"focus":"target","priority":"back"},
+            {"x":52,"y":107.5,"pattern":3,"focus":"target","opacity":140},
+            {"x":84,"y":116.5,"pattern":2,"focus":"target"},
+            {"x":68,"y":93,"pattern":1,"focus":"target","opacity":140}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":56,"y":123.5,"pattern":1,"focus":"target","opacity":140},
+            {"x":84,"y":116.5,"pattern":3,"focus":"target","opacity":145},
+            {"x":68,"y":93,"pattern":2,"focus":"target"},
+            {"x":68,"y":113,"pattern":0,"focus":"target","opacity":120,"priority":"aboveFocus"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":56,"y":123.5,"pattern":2,"focus":"target"},
+            {"x":68,"y":93,"pattern":3,"focus":"target","opacity":140}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":56,"y":123.5,"pattern":3,"focus":"target","opacity":140},
+            {"x":68,"y":93,"pattern":2,"focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"target","locked":true},
+            {"x":68,"y":93,"pattern":3,"focus":"target","opacity":140}
+        ]
+    ]
+}

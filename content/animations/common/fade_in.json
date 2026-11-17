@@ -1,0 +1,53 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Common:Fade in",
+    "kind": "common",
+    "id": "fade_in",
+    "defaultFocus": "screen",
+    "fps": 20,
+    "timings": [],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":0,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":0,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":28,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":28,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":56,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":56,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":85,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":85,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":113,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":113,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":141,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":141,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":170,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":170,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":198,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":198,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","opacity":226,"locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","opacity":226,"locked":true}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"userAndTarget","locked":true},
+            {"x":192,"y":48,"pattern":"target","focus":"userAndTarget","locked":true}
+        ]
+    ]
+}

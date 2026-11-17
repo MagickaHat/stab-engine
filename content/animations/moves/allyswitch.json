@@ -1,0 +1,76 @@
+{
+    "$schema": "../schema.json",
+    "format": "stab-animation",
+    "version": 1,
+    "name": "Move:ALLYSWITCH",
+    "kind": "move",
+    "id": "allyswitch",
+    "graphic": "ancient_powerfilesheet",
+    "defaultFocus": "target",
+    "fps": 20,
+    "timings": [
+        {"frame":0,"type":"sound","sound":"prsfx_ally_switch.wav"}
+    ],
+    "frames": [
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user"},
+            {"x":192,"y":48,"pattern":"target","focus":"target"}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":236},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":236}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":218},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":218}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":200},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":200}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":182},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":182}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":163},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":163}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":145},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":145}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":127},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":127}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":109},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":109}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":91},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":91}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":72},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":72}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":54},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":54}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":36},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":36}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":18},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":18}
+        ],
+        [
+            {"x":64,"y":112,"pattern":"user","focus":"user","opacity":0},
+            {"x":192,"y":48,"pattern":"target","focus":"target","opacity":0}
+        ]
+    ]
+}
