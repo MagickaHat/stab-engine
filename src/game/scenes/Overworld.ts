@@ -23,14 +23,15 @@
  * - The map's `bgm` property (class `StabMap`) starts its music.
  * - Without a position or spawn, the player starts on the `Spawn` named `start` (else the first one).
  *
- * Controls: arrow keys or WASD to walk (hold Shift to run), Z, Space or
- * Enter for the action button.
+ * Controls come from the input system (src/input, docs/INPUT_SYSTEM.md), so
+ * keyboard, gamepad, touch and the on-screen pad all work: the D-pad walks,
+ * holding B runs, and A (or a tap / left click on the game) is the action button.
  *
  * No graphics or sounds ship with the engine. Missing files are skipped;
  * in development builds characters without art are drawn as outlines.
  */
 import { Cameras, Loader, Scene, Tilemaps } from 'phaser';
-import type { GameObjects, Input, Sound } from 'phaser';
+import type { GameObjects, Sound } from 'phaser';
 import bundle from 'virtual:stab-events';
 import { CRY_DIR } from '../../battle';
 import {
@@ -39,6 +40,7 @@ import {
 import type {
     Actor, BattleRequest, BattleResult, Direction, RuntimeData, SpawnPoint, WarpRequest, WorldHost,
 } from '../../events';
+import { input } from '../../input';
 import { GameState, getGameState, setGameState } from '../../state';
 import { CHARACTER_DIR, Character } from '../../world/Character';
 import type { CharacterWorld } from '../../world/Character';
@@ -111,7 +113,6 @@ export class Overworld extends Scene implements WorldHost
     private cameraFollows = true;
     private actionLocked = false;
 
-    private keys: Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'z' | 'space' | 'enter' | 'shift', Input.Keyboard.Key>;
     private tintLayer: GameObjects.Rectangle | null = null;
     private bgm: { name: string; sound: Sound.BaseSound } | null = null;
     private readonly loading = new Map<string, Promise<boolean>>();
@@ -134,11 +135,6 @@ export class Overworld extends Scene implements WorldHost
 
     create ()
     {
-        const keyboard = this.input.keyboard!;
-        this.keys = keyboard.addKeys({
-            up: 'UP', down: 'DOWN', left: 'LEFT', right: 'RIGHT', w: 'W', a: 'A', s: 'S', d: 'D',
-            z: 'Z', space: 'SPACE', enter: 'ENTER', shift: 'SHIFT',
-        }) as typeof this.keys;
         this.cameras.main.setRoundPixels(true);
 
         let left = false;
@@ -375,13 +371,12 @@ export class Overworld extends Scene implements WorldHost
     update (_time: number, delta: number)
     {
         if (!this.ready || this.changingMap) return;
-        //  Read the action keys every frame, so a press that closed a message is not seen again here.
-        const { keys } = this;
-        let action = [this.justPressed(keys.z), this.justPressed(keys.space), this.justPressed(keys.enter)].some(Boolean);
         //  The press that closes a script's last message must not start the event again: after a
-        //  script, the action button only counts once it has been let go.
+        //  script, the action button only counts once it has been let go. (The dialogue UI also
+        //  consumes the presses it handles.)
+        let action = input.justPressed('a');
         if (this.eventManager.busy) this.actionLocked = true;
-        else if (!keys.z.isDown && !keys.space.isDown && !keys.enter.isDown) this.actionLocked = false;
+        else if (!input.isDown('a')) this.actionLocked = false;
         if (this.actionLocked) action = false;
         this.eventManager.update();
         this.moveEvents(delta);
@@ -389,25 +384,14 @@ export class Overworld extends Scene implements WorldHost
         if (this.eventManager.busy || !this.playerControl || this.hero.moving) return;
 
         if (action && this.eventManager.playerAction()) return;
-        const dir: Direction | null = keys.up.isDown || keys.w.isDown ? 'up'
-            : keys.down.isDown || keys.s.isDown ? 'down'
-                : keys.left.isDown || keys.a.isDown ? 'left'
-                    : keys.right.isDown || keys.d.isDown ? 'right' : null;
+        const dir: Direction | null = input.direction();
         if (dir) void this.walkPlayer(dir);
-    }
-
-    /** @brief Whether a key went down since the last check. */
-    private justPressed (key: Input.Keyboard.Key): boolean
-    {
-        const pressed = key.isDown && !(key as unknown as { stabHeld?: boolean }).stabHeld;
-        (key as unknown as { stabHeld?: boolean }).stabHeld = key.isDown;
-        return pressed;
     }
 
     /** @brief Take one step with the player and tell the events. */
     private async walkPlayer (dir: Direction): Promise<void>
     {
-        this.hero.setSpeed(this.keys.shift.isDown ? 4 : 3);
+        this.hero.setSpeed(input.isDown('b') ? 4 : 3);
         if (!(await this.hero.step(dir))) return;
         this.savePosition();
         this.eventManager.playerMoved(this.hero.x, this.hero.y);

@@ -29,6 +29,8 @@ index.html
 | `src/ui/orientation.ts`, `src/ui/RotateDevicePrompt.tsx` | Landscape lock and the "rotate your device" message. |
 | `src/ui/useBattle.ts` | `useBattle()`: the battle in progress and the player's choices. |
 | `src/ui/useGameState.ts` | `useGameState()`: the game in progress (party, bag, money, flags). See `docs/SAVE_SYSTEM.md`. |
+| `src/ui/useInput.ts` | `useInputPress()`, `useLastDevice()`: game buttons from any device. See `docs/INPUT_SYSTEM.md`. |
+| `src/ui/VirtualPad.tsx` | `<VirtualPad>`: on-screen D-pad and buttons for touch screens. See `docs/INPUT_SYSTEM.md`. |
 | `src/ui/ui.css` | Styles for the layer and the sample HUD. |
 
 ## 2. Adding UI

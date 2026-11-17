@@ -160,3 +160,93 @@
     font: inherit;
     font-size: 8px;
 }
+
+/* --- On-screen pad (VirtualPad.tsx). Layout only: no art ships with the engine. --- */
+/* Restyle these classes in your game's stylesheet. Held controls get the `pressed` class. */
+
+.virtual-pad {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    --pad-size: 48px;
+    --pad-button: 16px;
+    --pad-bottom: 48px;
+    --pad-line: rgba(255, 255, 255, 0.5);
+}
+
+.virtual-pad-dpad {
+    position: absolute;
+    left: 6px;
+    bottom: var(--pad-bottom);
+    width: var(--pad-size);
+    height: var(--pad-size);
+}
+
+/* The four arms are just hit-area markers, a third of the pad each. */
+.virtual-pad-dpad > div {
+    position: absolute;
+    box-sizing: border-box;
+    width: 33.34%;
+    height: 33.34%;
+    border: 1px solid var(--pad-line);
+}
+
+.virtual-pad-dpad-up    { left: 33.33%; top: 0; }
+.virtual-pad-dpad-down  { left: 33.33%; bottom: 0; }
+.virtual-pad-dpad-left  { left: 0; top: 33.33%; }
+.virtual-pad-dpad-right { right: 0; top: 33.33%; }
+
+.virtual-pad-dpad.pressed-up .virtual-pad-dpad-up,
+.virtual-pad-dpad.pressed-down .virtual-pad-dpad-down,
+.virtual-pad-dpad.pressed-left .virtual-pad-dpad-left,
+.virtual-pad-dpad.pressed-right .virtual-pad-dpad-right,
+.virtual-pad-button.pressed {
+    background: var(--pad-line);
+}
+
+.virtual-pad-button {
+    position: absolute;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--pad-button);
+    height: var(--pad-button);
+    padding: 0 2px;
+    border: 1px solid var(--pad-line);
+}
+
+/* Face buttons in a diamond: X top, Y left, A right, B bottom. */
+.virtual-pad-face {
+    position: absolute;
+    right: 6px;
+    bottom: var(--pad-bottom);
+    width: var(--pad-size);
+    height: var(--pad-size);
+}
+
+.virtual-pad-x { left: 16px; top: 0; }
+.virtual-pad-y { left: 0; top: 16px; }
+.virtual-pad-a { right: 0; top: 16px; }
+.virtual-pad-b { left: 16px; bottom: 0; }
+
+/* Triggers above the D-pad and the face buttons. */
+.virtual-pad-l { left: 6px; bottom: calc(var(--pad-bottom) + var(--pad-size) + 4px); min-width: 24px; }
+.virtual-pad-r { right: 6px; bottom: calc(var(--pad-bottom) + var(--pad-size) + 4px); min-width: 24px; }
+
+/* Start and Select along the top edge, out of the way of the message box. */
+.virtual-pad-menu {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.virtual-pad-menu .virtual-pad-button {
+    position: relative;
+    display: inline-flex;
+    margin: 0 2px;
+    height: 10px;
+    font-size: 6px;
+    line-height: 1;
+}

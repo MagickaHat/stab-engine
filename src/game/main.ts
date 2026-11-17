@@ -3,6 +3,8 @@ import { Game as MainGame } from './scenes/Game';
 import { Overworld } from './scenes/Overworld';
 import { AUTO, Core, Game, Scale, Types } from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from './config';
+import { EventBus, GameEvents } from './EventBus';
+import { input } from '../input';
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -14,6 +16,11 @@ const config: Types.Core.GameConfig = {
     backgroundColor: '#028af8',
     // The game is drawn at a low resolution and scaled up, so keep pixels sharp.
     pixelArt: true,
+    //  Keyboard, gamepad, mouse and touch are read by src/input instead (see docs/INPUT_SYSTEM.md).
+    input: {
+        keyboard: false,
+        gamepad: false,
+    },
     scale: {
         mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH
@@ -60,6 +67,32 @@ function keepFitted (game: Game): void
 }
 
 /**
+ * @brief Connects the input system (src/input) to the game.
+ *
+ * The shared `input` listens to the page while the game exists, reads the
+ * gamepads and starts a new input frame before every game step, so all
+ * scenes see the same `justPressed()` within a frame. Device switches are
+ * forwarded on the `EventBus` as `GameEvents.INPUT_DEVICE_CHANGED`.
+ *
+ * @param game The running game.
+ * @param container Element holding the canvas; clicks and taps on it press A.
+ */
+function connectInput (game: Game, container: HTMLElement): void
+{
+    const disconnect = input.start(container);
+    const step = () => input.update();
+    const offDevice = input.onDeviceChange((device) => EventBus.emit(GameEvents.INPUT_DEVICE_CHANGED, device));
+    game.events.on(Core.Events.PRE_STEP, step);
+
+    game.events.once(Core.Events.DESTROY, () =>
+    {
+        game.events.off(Core.Events.PRE_STEP, step);
+        offDevice();
+        disconnect();
+    });
+}
+
+/**
  * @brief Creates and starts the Phaser game.
  * @param parent The DOM element (or its id) the game canvas is added to.
  * @return The running game.
@@ -67,6 +100,8 @@ function keepFitted (game: Game): void
 const StartGame = (parent: string | HTMLElement) => {
     const game = new Game({ ...config, parent });
     keepFitted(game);
+    const container = typeof parent === 'string' ? document.getElementById(parent) : parent;
+    connectInput(game, container ?? document.body);
     return game;
 }
 
