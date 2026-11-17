@@ -110,6 +110,7 @@ export const LocaleTable = z.record(z.string().regex(/^[a-z_]+\.[a-z0-9]+\.[a-zA
 
 export type SpeciesInfo = z.infer<typeof SpeciesInfo>;
 export type ItemInfo = z.infer<typeof ItemInfo>;
+export type ItemPocket = z.infer<typeof ItemPocket>;
 export type EvolutionMethod = z.infer<typeof EvolutionMethod>;
 export type SpeciesInfoTable = z.infer<typeof SpeciesInfoTable>;
 export type ItemInfoTable = z.infer<typeof ItemInfoTable>;

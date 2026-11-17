@@ -26,6 +26,23 @@
  * };
  * this.scene.start(BATTLE_SCENE_KEY, data);
  * @endcode
+ *
+ * To fight with the player's saved party instead of a fixed team, add
+ * `usePlayerParty: true`. The party then enters the battle with its saved HP,
+ * status and PP, gains experience, effort values, levels and moves for every
+ * opponent it defeats, and the result is written back to the game state when
+ * the battle ends (see src/state/battle.ts). Pokémon that can then evolve
+ * are announced with `GameEvents.BATTLE_EVOLUTIONS`, for an evolution scene
+ * to pick up:
+ * @code
+ * const data: BattleSceneData = {
+ *     usePlayerParty: true,
+ *     options: {
+ *         p1: { team: '' },   // name and team come from the game state
+ *         p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
+ *     },
+ * };
+ * @endcode
  */
 import { Scene } from 'phaser';
 import type { GameObjects } from 'phaser';
@@ -33,6 +50,10 @@ import { BattleBridge, cryPath, setActiveBattle, spritePath } from '../../battle
 import type {
     AssetManifest, BattleBridgeOptions, BattleSnapshot, BattleStep, PokemonView, StepPokemon,
 } from '../../battle';
+import { loadPbs } from '../../data';
+import type { PbsData } from '../../data';
+import { isFainted, partyBattle, requireGameState } from '../../state';
+import type { PartyBattle } from '../../state';
 import { EventBus, GameEvents } from '../EventBus';
 
 /** @brief Key of the battle scene, for `this.scene.start()`. */
@@ -43,6 +64,18 @@ export interface BattleSceneData
 {
     /** Teams, format and AI: the same options as `BattleBridge` / `BattleEngine`. */
     options: BattleBridgeOptions;
+    /**
+     * `true` to fight with the party of the game in progress (`getGameState()`).
+     * The local player's `team` in `options` is then ignored, and their `name`
+     * defaults to the saved player name. Requires a game state with at least
+     * one Pokémon that has not fainted.
+     */
+    usePlayerParty?: boolean;
+    /**
+     * With `usePlayerParty`: `false` for a battle that gives no experience
+     * (a battle facility, a link battle). Default: `true`.
+     */
+    exp?: boolean;
 }
 
 /**
@@ -92,6 +125,8 @@ interface Battler
 export class Battle extends Scene
 {
     private options: BattleBridgeOptions;
+    private usePlayerParty: boolean;
+    private givesExp: boolean;
     private manifest: AssetManifest;
     /** Pokémon on the field, by side and position (`"p1:0"`). */
     private readonly battlers = new Map<string, Battler>();
@@ -112,6 +147,8 @@ export class Battle extends Scene
             throw new Error('Battle: start this scene with { options } (see BattleSceneData).');
         }
         this.options = data.options;
+        this.usePlayerParty = data.usePlayerParty ?? false;
+        this.givesExp = data.exp ?? true;
     }
 
     preload ()
@@ -125,6 +162,36 @@ export class Battle extends Scene
         this.battlers.clear();
         this.manifest = (this.cache.json.get(MANIFEST_KEY) as AssetManifest | undefined) ?? { pokemon: {}, cries: [] };
 
+        if (!this.usePlayerParty)
+        {
+            this.begin(null);
+            return;
+        }
+        //  Fail now, not after the data has loaded, if the party cannot fight.
+        if (!requireGameState().getSnapshot().party.some((pokemon) => !isFainted(pokemon)))
+        {
+            throw new Error('Battle: the party has no Pokémon that can fight.');
+        }
+        if (!this.givesExp)
+        {
+            this.begin(this.linkParty(null));
+            return;
+        }
+        //  Experience needs each species' base experience, growth curve and level-up moves.
+        let left = false;
+        this.events.once('shutdown', () => { left = true; });
+        void loadPbs(['speciesInfo', 'learnsets']).then((data) =>
+        {
+            if (!left) this.begin(this.linkParty(data));
+        });
+    }
+
+    /**
+     * @brief Creates the battle and starts it.
+     * @param party The link to the saved party, or `null` for a battle with fixed teams.
+     */
+    private begin (party: PartyBattle | null): void
+    {
         const bridge = new BattleBridge(this.options);
         bridge.setPresenter((step, snapshot) => this.present(step, snapshot));
 
@@ -133,12 +200,16 @@ export class Battle extends Scene
             const snapshot = bridge.getSnapshot();
             if (snapshot.phase !== 'ended') return;
             stopWatching();
+            //  Save the party's condition first, so listeners already see it.
+            this.settle(party);
             EventBus.emit(GameEvents.BATTLE_END, snapshot.winner ?? null);
         });
 
         this.events.once('shutdown', () =>
         {
             stopWatching();
+            //  Left before the end: keep what happened so far. Does nothing after a normal end.
+            this.settle(party);
             setActiveBattle(null);
             bridge.destroy();
             this.battlers.clear();
@@ -149,6 +220,47 @@ export class Battle extends Scene
         EventBus.emit(GameEvents.SCENE_READY, this);
 
         bridge.start();
+    }
+
+    /**
+     * @brief Writes the battle's results to the game state and announces evolutions.
+     * @param party The link to the saved party, or `null` for a battle with fixed teams.
+     */
+    private settle (party: PartyBattle | null): void
+    {
+        const evolutions = party?.finish().evolutions ?? [];
+        if (evolutions.length) EventBus.emit(GameEvents.BATTLE_EVOLUTIONS, evolutions);
+    }
+
+    /**
+     * @brief Puts the saved party in the local player's place in `this.options`.
+     * @param data The species and learnset tables, for experience; `null` for a battle that gives none.
+     * @return The link to call `finish()` on when the battle is over.
+     * @throws Error if no game is in progress or no party Pokémon can fight.
+     */
+    private linkParty (data: Pick<PbsData, 'speciesInfo' | 'learnsets'> | null): PartyBattle
+    {
+        const state = requireGameState();
+        const side = this.options.perspective === 'p2' ? 'p2' : 'p1';
+        const link = partyBattle(state, {
+            side,
+            exp: data ? { species: (id) => data.speciesInfo[id], learnset: (id) => data.learnsets[id] } : undefined,
+        });
+        const prepare = this.options.prepare;
+        this.options = {
+            ...this.options,
+            [side]: {
+                ...this.options[side],
+                name: this.options[side].name ?? state.getSnapshot().player.name,
+                team: link.team,
+            },
+            prepare: (battle) =>
+            {
+                link.prepare(battle);
+                prepare?.(battle);
+            },
+        };
+        return link;
     }
 
     /**

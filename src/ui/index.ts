@@ -13,3 +13,4 @@ export type { RotateDevicePromptProps } from './RotateDevicePrompt';
 export { lockLandscape } from './orientation';
 export { useBattle } from './useBattle';
 export type { BattleControls } from './useBattle';
+export { useGameState } from './useGameState';

@@ -27,6 +27,10 @@ Battles are powered by the Pokémon Showdown simulator ([`@pkmn/sim`](https://ww
 
 Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudios.com/ink/) and run with [inkjs](https://github.com/y-lohse/inkjs). Put `.ink` files in `content/dialogue/` and import them from TypeScript; a Vite plugin compiles them at build time. The runtime wrapper lives in `src/dialogue/`. See **[docs/DIALOGUE_SYSTEM.md](docs/DIALOGUE_SYSTEM.md)** for writing stories, choices, tags, variables, external functions, saving and using it from a Phaser scene.
 
+## Game State and Saves
+
+The party, PC, bag, flags, variables and the player's position are one plain-data `GameState` kept outside Phaser, in `src/state/`. `SaveManager` writes it to save slots (browser `localStorage` by default, three slots) as versioned JSON and checks every file it loads. The battle scene can fight with the saved party: it gains experience, effort values, levels and moves during the battle, the result is written back afterwards, and Pokémon that can then evolve are announced for an evolution scene. See **[docs/SAVE_SYSTEM.md](docs/SAVE_SYSTEM.md)**.
+
 ## UI
 
 The UI is built with [React](https://react.dev) and drawn as HTML on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. Components go inside `<UiLayer>`, are laid out in game pixels (the game runs at 256×192) and follow the canvas when the screen or the game resolution changes. React and the scenes talk through an event bus. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
@@ -54,7 +58,7 @@ Pokémon and item graphics and cries are imported from a Pokémon Essentials res
 | `npm run pbs:compare` | Compare game data with Pokémon Showdown's and list differences |
 | `npm run pbs:schemas` | Regenerate JSON Schemas for editor autocompletion |
 | `npm run assets:import -- --pack <folder>` | Import sprites, icons and cries from an Essentials resource pack (see `docs/ASSET_PIPELINE.md`) |
-| `npm test` | Run the tools' unit tests |
+| `npm test` | Run the unit tests (tools, battle bridge, game state) |
 
 ## Writing Code
 
@@ -88,6 +92,7 @@ We have provided a default project structure to get you started:
 | `src/game/scenes`            | Folder with all Phaser game scenes.                        |
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
+| `src/state`                  | Game state and save system (party, PC, bag, flags, position). See `docs/SAVE_SYSTEM.md`. |
 | `content/dialogue`           | ink story files (`.ink`), compiled by `vite/plugins/ink.mjs`. |
 | `src/data`                   | Game data loader, Zod schemas and Showdown bridge. See `docs/DATA_PIPELINE.md`. |
 | `content/pbs/generated`      | Game data imported from PokeAPI (do not edit). |

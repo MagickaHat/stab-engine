@@ -34,6 +34,14 @@ export const GameEvents = {
     UI_SHAKE: 'ui-shake',
     /** Phaser → React. A battle started. Argument: its `BattleBridge` (see src/battle/bridge). */
     BATTLE_START: 'battle-start',
+    /**
+     * Phaser → anyone. After a battle with the saved party, some Pokémon can
+     * evolve. Emitted just before `BATTLE_END`, and only if there are any.
+     * Argument: `PendingEvolution[]` (see src/state/evolution.ts). The
+     * evolution scene should listen for this, show each evolution and call
+     * `evolvePokemon()`.
+     */
+    BATTLE_EVOLUTIONS: 'battle-evolutions',
     /** Phaser → React. A battle finished being shown. Argument: the winner's name, or `null` for a tie. */
     BATTLE_END: 'battle-end',
 } as const;

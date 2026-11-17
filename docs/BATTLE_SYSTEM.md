@@ -532,6 +532,7 @@ connects the simulator to the Phaser scene and the React UI.
 | `src/battle/bridge/assets.ts` | `spritePath()` / `cryPath()`: finds a Pokémon's files through `manifest.json`. |
 | `src/game/scenes/Battle.ts` | The battle scene. Shows sprites, plays cries. |
 | `src/ui/useBattle.ts` | `useBattle()`: the React hook. |
+| `src/state/battle.ts` | `partyBattle()`: fights with the saved party and writes the result back. See [SAVE_SYSTEM.md](SAVE_SYSTEM.md#10-battles-with-the-saved-party). |
 
 Everything in `src/battle/bridge` is exported from `src/battle` and has no Phaser or React
 imports, so it also runs in Node (see `bridge.test.ts`).

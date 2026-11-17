@@ -19,7 +19,7 @@
  * @endcode
  */
 import { BattleStreams, Dex, RandomPlayerAI, Streams } from '@pkmn/sim';
-import type { ModdedDex, PRNGSeed } from '@pkmn/sim';
+import type { Battle, ModdedDex, PRNGSeed } from '@pkmn/sim';
 import { BattleState } from './BattleState.ts';
 import type { BattleRequest, SideID } from './types.ts';
 
@@ -62,6 +62,14 @@ export interface BattleEngineOptions {
      * pass the result of `await loadMod(...)` (see mods.ts). Default: the standard Dex.
      */
     dex?: ModdedDex;
+    /**
+     * Called once with the simulator's battle when both teams have been built
+     * and nothing has happened yet (before Team Preview and the first
+     * Pokémon are sent out). Use it to start a battle from something other
+     * than full health: see `partyBattle()` in src/state/battle.ts, which
+     * carries the saved party's HP, status and PP into the battle.
+     */
+    prepare?: (battle: Battle) => void;
 }
 
 /**
@@ -122,6 +130,18 @@ export class BattleEngine
     private started = false;
 
     /**
+     * @brief The simulator's own battle object, or `null` before `start()`.
+     *
+     * It holds what the protocol does not report, such as the exact HP and PP
+     * of every Pokémon. Read from it freely; changing it during a battle
+     * bypasses the simulator's rules.
+     */
+    get battle (): Battle | null
+    {
+        return this.battleStream.battle;
+    }
+
+    /**
      * @brief Create a battle (it does not start until `start()` is called).
      * @param options Format, teams, AI and other settings.
      * @throws Error if `formatid` does not exist in the chosen Dex.
@@ -179,8 +199,10 @@ export class BattleEngine
         const startOptions: { formatid: string; seed?: PRNGSeed } = { formatid };
         if (seed) startOptions.seed = seed;
 
+        //  `>start` creates the simulator's battle; it begins when the second team arrives.
+        void this.streams.omniscient.write(`>start ${JSON.stringify(startOptions)}`);
+        this.hookPrepare();
         void this.streams.omniscient.write(
-            `>start ${JSON.stringify(startOptions)}\n` +
             `>player p1 ${JSON.stringify({ name: p1.name ?? 'Player 1', team: p1.team })}\n` +
             `>player p2 ${JSON.stringify({ name: p2.name ?? 'Player 2', team: p2.team })}`
         );
@@ -237,6 +259,21 @@ export class BattleEngine
         this.ended = true;
         void this.battleStream.writeEnd();
         this.state.destroy();
+    }
+
+    /** @brief Arrange for `options.prepare` to run just before the simulator begins the battle. */
+    private hookPrepare (): void
+    {
+        const { prepare } = this.options;
+        const battle = this.battleStream.battle;
+        if (!prepare) return;
+        if (!battle) throw new Error('BattleEngine: the simulator did not create a battle, so `prepare` cannot run');
+        const begin = battle.start;
+        battle.start = function start (this: Battle)
+        {
+            prepare(this);
+            begin.call(this);
+        };
     }
 
     /** @brief Read a player's stream: requests and errors, plus protocol if it is the chosen perspective. */

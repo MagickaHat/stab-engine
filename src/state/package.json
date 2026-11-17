@@ -1,0 +1,4 @@
+{
+    "//": "Lets Node run these TypeScript files as ES modules without a warning.",
+    "type": "module"
+}

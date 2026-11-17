@@ -154,6 +154,8 @@ export function describeLine (line: string | ProtocolLine): string | null
     {
         case 'player': return args[1] ? `${args[1]} joined as ${args[0]}.` : null;
         case 'turn': return `--- Turn ${args[0]} ---`;
+        //  Text written by the game itself, such as experience and learned moves (src/state/battle.ts).
+        case '-message': return args[0] ?? null;
         case 'switch':
         case 'drag': return `${who(args[0])} was sent out! (${args[1].split(',')[0]})`;
         case 'move': return `${who(args[0])} used ${args[1]}!`;

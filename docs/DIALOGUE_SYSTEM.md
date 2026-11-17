@@ -197,8 +197,9 @@ Global ink variables (`VAR name = value`) can be read and written from TypeScrip
 pass game state into the story (player name, badges, items) and to read results back out.
 
 ```ts
-dialogue.setVariable('player_name', save.playerName);
-dialogue.setVariable('badges', save.badges.length);
+const state = requireGameState();                         // from src/state, see SAVE_SYSTEM.md
+dialogue.setVariable('player_name', state.getSnapshot().player.name);
+dialogue.setVariable('badges', state.getVar('badges') ?? 0);
 
 const gotStarter = dialogue.getVariable<boolean>('got_starter');
 ```
@@ -273,11 +274,17 @@ work across conversations.
 
 ## 9. Saving and loading
 
+`save()` returns the story's position, variables and visit counts as a JSON string. Hand it
+to the game state, which writes it to the save file with everything else (see
+[SAVE_SYSTEM.md](SAVE_SYSTEM.md#11-dialogue)):
+
 ```ts
-saveFile.dialogue = dialogue.save();        // JSON string: position, variables, visit counts
+const state = requireGameState();                         // from src/state
+state.setDialogueState('sample', dialogue.save());        // before saving the game
 
 const dialogue = new DialogueEngine(story);
-dialogue.load(saveFile.dialogue);           // must be the same story
+const json = state.getDialogueState('sample');            // after loading the game
+if (json) dialogue.load(json);                            // must be the same story
 ```
 
 Re-bind external functions and observers after creating the new engine. They aren't saved.
