@@ -13,7 +13,7 @@
 import { Protocol } from '@pkmn/protocol';
 import type {
     BattleRequest, MoveRequest, SideID, SwitchRequest, TeamPreviewRequest, WaitRequest
-} from './types';
+} from './types.ts';
 
 /** @brief A protocol line split into its command and arguments. */
 export interface ProtocolLine {

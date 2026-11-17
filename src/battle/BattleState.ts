@@ -15,7 +15,7 @@ import { Battle } from '@pkmn/client';
 import { Generations } from '@pkmn/data';
 import { Protocol } from '@pkmn/protocol';
 import { Dex } from '@pkmn/sim';
-import type { SideID } from './types';
+import type { SideID } from './types.ts';
 
 /** @brief The `Dex` type `@pkmn/data` expects. */
 type DataDex = ConstructorParameters<typeof Generations>[0];
@@ -33,7 +33,14 @@ let sharedGenerations: Generations | undefined;
  */
 export function createGenerations (): Generations
 {
-    sharedGenerations ??= new Generations(Dex as unknown as DataDex);
+    //  `@pkmn/data` normally hides everything a generation's games do not have
+    //  (in Gen 9: Mega Evolutions, Z-Moves, many species). A fan game uses all
+    //  of it, and the battle model fails on a Pokémon it cannot look up, so
+    //  keep every entry that really exists.
+    sharedGenerations ??= new Generations(
+        Dex as unknown as DataDex,
+        (data) => !!data.exists && !(data.kind === 'Ability' && data.id === 'noability'),
+    );
     return sharedGenerations;
 }
 

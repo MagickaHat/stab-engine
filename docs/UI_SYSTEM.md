@@ -27,6 +27,7 @@ index.html
 | `src/ui/UiLayer.tsx` | `<UiLayer>`: the container for all UI. |
 | `src/ui/useGameViewport.ts` | Hook that tracks the game's resolution and on-screen size. |
 | `src/ui/orientation.ts`, `src/ui/RotateDevicePrompt.tsx` | Landscape lock and the "rotate your device" message. |
+| `src/ui/useBattle.ts` | `useBattle()`: the battle in progress and the player's choices. |
 | `src/ui/ui.css` | Styles for the layer and the sample HUD. |
 
 ## 2. Adding UI
@@ -107,7 +108,47 @@ Every scene should end its `create()` with
 `EventBus.emit(GameEvents.SCENE_READY, this);`. That is what `useCurrentScene()` returns.
 `useGame()` returns the `Phaser.Game` when you need it directly.
 
-## 4. Resolution and scaling
+## 4. Battles
+
+During a battle, components read the battle and send the player's choices with the
+`useBattle()` hook (`src/ui/useBattle.ts`). It returns `null` when no battle is running.
+
+```tsx
+import { useBattle } from './ui';
+
+function MoveMenu ()
+{
+    const battle = useBattle();
+    if (battle?.snapshot.choice?.kind !== 'move') return null;
+
+    return battle.snapshot.choice.moves.map((move) => (
+        <button key={move.slot} className="ui-interactive" disabled={move.disabled}
+            onClick={() => battle.chooseMove(move.slot)}>
+            {move.name} {move.pp}/{move.maxpp}
+        </button>
+    ));
+}
+```
+
+| Returned | What it is |
+|----------|------------|
+| `snapshot` | The battle as it is being shown: `phase`, `me`, `foe`, `turn`, `step`, `choice`, `error`, `winner`. |
+| `chooseMove(slot, extra?)` | Use a move from `snapshot.choice.moves`. |
+| `chooseSwitch(slot)` | Send out a party member from `snapshot.choice.switches`. |
+| `chooseTeam(order?)` | Answer Team Preview. |
+| `forfeit()` | Give up. |
+| `bridge` | The `BattleBridge`, for anything else. |
+
+The component is rendered again after every step the battle scene shows, so a HP bar drawn
+from `snapshot.foe.active[0]` moves when the hit is shown and not before. `snapshot.choice`
+is only set once the turn has finished playing, so use it to decide when to show a menu.
+`snapshot.step?.text` is a sentence for the current step, for a message box.
+
+The fields are described in
+[BATTLE_SYSTEM.md](BATTLE_SYSTEM.md#12-the-battle-bridge-phaser-and-react). No battle UI
+exists yet; the hook is what it will be built on.
+
+## 5. Resolution and scaling
 
 The base resolution is set in one place, `src/game/config.ts`. The game uses
 `Scale.FIT`, so the canvas grows to fill the screen while keeping its shape, and
@@ -137,7 +178,7 @@ Two things to keep in mind when that is built:
 - If the resolution can change, position UI from the edges (`left`, `right`, `top`,
   `bottom`, percentages) instead of assuming a 256×192 box.
 
-## 5. Android notes
+## 6. Android notes
 
 - **Landscape only.** The game is played horizontally on Android. `lockLandscape()`
   (`src/ui/orientation.ts`) asks the browser to lock the screen, and

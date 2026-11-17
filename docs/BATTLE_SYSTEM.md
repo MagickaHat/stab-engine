@@ -33,7 +33,7 @@ to change teams, formats and the AI.
 9. [Mods (`@pkmn/mods`)](#9-mods-pkmnmods)
 10. [AI opponents](#10-ai-opponents)
 11. [Reproducible battles (seeds)](#11-reproducible-battles-seeds)
-12. [Using it from Phaser](#12-using-it-from-phaser)
+12. [The battle bridge (Phaser and React)](#12-the-battle-bridge-phaser-and-react)
 13. [API reference](#13-api-reference)
 14. [Troubleshooting](#14-troubleshooting)
 15. [Further reading](#15-further-reading)
@@ -66,6 +66,9 @@ to change teams, formats and the AI.
 - **`loadMod()`** (`src/battle/mods.ts`) loads optional rule/data mods before a battle.
 - **The game** (Phaser scenes) only listens to callbacks and calls methods. The battle
   layer does not import Phaser, so you can also run it in Node, in tests or on a server.
+- **`BattleBridge`** (`src/battle/bridge/`) sits on top of `BattleEngine` for the actual game:
+  it hands the battle to the `Battle` scene and the React UI one event at a time. See
+  [section 12](#12-the-battle-bridge-phaser-and-react).
 
 All of this runs locally in the player's browser. It does not connect to any Showdown server.
 
@@ -82,6 +85,7 @@ All of this runs locally in the player's browser. It does not connect to any Sho
 | `src/battle/teams.ts` | `importTeam()` to convert Showdown team text, plus two sample teams. |
 | `src/battle/BattleState.ts` | `BattleState`: battle model built with `@pkmn/client`. Also `createGenerations()`. |
 | `src/battle/mods.ts` | `loadMod()`: loads `@pkmn/mods` data on demand. |
+| `src/battle/bridge/` | The battle bridge: presents a battle step by step to Phaser and React. See [section 12](#12-the-battle-bridge-phaser-and-react). |
 
 The packages live in `node_modules/@pkmn/` and are listed in `package.json`. In production
 builds Vite puts the simulator, client, protocol and data packages together in their own
@@ -505,54 +509,159 @@ so for a full replay control both sides yourself.)
 
 ---
 
-## 12. Using it from Phaser
+## 12. The battle bridge (Phaser and React)
 
-The battle layer doesn't depend on Phaser, so a battle scene just owns an engine:
+`BattleEngine` reports a whole turn at once, and `engine.state` is already at the end of that
+turn. A game needs the opposite: one event at a time, with sprites and HP bars that only change
+when the event is shown. The **battle bridge** (`src/battle/bridge/`) does that conversion and
+connects the simulator to the Phaser scene and the React UI.
 
-```ts
-import { Scene } from 'phaser';
-import { BattleEngine, importTeam, isMoveRequest, SAMPLE_TEAM_P1, SAMPLE_TEAM_P2 } from '../../battle';
-import type { BattleRequest } from '../../battle';
-
-export class Battle extends Scene
-{
-    private engine: BattleEngine;
-
-    constructor () { super('Battle'); }
-
-    create ()
-    {
-        this.engine = new BattleEngine({
-            p1: { name: 'Player', team: importTeam(SAMPLE_TEAM_P1) },
-            p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
-        });
-        this.engine.onProtocol = () => {
-            // engine.state is already up to date here: redraw HP bars from it.
-            const foe = this.engine.state.foe.active[0];
-            if (foe) console.log(`${foe.name}: ${foe.hp}/${foe.maxhp}`);
-        };
-        this.engine.onRequest = (_side, req) => this.showMenu(req);
-        this.engine.onEnd = (winner) => { /* show result, then this.scene.start('Overworld') */ };
-
-        // Stop the simulator when the scene shuts down.
-        this.events.once('shutdown', () => this.engine.destroy());
-
-        this.engine.start();
-    }
-
-    private showMenu (req: BattleRequest)
-    {
-        if (!isMoveRequest(req)) return;
-        req.active[0].moves.forEach((m, i) => {
-            this.add.text(40, 500 + i * 40, `${m.move} (${m.pp}/${m.maxpp})`)
-                .setInteractive()
-                .on('pointerdown', () => this.engine.chooseMove('p1', i + 1));
-        });
-    }
-}
+```
+ BattleEngine ──lines──▶ BattleBridge ──one step at a time──▶ presenter: Battle scene (Phaser)
+      ▲                       │                                 shows it, then says "done"
+      │ choices               └── snapshot after each step ──▶ subscribers: useBattle() (React)
+      └────────── chooseMove() / chooseSwitch() / chooseTeam() ◀────────┘
 ```
 
-Remember to add the scene to the `scene` list in `src/game/main.ts`.
+| File | What it does |
+|------|--------------|
+| `src/battle/bridge/BattleBridge.ts` | Runs the battle, queues the protocol and hands it out step by step. |
+| `src/battle/bridge/steps.ts` | `BattleStep`: one event (`switch`, `move`, `damage`, `faint`…). `toStep()` makes one from a protocol line. |
+| `src/battle/bridge/snapshot.ts` | `BattleSnapshot`: the battle as plain data for the UI. |
+| `src/battle/bridge/session.ts` | Remembers the running battle (`getActiveBattle()`). |
+| `src/battle/bridge/assets.ts` | `spritePath()` / `cryPath()`: finds a Pokémon's files through `manifest.json`. |
+| `src/game/scenes/Battle.ts` | The battle scene. Shows sprites, plays cries. |
+| `src/ui/useBattle.ts` | `useBattle()`: the React hook. |
+
+Everything in `src/battle/bridge` is exported from `src/battle` and has no Phaser or React
+imports, so it also runs in Node (see `bridge.test.ts`).
+
+### Starting a battle
+
+Start the `Battle` scene with the same options `BattleEngine` takes. The local player is `p1`
+(or `p2` with `perspective: 'p2'`):
+
+```ts
+import { importTeam, SAMPLE_TEAM_P1, SAMPLE_TEAM_P2 } from '../../battle';
+import { BATTLE_SCENE_KEY } from './Battle';
+import type { BattleSceneData } from './Battle';
+
+const data: BattleSceneData = {
+    options: {
+        p1: { name: 'Player', team: importTeam(SAMPLE_TEAM_P1) },
+        p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
+    },
+};
+this.scene.start(BATTLE_SCENE_KEY, data);
+```
+
+The scene creates the bridge, registers it as the active battle, and emits
+`GameEvents.BATTLE_START` (argument: the bridge) on the `EventBus`. When the last step has been
+shown it emits `GameEvents.BATTLE_END` (argument: the winner's name, or `null` for a tie). The
+scene keeps running after that: listen for `BATTLE_END` and start the next scene from there.
+Leaving the scene destroys the bridge and the simulator.
+
+Nothing in the game starts a battle yet.
+
+### Steps
+
+The bridge calls its **presenter** once per step and waits for the returned Promise before
+the next one, so animations play in order:
+
+```ts
+bridge.setPresenter(async (step, snapshot) =>
+{
+    if (step.kind === 'damage') await this.blink(step.pokemon.side, step.pokemon.slot);
+});
+```
+
+| `step.kind` | Protocol lines | Fields |
+|-------------|----------------|--------|
+| `switch` | `switch`, `drag`, `replace` | `pokemon`, `details`, `hp`, `drag`, `replace` |
+| `move` | `move` | `pokemon`, `move`, `target`, `missed` |
+| `damage` / `heal` | `-damage`, `-heal`, `-sethp` | `pokemon`, `hp`, `from` |
+| `status` | `-status`, `-curestatus` | `pokemon`, `status`, `cured` |
+| `boost` | `-boost`, `-unboost` | `pokemon`, `stat`, `amount` (negative for a drop) |
+| `faint` | `faint` | `pokemon` |
+| `formechange` | `detailschange`, `-formechange`, `-transform` | `pokemon`, `permanent` |
+| `weather` | `-weather` | `weather`, `upkeep` |
+| `turn` | `turn` | `turn` |
+| `end` | `win`, `tie` | `winner` |
+| `other` | everything else | none |
+
+Every step also has `line` (the parsed protocol line: `cmd`, `args`, `kwArgs`, `raw`) and
+`text` (the sentence from `describeLine()`, or `null`). So a presenter can react to any
+command through an `other` step, for example `step.line.cmd === '-sidestart'`.
+
+The `Battle` scene is the presenter today. It handles `switch` (sprite appears, cry plays),
+`damage` (sprite blinks), `faint` (cry, sprite drops away) and sprite changes (Mega Evolution,
+Transform…). Sprites and cries are loaded the first time a Pokémon needs them. Positions and
+timings are in `BATTLE_LAYOUT` at the top of `src/game/scenes/Battle.ts`. To animate more,
+add a `case` to `present()` there.
+
+### Snapshots
+
+After each step the bridge builds a new `BattleSnapshot`. It only contains what has been shown
+so far: during the `damage` step of a hit, `snapshot.foe.active[0].hp` is the HP after that hit
+and not after the rest of the turn.
+
+| Field | What it is |
+|-------|------------|
+| `phase` | `idle`, `presenting` (steps are being shown), `choosing` (the player must decide), `waiting`, `ended`. |
+| `me`, `foe` | Each side: `name`, `active` (Pokémon on the field), `team`, `totalPokemon`, `conditions`. |
+| `me.active[0]` | A `PokemonView`: `name`, `speciesForme`, `speciesId`, `baseSpeciesId`, `formeId`, `level`, `gender`, `shiny`, `hp`, `maxhp`, `status`, `fainted`, `boosts`, `volatiles`, `item`, `ability`… |
+| `turn`, `weather`, `terrain` | Field state. |
+| `step` | The step being shown, e.g. for a message box: `snapshot.step?.text`. |
+| `choice` | What can be chosen (below), or `null`. |
+| `error` | Why the last choice was rejected, or `null`. |
+| `winner` | The winner's name, `null` for a tie, `undefined` while the battle runs. |
+
+`snapshot.choice` is only set while `phase` is `'choosing'`, and that only happens after every
+queued step has been shown, so a menu cannot open in the middle of a turn.
+
+| `choice` field | What it is |
+|----------------|------------|
+| `kind` | `'move'` (normal turn), `'switch'` (a Pokémon must be sent out) or `'team'` (Team Preview). |
+| `moves` | `{ slot, id, name, pp, maxpp, disabled }` for each move of the active Pokémon. |
+| `switches` | `{ slot, ident, name, details, hp, maxhp, status, disabled }` for each party member. |
+| `trapped`, `canTerastallize`, `canMegaEvo`, `canDynamax` | What the active Pokémon may do. |
+| `request` | The simulator's own request, for double battles and anything else. |
+
+Answer with `bridge.chooseMove(slot, extra?)`, `bridge.chooseSwitch(slot)`,
+`bridge.chooseTeam(order?)` or `bridge.choose('raw choice')`. `bridge.forfeit()` gives up. If
+the simulator rejects a choice, the same choice is offered again with `snapshot.error` set.
+
+### From React
+
+`useBattle()` returns `null` outside battles, and otherwise the snapshot and the actions. The
+component is rendered again whenever the snapshot changes. See
+[UI_SYSTEM.md](UI_SYSTEM.md#4-battles).
+
+### Without Phaser
+
+```ts
+import { BattleBridge, importTeam, SAMPLE_TEAM_P1, SAMPLE_TEAM_P2 } from '../battle';
+
+const bridge = new BattleBridge({
+    p1: { name: 'Player', team: importTeam(SAMPLE_TEAM_P1) },
+    p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
+});
+bridge.subscribe(() =>
+{
+    const snapshot = bridge.getSnapshot();
+    if (snapshot.step?.text) console.log(snapshot.step.text);
+    if (snapshot.choice?.kind === 'team') bridge.chooseTeam();
+    else if (snapshot.choice?.kind === 'switch') bridge.chooseSwitch(snapshot.choice.switches.find((s) => !s.disabled)!.slot);
+    else if (snapshot.choice?.kind === 'move') bridge.chooseMove(1);
+    if (snapshot.phase === 'ended') bridge.destroy();
+});
+bridge.start();
+```
+
+Without a presenter the steps are applied immediately, one after another.
+
+To control the other side from code (a scripted opponent, your own AI), leave its `ai` out and
+set `bridge.onOpponentRequest = (side, request) => bridge.engine.choose(side, '...')`.
 
 ---
 
@@ -613,6 +722,7 @@ Throws if `formatid` does not exist in the chosen Dex.
 | `teams.ts` | `importTeam`, `SAMPLE_TEAM_P1`, `SAMPLE_TEAM_P2` |
 | `BattleState.ts` | `BattleState`, `createGenerations` |
 | `mods.ts` | `loadMod`, `isModLoaded`, `MOD_IDS`, `ModID` |
+| `bridge/` | `BattleBridge`, `toStep`, `buildSnapshot`, `viewChoice`, `getActiveBattle`, `setActiveBattle`, `subscribeActiveBattle`, `spritePath`, `cryPath`, and the `BattleStep` / `BattleSnapshot` types |
 
 Each has TSDoc comments in its source file, so hovering over it in VS Code shows the docs.
 
@@ -624,6 +734,8 @@ Each has TSDoc comments in its source file, so hovering over it in VS Code shows
 |---------|--------------------|
 | Nothing happens after `start()` | Callbacks were set after `start()`, or a Team Preview request was never answered. Answer it with `choose(side, 'default')`. |
 | Battle freezes mid-way | A request for your side wasn't answered. Check `engine.requests`. |
+| Bridge: `snapshot.phase` stays `'presenting'` | The presenter returned a Promise that never resolves (an animation or sound that never finishes). |
+| Battle scene shows no sprite for a Pokémon | It has no entry in `public/assets/manifest.json`. Import its sprites (see [ASSET_PIPELINE.md](ASSET_PIPELINE.md)). The battle itself still runs. |
 | `onError: [Invalid choice] …` | Wrong slot (slots start at **1**), disabled move, or switching while trapped/to a fainted Pokémon. |
 | `importTeam: could not parse…` | Team text formatting. Paste it into the Showdown Teambuilder to check it. |
 | `BattleEngine: unknown format "…"` | Typo in `formatid`, or the format comes from a mod: `await loadMod(...)` and pass it as `dex`. |

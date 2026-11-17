@@ -246,10 +246,10 @@ test('plan: sprites go to img/pokemon/<species>, cries to one flat sound/se/crie
         const dex = makeDex([['Charizard'], ['Charizard-Mega-X', { baseSpecies: 'Charizard', forme: 'Mega-X' }], ['Unfezant'], ['Kyurem']]);
         const plan = planPack(packDir, gen9, dex, new Map([['CHARIZARD_1', 'Mega Charizard X']]));
         assert.deepEqual(plan.files.map((file) => file.dest).sort(), [
+            'img/items/potion.png',
             'img/pokemon/charizard/front.png',
             'img/pokemon/charizard/megax/front.png',
             'img/pokemon/unfezant/backf_shiny.png',
-            'items/potion.png',
             'sound/se/cries/charizard.ogg',
             'sound/se/cries/charizardmegax.ogg',
             'sound/se/cries/kyuremform3.ogg',

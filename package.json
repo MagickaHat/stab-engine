@@ -24,7 +24,7 @@
     "pbs:compare": "node tools/pbs/compare.ts",
     "pbs:schemas": "node tools/pbs/schemas.ts",
     "assets:import": "node tools/assets/import.ts",
-    "test": "node --test \"tools/**/*.test.ts\""
+    "test": "node --test \"tools/**/*.test.ts\" \"src/**/*.test.ts\""
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

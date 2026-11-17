@@ -20,8 +20,8 @@
  */
 import { BattleStreams, Dex, RandomPlayerAI, Streams } from '@pkmn/sim';
 import type { ModdedDex, PRNGSeed } from '@pkmn/sim';
-import { BattleState } from './BattleState';
-import type { BattleRequest, SideID } from './types';
+import { BattleState } from './BattleState.ts';
+import type { BattleRequest, SideID } from './types.ts';
 
 /** @brief How a side is controlled. `false`/omitted = controlled by your code. */
 export type AIKind = 'random' | false;
