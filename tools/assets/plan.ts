@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CRIES_DIR, ITEMS_DIR, POKEMON_DIR } from './config.ts';
-import { findDir, formKey, parseAssetName } from './essentials.ts';
+import { assetName, excludedBy, findDir, formKey, listFiles, parseAssetName } from './essentials.ts';
 import type { AssetName } from './essentials.ts';
 import type { ImageOp } from './image.ts';
 import type { PackDefinition, Rule } from './pack.ts';
@@ -22,7 +22,7 @@ export interface PlannedFile
     srcRel: string;
     /** Destination relative to the output folder, with `/`, e.g. `img/pokemon/charizard/megax/front.png`. */
     dest: string;
-    /** Rule label, e.g. `'front'`. */
+    /** Rule label, e.g. `'front'`; for `tree` rules the first folder, e.g. `'ui'`. */
     kind: string;
     /** Resize instructions, or `null` to copy. */
     image: ImageOp | null;
@@ -43,6 +43,8 @@ export interface PlanReport
     duplicates: string[];
     /** Rule folders that do not exist in this pack. */
     missingDirs: string[];
+    /** What exclusion patterns left out, one line per pattern, e.g. `'Graphics/UI/Debug (12 files)'`. */
+    excluded: string[];
 }
 
 /** @brief Result of `planPack()`. */
@@ -50,7 +52,15 @@ export interface Plan
 {
     files: PlannedFile[];
     report: PlanReport;
+    /** Every kind found in the pack, including ones `only` filtered out. */
+    kinds: Set<string>;
 }
+
+/** @brief Extensions read as images (and written as PNG) by `tree` rules. */
+const IMAGE_EXTS = new Set(['.png', '.bmp']);
+
+/** @brief Files that operating systems and tools leave in folders; never imported or reported. */
+const JUNK = /^(thumbs\.db|desktop\.ini|\.ds_store)$/i;
 
 /**
  * @brief List the files of one rule's folder that have the rule's extension.
@@ -75,16 +85,18 @@ function ruleFiles (packDir: string, rule: Rule): [string, string[]] | null
  * @param pack Pack layout.
  * @param dex Engine species/items, for Showdown IDs.
  * @param formNames PBS form names (`formKey` → name), usually from `readFormNames()`.
- * @param only If given, only rules with these `kind`s are planned.
+ * @param only If given, only rules (or `tree` folders) with these `kind`s are planned.
+ * @param exclude Extra paths for `tree` rules to leave out, on top of `pack.exclude` (see `excludedBy()`).
  * @return Files to produce and a report.
  */
-export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, formNames: Map<string, string>, only?: Set<string>): Plan
+export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, formNames: Map<string, string>, only?: Set<string>, exclude: string[] = []): Plan
 {
-    const report: PlanReport = { unresolved: [], unknownSpecies: [], unknownItems: [], skipped: [], duplicates: [], missingDirs: [] };
+    const report: PlanReport = { unresolved: [], unknownSpecies: [], unknownItems: [], skipped: [], duplicates: [], missingDirs: [], excluded: [] };
     const files: PlannedFile[] = [];
+    const kinds = new Set(pack.rules.map((rule) => rule.kind));
     const taken = new Map<string, string>();
     const rel = (file: string) => path.relative(packDir, file).split(path.sep).join('/');
-    const add = (src: string, dest: string, rule: Rule) =>
+    const add = (src: string, dest: string, rule: Rule, kind = rule.kind, image = rule.image ?? null) =>
     {
         const previous = taken.get(dest);
         if (previous)
@@ -93,12 +105,12 @@ export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, 
             return;
         }
         taken.set(dest, rel(src));
-        files.push({ src, srcRel: rel(src), dest, kind: rule.kind, image: rule.image ?? null });
+        files.push({ src, srcRel: rel(src), dest, kind, image });
     };
 
     // Pokémon: gather every file first, because forms are resolved per species as a group.
     const found: { rule: Rule; src: string; name: AssetName }[] = [];
-    for (const rule of pack.rules.filter((r) => r.target !== 'item'))
+    for (const rule of pack.rules.filter((r) => r.target === 'pokemon' || r.target === 'cry'))
     {
         const listing = ruleFiles(packDir, rule);
         if (!listing)
@@ -115,7 +127,7 @@ export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, 
         }
     }
 
-    const resolver = new SpeciesResolver(dex, formNames, pack.forms);
+    const resolver = new SpeciesResolver(dex, formNames, pack.forms ?? {});
     const resolved = resolver.assign(found.map((f) => f.name));
     for (const [key, where] of resolved)
     {
@@ -173,6 +185,50 @@ export function planPack (packDir: string, pack: PackDefinition, dex: DexIndex, 
         }
     }
 
+    // Whole folders: every file, renamed, into the rule's output folder.
+    const patterns = [...(pack.exclude ?? []), ...exclude];
+    const rename = pack.rename ?? assetName;
+    const excludedCount = new Map<string, number>();
+    for (const rule of pack.rules.filter((r) => r.target === 'tree'))
+    {
+        const base = findDir(packDir, rule.dir);
+        if (!base)
+        {
+            report.missingDirs.push(rule.dir);
+            continue;
+        }
+        const exts = new Set([rule.ext, ...(rule.extraExts ?? [])]);
+        const wanted = (kind: string) => !only || only.has(rule.kind) || only.has(kind);
+        for (const file of listFiles(base))
+        {
+            const src = path.join(base, file);
+            const srcRel = rel(src);
+            const parts = file.split('/');
+            if (parts.some((part) => JUNK.test(part) || part.startsWith('.'))) continue;
+            const pattern = excludedBy(srcRel, patterns);
+            if (pattern)
+            {
+                excludedCount.set(pattern, (excludedCount.get(pattern) ?? 0) + 1);
+                continue;
+            }
+            const ext = path.extname(file).toLowerCase();
+            const names = parts.map((part, i) => rename(i === parts.length - 1 ? part.slice(0, part.length - ext.length) : part));
+            const kind = parts.length > 1 && names[0] ? names[0] : rule.kind;
+            kinds.add(kind);
+            if (!wanted(kind)) continue;
+            if (!exts.has(ext) || names.includes(null))
+            {
+                report.skipped.push(srcRel);
+                continue;
+            }
+            const isImage = IMAGE_EXTS.has(ext);
+            const dest = `${[rule.output, ...names].filter(Boolean).join('/')}${isImage ? '.png' : ext}`;
+            // A bitmap must be decoded even when its size stays as it is.
+            add(src, dest, rule, kind, isImage ? rule.image ?? (ext === '.png' ? null : {}) : null);
+        }
+    }
+    for (const [pattern, count] of excludedCount) report.excluded.push(`${pattern} (${count} file${count === 1 ? '' : 's'})`);
+
     for (const list of Object.values(report)) (list as string[]).sort();
-    return { files, report };
+    return { files, report, kinds };
 }

@@ -1,4 +1,4 @@
-# Asset Pipeline (sprites, icons, cries)
+# Asset Pipeline (sprites, icons, cries, graphics)
 
 STAB-engine does not ship Pokémon graphics or audio. `npm run assets:import` brings them in from
 a **Pokémon Essentials resource pack** — it was built for the
@@ -18,7 +18,8 @@ Essentials project folder has the same layout. Files are renamed to the Showdown
 6. [Your own art](#6-your-own-art)
 7. [Using the assets in the game](#7-using-the-assets-in-the-game)
 8. [Changing what is imported](#8-changing-what-is-imported)
-9. [Credits](#9-credits)
+9. [Other graphics: tilesets, UI, characters…](#9-other-graphics-tilesets-ui-characters)
+10. [Credits](#10-credits)
 
 ---
 
@@ -189,7 +190,8 @@ this.load.audio(`cry:${species.id}`, `assets/sound/se/cries/${cry}.ogg`);
 
 ## 8. Changing what is imported
 
-Everything pack-specific is data in `tools/assets/packs/gen9.ts`:
+Everything pack-specific is data in `tools/assets/packs/gen9.ts` (and
+`tools/assets/packs/graphics.ts` for section 9):
 
 - The output folders themselves (`img/pokemon`, `sound/se/cries`, `items`) are constants in
   `tools/assets/config.ts`.
@@ -202,7 +204,56 @@ Everything pack-specific is data in `tools/assets/packs/gen9.ts`:
 For a pack with a different folder layout, copy the file, adjust it, register it in
 `tools/assets/config.ts`, and pass `--format <name>`.
 
-## 9. Credits
+## 9. Other graphics: tilesets, UI, characters…
+
+`npm run assets:graphics` imports the rest of an Essentials project's (or a correctly laid-out
+asset pack's) `Graphics/` folder into `public/assets/img/`. It is the same importer with
+`--format graphics`, so `--dry-run`, `--only`, `--force`, `--out`, layering several `--pack`s and
+the incremental re-runs all work the same way.
+
+```bash
+npm run assets:graphics -- --pack "~/Pokemon Essentials v21.1" --dry-run
+npm run assets:graphics -- --pack "~/Pokemon Essentials v21.1"
+npm run assets:graphics -- --pack <dir> --only tilesets,autotiles,characters
+npm run assets:graphics -- --pack <dir> --pack <tileset pack>       # layer packs; later wins
+npm run assets:graphics -- --pack <dir> --exclude "Graphics/UI/Mining" --exclude "Graphics/Battlebacks/unused"
+```
+
+**Names.** The folder structure is kept and every folder and file name is put in the engine's
+style: lower case, accents dropped, anything else that is not a letter or digit becomes one `_`.
+
+```
+Graphics/Tilesets/Poke Centre interior.png      → img/tilesets/poke_centre_interior.png
+Graphics/Characters/trainer_POKEMONTRAINER_Red.png → img/characters/trainer_pokemontrainer_red.png
+Graphics/UI/Town Map/mapPlayer000.png           → img/ui/town_map/mapplayer000.png
+Graphics/Transitions/021-Normal01.png           → img/transitions/021_normal01.png
+Graphics/Battle animations/ballBurst_ring4.bmp  → img/battle_animations/ballburst_ring4.png
+```
+
+Character sheets land in `img/characters/`, which is where the overworld loads them from (an
+event's graphic `npc_01` is `img/characters/npc_01.png`). `.bmp` files are converted to PNG.
+`--only` takes the first folder's new name (`tilesets`, `ui`, `battle_animations`…).
+
+**Left out** (listed in `tools/assets/packs/graphics.ts`): `Pokemon`, `Items` and
+`Characters/Followers*` (the gen9 import covers them), `Animations`, `UI/Controls help`,
+`UI/Debug`, and the RPG Maker windowskins `Windowskins/Window.png` and `001-Blue01.png`. Patterns
+ignore case, treat spaces and `_` alike, and may use `*` (`Graphics/Characters/Followers*`).
+
+**Size.** Essentials draws everything at 2× on a 512×384 screen; the engine is 256×192, so every
+image is halved (32 px tiles become 16 px). How each image is halved:
+
+| The image is… | What happens | Report line |
+|---------------|--------------|-------------|
+| clean 2× pixel art (almost all of Essentials) | one pixel per 2×2 block, nothing lost | — |
+| pixel art with some 1× detail (tilesets' red "X" marker tiles, a few UI sheets) | each 2×2 block becomes its **main colour**; on a tie the colour that is rarer around it wins, so thin outlines survive. No new colours, every output pixel is exactly one block: no mixels | Not a clean upscale |
+| soft art: gradients, translucent fogs, transition masks (over 64 colours, mostly gentle colour steps) | blocks are blended, weighted by alpha | Soft art |
+| not a multiple of 2 in size | transparent pixels added right/bottom first | transparent pixels added |
+
+The filter is `filter: 'auto'` in the pack layout; set `'dominant'`, `'average'` or `'nearest'` on
+the rule to force one. Anything listed under "Not a clean upscale" is worth a look in an image
+viewer at 4× zoom.
+
+## 10. Credits
 
 Sprites in these packs newer than Generation 5 are fan-made. The importer copies the pack's
 credits file to `public/assets/credits/`; keep it with your game and credit the artists in your
