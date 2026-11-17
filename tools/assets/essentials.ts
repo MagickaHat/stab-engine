@@ -127,17 +127,27 @@ export function findDir (root: string, relative: string): string | null
 
 /**
  * @brief Default engine name for a folder or file copied from a pack:
- *        lower case, accents removed, every run of other characters turned
+ *        lower case, accents and apostrophes removed, every run of other characters turned
  *        into one `_`. Matches the engine's asset names (`front_shiny`, `tm_fire`).
- * @param name Original name without extension, e.g. `'Town Map'`, `'trainer_POKEMONTRAINER_Red'`.
- * @return `'town_map'`, `'trainer_pokemontrainer_red'`; `null` if nothing is left (e.g. `'!'`).
+ * @param name Original name without extension, e.g. `'Town Map'`, `'trainer_POKEMONTRAINER_Red'`, `"PRSFX- King's Shield1"`.
+ * @return `'town_map'`, `'trainer_pokemontrainer_red'`, `'prsfx_kings_shield1'`. A name made only of
+ *         symbols is spelled out (`'!'` → `'exclamation'`); `null` for an empty name.
  */
 export function assetName (name: string): string | null
 {
-    const id = name.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    const id = name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+        .replace(/['\u2019]/g, '') // King's Shield → kings_shield
         .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-    return id || null;
+    if (id || !name.trim()) return id || null;
+    // Only symbols (Essentials' `!.png` emote sheet): spell them out.
+    return [...name.trim()].map((c) => SYMBOL_NAMES[c] ?? `u${c.codePointAt(0)!.toString(16)}`).join('_');
 }
+
+/** @brief Words for symbols in file names that have no letters or digits at all. */
+const SYMBOL_NAMES: Record<string, string> = {
+    '!': 'exclamation', '?': 'question', '.': 'dot', '#': 'hash', '+': 'plus', '-': 'minus', '&': 'and',
+    '@': 'at', '%': 'percent', '*': 'star', '$': 'dollar', '~': 'tilde', '=': 'equals', ' ': 'space', '_': 'underscore',
+};
 
 /**
  * @brief Comparison form of one path part: lower case, spaces and `_` treated alike.

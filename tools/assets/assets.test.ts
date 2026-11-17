@@ -9,7 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { decodeBmp } from './bmp.ts';
 import { assetName, excludedBy, formKey, parseAssetName, parseFormNames } from './essentials.ts';
-import { chooseFilter, detectScale, reduceAverage, reduceDominant, transform } from './image.ts';
+import { chooseFilter, detectScale, reduceAverage, reduceDominant, sampleRegion, transform } from './image.ts';
 import { gen9 } from './packs/gen9.ts';
 import { graphics } from './packs/graphics.ts';
 import { planPack } from './plan.ts';
@@ -355,7 +355,10 @@ test('essentials: engine names and exclusion patterns', () =>
     assert.equal(assetName('trainer_POKEMONTRAINER_Red'), 'trainer_pokemontrainer_red');
     assert.equal(assetName('021-Normal01'), '021_normal01');
     assert.equal(assetName('Pokémon Centre'), 'pokemon_centre');
-    assert.equal(assetName('!'), null);
+    assert.equal(assetName('!'), 'exclamation');
+    assert.equal(assetName('?!'), 'question_exclamation');
+    assert.equal(assetName("PRSFX- King's Shield1"), 'prsfx_kings_shield1');
+    assert.equal(assetName(''), null);
     assert.equal(excludedBy('Graphics/UI/Debug/icon.png', ['Graphics/UI/Debug']), 'Graphics/UI/Debug');
     assert.equal(excludedBy('graphics/ui/controls help/a.png', ['Graphics/UI/Controls_help']), 'Graphics/UI/Controls_help');
     assert.equal(excludedBy('Graphics/Windowskins/Window.png', ['Graphics/Windowskins/window']), 'Graphics/Windowskins/window');
@@ -404,4 +407,57 @@ test('plan: graphics copies Graphics/ into img/ with engine names, minus exclude
     {
         fs.rmSync(packDir, { recursive: true, force: true });
     }
+});
+
+/**
+ * @brief Copy an image onto a transparent canvas at an offset.
+ * @param image Image.
+ * @param width Canvas width.
+ * @param height Canvas height.
+ * @param x Left.
+ * @param y Top.
+ * @return The canvas.
+ */
+function place (image: Image, width: number, height: number, x: number, y: number): Image
+{
+    const data = new Uint8Array(width * height * 4);
+    for (let j = 0; j < image.height; j++) data.set(image.data.subarray(j * image.width * 4, (j + 1) * image.width * 4), ((y + j) * width + x) * 4);
+    return { width, height, data };
+}
+
+test('image: sprite-sheet frames pasted one pixel off the grid are realigned losslessly', () =>
+{
+    // Two 16×16 frames; each holds a 2× upscaled 4×4 sprite. The second is shifted by (1, 1).
+    const sprite = makeImage(4, 4, 9);
+    const big = upscale(sprite, 2);
+    const sheet: Image = { width: 32, height: 16, data: new Uint8Array(32 * 16 * 4) };
+    const a = place(big, 16, 16, 4, 4);
+    const b = place(big, 16, 16, 5, 5);
+    for (let y = 0; y < 16; y++)
+    {
+        sheet.data.set(a.data.subarray(y * 64, (y + 1) * 64), y * 128);
+        sheet.data.set(b.data.subarray(y * 64, (y + 1) * 64), y * 128 + 64);
+    }
+    const result = transform(sheet, { divide: 2, filter: 'dominant', align: [16, 16] });
+    assert.deepEqual(result.notes, ['realigned'], 'no resampling needed once realigned');
+    const expected = place(sprite, 8, 8, 2, 2);
+    for (const frame of [0, 1])
+    {
+        const got = sampleRegion(result.image, frame * 8, 0, 8, 8, 0, 0, 1);
+        if (frame === 0) assert.deepEqual(got, expected);
+        else assert.deepEqual(got, place(sprite, 8, 8, 3, 3), 'shifted frame lands half a pixel over: one output pixel');
+    }
+    // Without alignment the shifted frame cannot be reduced cleanly.
+    assert.ok(transform(sheet, { divide: 2, filter: 'dominant' }).notes.includes('resampled'));
+});
+
+test('image: frames that touch their edge share one grid, so no seams open', () =>
+{
+    // A full-bleed 2× background shifted by one pixel: realigned as a whole, never per frame.
+    const art = upscale(makeImage(10, 10, 6), 2);
+    const shifted = sampleRegion(art, 0, 0, 20, 20, 1, 0, 2);
+    const result = transform(shifted, { divide: 2, filter: 'dominant', align: [8, 8] });
+    assert.deepEqual([result.image.width, result.image.height], [10, 10]);
+    assert.ok(result.notes.includes('realigned'));
+    assert.ok(!result.notes.includes('resampled'));
 });

@@ -29,6 +29,9 @@ tools/pokeapi/.cache
 # Asset importer bookkeeping and last report (tools/assets)
 tools/assets/.cache
 
+# Animation importer bookkeeping (tools/animations)
+tools/animations/.cache
+
 # Vite
 dist/
 

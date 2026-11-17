@@ -278,7 +278,7 @@ if (!args['dry-run'])
 }
 
 // ---- report ------------------------------------------------------------------
-const noted: Record<ImageNote, string[]> = { 'resampled': [], 'smoothed': [], 'padded': [], 'oversize': [], 'odd-size': [], 'evened': [] };
+const noted: Record<ImageNote, string[]> = { 'resampled': [], 'smoothed': [], 'padded': [], 'oversize': [], 'odd-size': [], 'evened': [], 'realigned': [] };
 for (const [dest, file] of planned)
 {
     for (const note of state[stateKey(file.packDir)]?.[dest]?.notes ?? []) noted[note].push(`${dest} (from ${file.srcRel})`);
@@ -290,6 +290,7 @@ const sections: [title: string, lines: string[]][] = [
     ['Items not in content/pbs (imported under the ID shown)', reports.flatMap((r) => r.report.unknownItems)],
     ['Not a clean upscale: one colour kept per block (no new colours), check fine detail', noted.resampled],
     ['Soft art (gradients, translucency): reduced by blending', noted.smoothed],
+    ['Art sat off the 2×2 grid: moved half a pixel so it reduces cleanly', noted.realigned],
     ['Smaller than the canvas: placed bottom-centre with padding', noted.padded],
     ['Larger than the canvas even at 1×: left at reduced size', noted.oversize],
     ['Size not divisible by the pack scale: left unchanged', noted['odd-size']],

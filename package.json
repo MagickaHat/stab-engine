@@ -25,6 +25,8 @@
     "pbs:schemas": "node tools/pbs/schemas.ts",
     "assets:import": "node tools/assets/import.ts",
     "assets:graphics": "node tools/assets/import.ts --format graphics",
+    "assets:animations": "node tools/assets/import.ts --format animations",
+    "animations:import": "node tools/animations/import.ts",
     "events:validate": "node tools/events/validate.ts",
     "events:sync-tiled": "node tools/events/sync-tiled.ts",
     "events:schema": "node tools/events/schema.ts",
