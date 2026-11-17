@@ -17,7 +17,7 @@ export type {
 export { getGameState, requireGameState, setGameState, subscribeGameState } from './session.ts';
 export { createPokemon, healed, isFainted, makeUid, NATURE_IDS } from './pokemon.ts';
 export type { NewPokemon } from './pokemon.ts';
-export { partyBattle, toPokemonSet, maxPP } from './battle.ts';
+export { partyBattle, toPokemonSet, maxPP, usedUpBerry } from './battle.ts';
 export type { PartyBattle, PartySide } from './battle.ts';
 export {
     SaveData, SavedPokemon, SavedMove, PlayerData, Position, Facing, Gender, PcStorage, PcBox, Bag, BagStack,

@@ -316,7 +316,18 @@ this.scene.start(BATTLE_SCENE_KEY, data);
 - When the battle ends (or the scene is left early), HP, status and PP are written back
   to the game state, before `GameEvents.BATTLE_END` is emitted.
 
-Not written back yet: experience, level-ups, and held items used up in battle.
+Held items follow the rule the games use since Generation 9:
+
+- An item that was used up, knocked off or taken during the battle is **back afterwards**:
+  Throat Spray, Focus Sash, Air Balloon, White Herb, Weakness Policy and so on.
+- **Berries are the exception.** A Berry the Pokémon ate or flung is removed from it for
+  good. A Berry that was only knocked off or taken by the opponent comes back, and so does
+  one restored during the battle (Recycle, Harvest).
+
+The rule is `usedUpBerry()` in `src/state/battle.ts`; change it there if your game should
+be stricter or more generous.
+
+Not written back yet: experience and level-ups.
 
 Outside the scene (tests, your own battle code), use `partyBattle()` directly:
 

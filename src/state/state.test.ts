@@ -445,6 +445,48 @@ test('partyBattle: the party enters a battle as saved and the result is written 
     assert.deepEqual(saves.load(0).getSnapshot().party, state.getSnapshot().party);
 });
 
+/** @brief Fight the sample opponent with a lone Snorlax and write the result back. */
+async function fightAlone (state: GameState): Promise<NonNullable<BattleBridge['engine']['battle']>['p1']['pokemon'][number]>
+{
+    const link = partyBattle(state);
+    const bridge = new BattleBridge({
+        p1: { name: 'Red', team: link.team },
+        p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
+        seed: 'gen5,1,2,3,4',
+        prepare: link.prepare,
+    });
+    await playOut(bridge);
+    const pokemon = bridge.engine.battle!.p1.pokemon[0];
+    link.finish();
+    bridge.destroy();
+    return pokemon;
+}
+
+test('partyBattle: used held items come back after the battle, except Berries', async () =>
+{
+    const snorlax = (item: string): NewPokemon => ({
+        species: 'snorlax', level: 100, ability: 'thickfat', moves: ['hypervoice'], uid: 'lax', item,
+    });
+
+    const spray = GameState.create();
+    spray.addToParty(createPokemon(snorlax('throatspray'), seeded(3)));
+    const sprayed = await fightAlone(spray);
+    assert.deepEqual([sprayed.item, sprayed.lastItem], ['', 'throatspray'], 'the Throat Spray was used in battle');
+    assert.equal(spray.getSnapshot().party[0].item, 'throatspray', 'and is held again afterwards');
+
+    const berry = GameState.create();
+    berry.addToParty(createPokemon(snorlax('sitrusberry'), seeded(3)));
+    berry.updatePokemon('lax', { hp: 10 });
+    const fed = await fightAlone(berry);
+    assert.deepEqual([fed.item, fed.lastItem], ['', 'sitrusberry'], 'the Sitrus Berry was eaten in battle');
+    assert.equal(berry.getSnapshot().party[0].item, undefined, 'and is gone afterwards');
+
+    const kept = GameState.create();
+    kept.addToParty(createPokemon(snorlax('leftovers'), seeded(3)));
+    await fightAlone(kept);
+    assert.equal(kept.getSnapshot().party[0].item, 'leftovers');
+});
+
 test('partyBattle: needs a Pokémon that can fight', () =>
 {
     const state = GameState.create();

@@ -27,6 +27,11 @@
  *
  * Fainted Pokémon are left out of the team, as they cannot be sent out. They
  * stay in the party untouched.
+ *
+ * Held items follow the rule the games use since Generation 9: an item that
+ * was used up, knocked off or taken during the battle is back afterwards
+ * (Throat Spray, Focus Sash, Air Balloon, White Herb...). The exception is a
+ * Berry the Pokémon ate or flung itself, which is gone for good.
  */
 import { Teams } from '@pkmn/sim';
 import type { Battle, ID, Pokemon, PokemonSet } from '@pkmn/sim';
@@ -47,7 +52,8 @@ export interface PartyBattle
     /** Pass as `BattleEngineOptions.prepare`: applies saved HP, status and PP. */
     prepare: (battle: Battle) => void;
     /**
-     * Writes each Pokémon's HP, status and PP back into the `GameState`. Call
+     * Writes each Pokémon's HP, status and PP back into the `GameState`, and
+     * removes Berries that were used up (other held items are kept). Call
      * it once the battle has ended (or been left) and before the battle is
      * destroyed. Does nothing if the battle never began.
      */
@@ -93,6 +99,26 @@ export function maxPP (basePP: number, ppUps: number, noPPBoosts = false): numbe
 }
 
 /**
+ * @brief Whether a Pokémon used up the Berry it brought into the battle.
+ *
+ * Only Berries are lost after a battle; every other held item returns. A
+ * Berry counts as used up if the Pokémon consumed it itself (ate it, or threw
+ * it with Fling or Natural Gift) and is not holding it again at the end
+ * (Recycle, Harvest and Cud Chew bring it back). A Berry that was knocked off
+ * or taken by the opponent returns like any other item.
+ *
+ * @param battle The simulator's battle, for the item data.
+ * @param pokemon The simulator's Pokémon at the end of the battle.
+ * @param item ID of the item it held when the battle began.
+ * @return `true` if the item is a Berry and it is gone.
+ */
+export function usedUpBerry (battle: Battle, pokemon: Pokemon, item: string): boolean
+{
+    if (!battle.dex.items.get(item).isBerry) return false;
+    return pokemon.item !== item && pokemon.lastItem === item;
+}
+
+/**
  * @brief Connect the saved party to a battle.
  *
  * @param state The game whose party fights.
@@ -107,9 +133,11 @@ export function partyBattle (state: GameState, side: PartySide = 'p1'): PartyBat
 
     /** The simulator's Pokémon by `uid`, filled in by `prepare`. */
     const battlers = new Map<string, Pokemon>();
+    let sim: Battle | null = null;
 
     const prepare = (battle: Battle): void =>
     {
+        sim = battle;
         const team = battle.getSide(side).pokemon;
         for (const [index, saved] of members.entries())
         {
@@ -142,7 +170,7 @@ export function partyBattle (state: GameState, side: PartySide = 'p1'): PartyBat
         {
             state.updatePokemon(uid, (saved) =>
             {
-                const { hp: _hp, status: _status, ...rest } = saved;
+                const { hp: _hp, status: _status, item, ...rest } = saved;
                 const next: SavedPokemon = {
                     ...rest,
                     moves: saved.moves.map((move) =>
@@ -154,12 +182,15 @@ export function partyBattle (state: GameState, side: PartySide = 'p1'): PartyBat
                 };
                 const hp = pokemon.fainted ? 0 : pokemon.hp;
                 if (hp < pokemon.maxhp) next.hp = hp;
+                //  The saved item is kept whatever happened to it, unless it is a Berry that was used up.
+                if (item && !(sim && usedUpBerry(sim, pokemon, item))) next.item = item;
                 //  A fainted Pokémon has no status condition.
                 if (hp > 0 && pokemon.status) next.status = pokemon.status as SavedPokemon['status'];
                 return next;
             });
         }
         battlers.clear();
+        sim = null;
     };
 
     return {
