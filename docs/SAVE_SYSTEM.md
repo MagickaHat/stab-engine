@@ -58,6 +58,7 @@ The code lives in `src/state/`. It imports neither Phaser nor React.
 | `src/state/SaveManager.ts` | `SaveManager`: slots, storage, versions, export/import. `SaveError`. |
 | `src/state/session.ts` | `getGameState()`, `setGameState()`: the game in progress. |
 | `src/state/battle.ts` | `partyBattle()`: takes the party into a battle and brings the result back. |
+| `src/state/experience.ts` | `expForLevel()`, `levelForExp()`, `expGain()`: growth curves and the experience formula. |
 | `src/state/state.test.ts` | Tests. Run with `npm test`. |
 | `src/ui/useGameState.ts` | `useGameState()`: the React hook. |
 | `src/game/scenes/Battle.ts` | The battle scene; `usePlayerParty: true` makes it use the saved party. |
@@ -313,8 +314,35 @@ this.scene.start(BATTLE_SCENE_KEY, data);
 
 - The party enters the battle with its saved HP, status conditions and PP.
 - Fainted Pokémon are left out of the team. If nobody can fight, the scene throws.
-- When the battle ends (or the scene is left early), HP, status and PP are written back
-  to the game state, before `GameEvents.BATTLE_END` is emitted.
+- Every opponent that faints gives the party experience, and a Pokémon that reaches a
+  new level grows at once (see below).
+- When the battle ends (or the scene is left early), HP, status, PP, experience and level
+  are written back to the game state, before `GameEvents.BATTLE_END` is emitted.
+
+### Experience and level-ups
+
+The simulator has no experience points, so `src/state` adds them:
+
+- **Who gets it:** every party member in the battle that has not fainted, as in
+  Generation 9. Those that were not on the field against the defeated Pokémon get half.
+- **How much:** the formula of Generation 7 onwards (`expGain()` in
+  `src/state/experience.ts`), from the defeated species' `baseExp` and level and the
+  receiver's level. A held Lucky Egg gives 1.5×.
+- **Level-ups happen during the battle.** The Pokémon's level and stats change in the
+  running battle and its HP rises with its maximum HP. The protocol gets
+  `|-message|Sparky gained 530 Exp. Points!`, `|-message|Sparky grew to Lv. 12!` and, for a
+  Pokémon on the field, a `|detailschange|` line, so `BattleSnapshot` shows the new level.
+- **Levels** follow the species' `growthRate` (`expForLevel()` / `levelForExp()`), up to
+  level 100.
+- `baseExp` and `growthRate` come from `species_info.json`; the scene loads that table
+  before the battle starts.
+
+Pass `exp: false` in `BattleSceneData` for a battle that should give none.
+
+Not done yet: learning moves and evolving on level-up, effort values, and the
+experience bonus for traded Pokémon. A benched Pokémon's new level reaches the
+`BattleSnapshot` with the next choice the player is offered; the game state is always
+correct after the battle.
 
 Held items follow the rule the games use since Generation 9:
 
@@ -327,19 +355,19 @@ Held items follow the rule the games use since Generation 9:
 The rule is `usedUpBerry()` in `src/state/battle.ts`; change it there if your game should
 be stricter or more generous.
 
-Not written back yet: experience and level-ups.
-
-Outside the scene (tests, your own battle code), use `partyBattle()` directly:
+Outside the scene (tests, your own battle code), use `partyBattle()` directly. Leave out
+`exp` and the party gains no experience:
 
 ```ts
-const link = partyBattle(state);
+const { speciesInfo } = await loadPbs(['speciesInfo']);
+const link = partyBattle(state, { exp: { species: (id) => speciesInfo[id] } });
 const bridge = new BattleBridge({
     p1: { name: 'Red', team: link.team },
     p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
     prepare: link.prepare,
 });
 // … once the battle has ended, and before bridge.destroy():
-link.finish();
+const gains = link.finish();     // [{ uid, gained, fromLevel, toLevel }, …]
 ```
 
 ---
@@ -430,7 +458,9 @@ To change something from a component, call the methods of `getGameState()`.
 | `subscribeGameState(listener)` | Called when a different game becomes the one in progress. |
 | `createPokemon(options, random?)` | A new `SavedPokemon` at full health. |
 | `isFainted(pokemon)`, `healed(pokemon)` | HP is 0; a fully restored copy. |
-| `partyBattle(state, side?)` | `{ team, uids, prepare, finish }` for a battle. |
+| `partyBattle(state, options?)` | `{ team, uids, prepare, finish }` for a battle. Options: `side`, `exp`. |
+| `expForLevel(growth, level)`, `levelForExp(growth, exp)` | Total experience at a level, and the level for an amount of experience. |
+| `expGain(input)` | Experience for defeating one Pokémon. |
 | `parseSaveFile(json)` | Check and upgrade save file text without a `SaveManager`. |
 | `useGameState()` | React hook (`src/ui`). |
 

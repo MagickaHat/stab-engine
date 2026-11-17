@@ -29,8 +29,9 @@
  *
  * To fight with the player's saved party instead of a fixed team, add
  * `usePlayerParty: true`. The party then enters the battle with its saved HP,
- * status and PP, and the result is written back to the game state when the
- * battle ends (see src/state/battle.ts):
+ * status and PP, gains experience and levels for every opponent it defeats,
+ * and the result is written back to the game state when the battle ends
+ * (see src/state/battle.ts):
  * @code
  * const data: BattleSceneData = {
  *     usePlayerParty: true,
@@ -47,7 +48,9 @@ import { BattleBridge, cryPath, setActiveBattle, spritePath } from '../../battle
 import type {
     AssetManifest, BattleBridgeOptions, BattleSnapshot, BattleStep, PokemonView, StepPokemon,
 } from '../../battle';
-import { partyBattle, requireGameState } from '../../state';
+import { loadPbs } from '../../data';
+import type { PbsData } from '../../data';
+import { isFainted, partyBattle, requireGameState } from '../../state';
 import type { PartyBattle } from '../../state';
 import { EventBus, GameEvents } from '../EventBus';
 
@@ -66,6 +69,11 @@ export interface BattleSceneData
      * one Pokémon that has not fainted.
      */
     usePlayerParty?: boolean;
+    /**
+     * With `usePlayerParty`: `false` for a battle that gives no experience
+     * (a battle facility, a link battle). Default: `true`.
+     */
+    exp?: boolean;
 }
 
 /**
@@ -116,6 +124,7 @@ export class Battle extends Scene
 {
     private options: BattleBridgeOptions;
     private usePlayerParty: boolean;
+    private givesExp: boolean;
     private manifest: AssetManifest;
     /** Pokémon on the field, by side and position (`"p1:0"`). */
     private readonly battlers = new Map<string, Battler>();
@@ -137,6 +146,7 @@ export class Battle extends Scene
         }
         this.options = data.options;
         this.usePlayerParty = data.usePlayerParty ?? false;
+        this.givesExp = data.exp ?? true;
     }
 
     preload ()
@@ -150,7 +160,36 @@ export class Battle extends Scene
         this.battlers.clear();
         this.manifest = (this.cache.json.get(MANIFEST_KEY) as AssetManifest | undefined) ?? { pokemon: {}, cries: [] };
 
-        const party = this.usePlayerParty ? this.linkParty() : null;
+        if (!this.usePlayerParty)
+        {
+            this.begin(null);
+            return;
+        }
+        //  Fail now, not after the data has loaded, if the party cannot fight.
+        if (!requireGameState().getSnapshot().party.some((pokemon) => !isFainted(pokemon)))
+        {
+            throw new Error('Battle: the party has no Pokémon that can fight.');
+        }
+        if (!this.givesExp)
+        {
+            this.begin(this.linkParty(null));
+            return;
+        }
+        //  Experience needs each species' base experience and growth curve.
+        let left = false;
+        this.events.once('shutdown', () => { left = true; });
+        void loadPbs(['speciesInfo']).then(({ speciesInfo }) =>
+        {
+            if (!left) this.begin(this.linkParty(speciesInfo));
+        });
+    }
+
+    /**
+     * @brief Creates the battle and starts it.
+     * @param party The link to the saved party, or `null` for a battle with fixed teams.
+     */
+    private begin (party: PartyBattle | null): void
+    {
         const bridge = new BattleBridge(this.options);
         bridge.setPresenter((step, snapshot) => this.present(step, snapshot));
 
@@ -183,14 +222,18 @@ export class Battle extends Scene
 
     /**
      * @brief Puts the saved party in the local player's place in `this.options`.
+     * @param speciesInfo The species table, for experience; `null` for a battle that gives none.
      * @return The link to call `finish()` on when the battle is over.
      * @throws Error if no game is in progress or no party Pokémon can fight.
      */
-    private linkParty (): PartyBattle
+    private linkParty (speciesInfo: PbsData['speciesInfo'] | null): PartyBattle
     {
         const state = requireGameState();
         const side = this.options.perspective === 'p2' ? 'p2' : 'p1';
-        const link = partyBattle(state, side);
+        const link = partyBattle(state, {
+            side,
+            exp: speciesInfo ? { species: (id) => speciesInfo[id] } : undefined,
+        });
         const prepare = this.options.prepare;
         this.options = {
             ...this.options,

@@ -3,11 +3,14 @@
  * @brief Tests for the game state and save system. Run with `npm test`.
  */
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { test } from 'node:test';
 import { BattleBridge } from '../battle/bridge/BattleBridge.ts';
 import type { BattleSnapshot } from '../battle/bridge/snapshot.ts';
 import { importTeam, SAMPLE_TEAM_P2 } from '../battle/teams.ts';
 import { partyBattle } from './battle.ts';
+import type { ExpSpecies } from './battle.ts';
+import { expForLevel, expGain, levelForExp } from './experience.ts';
 import { GameState } from './GameState.ts';
 import { createPokemon } from './pokemon.ts';
 import type { NewPokemon } from './pokemon.ts';
@@ -485,6 +488,130 @@ test('partyBattle: used held items come back after the battle, except Berries', 
     kept.addToParty(createPokemon(snorlax('leftovers'), seeded(3)));
     await fightAlone(kept);
     assert.equal(kept.getSnapshot().party[0].item, 'leftovers');
+});
+
+test('experience: growth curves and the gain formula', () =>
+{
+    assert.deepEqual(
+        (['fast', 'medium', 'medium-slow', 'slow', 'slow-then-very-fast', 'fast-then-very-slow'] as const)
+            .map((growth) => expForLevel(growth, 100)),
+        [800_000, 1_000_000, 1_059_860, 1_250_000, 600_000, 1_640_000],
+    );
+    assert.equal(expForLevel('medium-slow', 1), 0);
+    assert.equal(expForLevel('medium-slow', 2), 9);
+    assert.equal(expForLevel('slow-then-very-fast', 50), 125_000);
+    assert.equal(expForLevel('fast-then-very-slow', 36), 46_656 * 50 / 50);
+
+    assert.equal(levelForExp('medium', 0), 1);
+    assert.equal(levelForExp('medium', 124_999), 49);
+    assert.equal(levelForExp('medium', 125_000), 50);
+    assert.equal(levelForExp('medium', 99_999_999), 100);
+
+    const even = { baseExp: 112, defeatedLevel: 50, level: 50 };
+    assert.equal(expGain({ ...even, participated: true }), 1121);
+    assert.equal(expGain({ ...even, participated: false }), 561, 'half for those that did not take part');
+    assert.equal(expGain({ ...even, participated: true, luckyEgg: true }), 1681);
+    assert.ok(expGain({ ...even, level: 20, participated: true }) > 1121, 'more for a lower-level receiver');
+    assert.ok(expGain({ ...even, level: 80, participated: true }) < 1121, 'less for a higher-level receiver');
+    assert.equal(expGain({ ...even, baseExp: 0, participated: true }), 0);
+});
+
+test('partyBattle: experience and level-ups apply during the battle and are saved after it', async () =>
+{
+    const info = JSON.parse(fs.readFileSync(new URL('../../content/pbs/generated/species_info.json', import.meta.url), 'utf8')) as Record<string, ExpSpecies>;
+    const magikarp = 'Magikarp\nLevel: 30\nAbility: Swift Swim\n- Splash';
+
+    const state = GameState.create();
+    state.addToParty(createPokemon({ species: 'pikachu', level: 10, ability: 'static', moves: ['thundershock'], uid: 'lead', nickname: 'Sparky' }, seeded(1)));
+    state.addToParty(createPokemon({ species: 'bulbasaur', level: 5, ability: 'overgrow', moves: ['tackle'], uid: 'bench', exp: 140 }, seeded(2)));
+    state.addToParty(createPokemon({ species: 'snorlax', level: 100, ability: 'thickfat', moves: ['rest'], uid: 'max' }, seeded(3)));
+
+    const link = partyBattle(state, { exp: { species: (id) => info[id] } });
+    const bridge = new BattleBridge({
+        p1: { name: 'Red', team: link.team },
+        p2: { name: 'Rival', team: importTeam(`${magikarp}\n\n${magikarp}`), ai: 'random' },
+        seed: 'gen5,1,2,3,4',
+        prepare: link.prepare,
+    });
+    const lines: string[] = [];
+    const forward = bridge.engine.onProtocol;
+    bridge.engine.onProtocol = (batch) => { lines.push(...batch); forward(batch); };
+    //  HP of the lead as the player is shown it, each time a choice is offered.
+    const shown: { level: number; maxhp: number }[] = [];
+    bridge.subscribe(() =>
+    {
+        const lead = bridge.getSnapshot().me.active[0];
+        if (bridge.getSnapshot().choice && lead) shown.push({ level: lead.level, maxhp: lead.maxhp });
+    });
+
+    const end = await playOut(bridge);
+    assert.equal(end.winner, 'Red');
+
+    //  What the rules say two level 30 Magikarp are worth, one after the other.
+    const expected = (growth: ExpSpecies['growthRate'], start: number, participated: boolean) =>
+    {
+        let exp = start;
+        let gained = 0;
+        for (let i = 0; i < 2; i++)
+        {
+            const gain = expGain({ baseExp: info.magikarp.baseExp!, defeatedLevel: 30, level: levelForExp(growth, exp), participated });
+            exp += gain;
+            gained += gain;
+        }
+        return { exp, gained, level: levelForExp(growth, exp) };
+    };
+    //  The lead was made without `exp`, so it starts at the least level 10 needs; the bench has 140.
+    const lead = expected('medium', expForLevel('medium', 10), true);
+    const bench = expected('medium-slow', 140, false);
+    assert.ok(lead.level > 10 && bench.level > 5, 'the opponents are worth at least a level');
+
+    //  During the battle: the simulator's Pokémon have grown, stats included.
+    const battle = bridge.engine.battle!;
+    const [simLead, simBench, simMax] = battle.p1.pokemon;
+    assert.deepEqual([simLead.level, simBench.level, simMax.level], [lead.level, bench.level, 100]);
+    assert.deepEqual(simLead.baseStoredStats, battle.spreadModify(simLead.species.baseStats, simLead.set));
+    assert.equal(simLead.maxhp, simLead.baseStoredStats.hp);
+    assert.equal(simBench.maxhp, battle.spreadModify(simBench.species.baseStats, simBench.set).hp);
+    assert.ok(lines.some((line) => line.startsWith(`|detailschange|p1a: Sparky|Pikachu, L${lead.level}`)), 'the new level is announced');
+    assert.ok(lines.some((line) => line.startsWith('|-message|Sparky gained ')));
+    assert.ok(lines.includes(`|-message|Bulbasaur grew to Lv. ${bench.level}!`));
+    //  The player saw the lead at level 10 first and at a higher level, with more HP, before the end.
+    assert.equal(shown[0].level, 10);
+    assert.ok(shown.some((view) => view.level > 10 && view.maxhp > shown[0].maxhp));
+    assert.equal(end.me.team.find((view) => view.name === 'Sparky')?.level, lead.level);
+
+    //  After the battle: written back to the game state.
+    const results = link.finish();
+    bridge.destroy();
+    assert.deepEqual(results, [
+        { uid: 'lead', gained: lead.gained, fromLevel: 10, toLevel: lead.level },
+        { uid: 'bench', gained: bench.gained, fromLevel: 5, toLevel: bench.level },
+        { uid: 'max', gained: 0, fromLevel: 100, toLevel: 100 },
+    ]);
+    const [savedLead, savedBench, savedMax] = state.getSnapshot().party;
+    assert.deepEqual([savedLead.level, savedLead.exp], [lead.level, lead.exp]);
+    assert.deepEqual([savedBench.level, savedBench.exp], [bench.level, bench.exp]);
+    assert.deepEqual([savedMax.level, savedMax.exp], [100, expForLevel('slow', 100)], 'level 100 gains nothing');
+    assert.equal(savedLead.hp, undefined, 'unhurt, so still at full HP at its new level');
+    assert.deepEqual(link.finish(), [], 'a second call does nothing');
+});
+
+test('partyBattle: no experience unless it is asked for', async () =>
+{
+    const state = GameState.create();
+    state.addToParty(createPokemon({ species: 'pikachu', level: 10, ability: 'static', moves: ['thundershock'], uid: 'lead', exp: 1000 }, seeded(1)));
+    const link = partyBattle(state);
+    const bridge = new BattleBridge({
+        p1: { name: 'Red', team: link.team },
+        p2: { name: 'Rival', team: importTeam('Magikarp\nLevel: 30\nAbility: Swift Swim\n- Splash'), ai: 'random' },
+        seed: 'gen5,1,2,3,4',
+        prepare: link.prepare,
+    });
+    assert.equal((await playOut(bridge)).winner, 'Red');
+    assert.deepEqual(link.finish(), []);
+    bridge.destroy();
+    const [lead] = state.getSnapshot().party;
+    assert.deepEqual([lead.level, lead.exp], [10, 1000]);
 });
 
 test('partyBattle: needs a Pokémon that can fight', () =>

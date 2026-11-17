@@ -17,8 +17,10 @@ export type {
 export { getGameState, requireGameState, setGameState, subscribeGameState } from './session.ts';
 export { createPokemon, healed, isFainted, makeUid, NATURE_IDS } from './pokemon.ts';
 export type { NewPokemon } from './pokemon.ts';
-export { partyBattle, toPokemonSet, maxPP, usedUpBerry } from './battle.ts';
-export type { PartyBattle, PartySide } from './battle.ts';
+export { partyBattle, setBattleLevel, toPokemonSet, maxPP, usedUpBerry } from './battle.ts';
+export type { ExpOptions, ExpResult, ExpSpecies, PartyBattle, PartyBattleOptions, PartySide } from './battle.ts';
+export { expForLevel, expGain, levelForExp, MAX_LEVEL, LUCKY_EGG_BONUS } from './experience.ts';
+export type { ExpGainInput, GrowthRate } from './experience.ts';
 export {
     SaveData, SavedPokemon, SavedMove, PlayerData, Position, Facing, Gender, PcStorage, PcBox, Bag, BagStack,
     IVSpread, EVSpread, VariableValue,
