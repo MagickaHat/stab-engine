@@ -1,0 +1,19 @@
+{
+    "$schema": "../events/schema.json",
+    "$comment": "Sample trainer: the rival's team depends on the player's starter and scales with the party.",
+    "trainers": {
+        "sample_rival_lab": {
+            "class": "rival",
+            "name": "trainers.sample_rival.name",
+            "money": 20,
+            "defeat": "events.sample.rival_defeat",
+            "variants": [
+                { "conditions": { "var": "starter_choice", "value": "bulbasaur" },
+                  "team": [{ "species": "charmander", "level": { "party": "max" }, "moves": ["scratch", "growl"], "ability": "blaze" }] },
+                { "conditions": { "var": "starter_choice", "value": "charmander" },
+                  "team": [{ "species": "squirtle", "level": { "party": "max" }, "moves": ["tackle", "tailwhip"], "ability": "torrent" }] },
+                { "team": [{ "species": "bulbasaur", "level": { "party": "max" }, "moves": ["tackle", "growl"], "ability": "overgrow" }] }
+            ]
+        }
+    }
+}

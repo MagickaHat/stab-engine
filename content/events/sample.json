@@ -1,0 +1,111 @@
+{
+    "$schema": "./schema.json",
+    "$comment": "Sample scripts showing the event format. See docs/EVENT_SYSTEM.md.",
+    "scripts": {
+        "sample_lab_intro": {
+            "tags": ["professor"],
+            "pages": [
+                {
+                    "trigger": "autorun",
+                    "conditions": { "story": "got_starter", "op": "before" },
+                    "graphic": "professor",
+                    "direction": "down",
+                    "commands": [
+                        { "cmd": "fade", "dir": "in", "ms": 600 },
+                        { "cmd": "bgm", "name": "lab", "fadeMs": 500 },
+                        { "cmd": "camera", "to": { "target": "self" }, "ms": 600 },
+                        { "cmd": "emote", "target": "self", "emote": "exclamation" },
+                        { "cmd": "message", "key": "events.sample.lab_hello", "speaker": "events.sample.professor" },
+                        {
+                            "cmd": "moveMany",
+                            "moves": [
+                                { "target": "self", "route": ["down", "down", "turnLeft"] },
+                                { "target": { "tag": "aide" }, "route": [{ "speed": 4 }, "left", "left", "turnDown"] }
+                            ]
+                        },
+                        { "cmd": "pathTo", "target": "player", "to": { "target": "self" } },
+                        { "cmd": "camera", "to": "player", "ms": 400 },
+                        {
+                            "cmd": "choice",
+                            "key": "events.sample.lab_pick",
+                            "options": [
+                                { "key": "events.sample.pick_bulbasaur", "then": [
+                                    { "cmd": "givePokemon", "species": "bulbasaur", "level": 5 },
+                                    { "cmd": "setVar", "var": "starter_choice", "value": "bulbasaur" }
+                                ] },
+                                { "key": "events.sample.pick_charmander", "then": [
+                                    { "cmd": "givePokemon", "species": "charmander", "level": 5 },
+                                    { "cmd": "setVar", "var": "starter_choice", "value": "charmander" }
+                                ] },
+                                { "key": "events.sample.pick_squirtle", "then": [
+                                    { "cmd": "givePokemon", "species": "squirtle", "level": 5 },
+                                    { "cmd": "setVar", "var": "starter_choice", "value": "squirtle" }
+                                ] }
+                            ]
+                        },
+                        { "cmd": "cry", "species": "bulbasaur", "wait": true },
+                        { "cmd": "setFlag", "flag": "got_starter" },
+                        { "cmd": "setStory", "milestone": "got_starter" }
+                    ]
+                },
+                {
+                    "conditions": { "story": "got_starter" },
+                    "graphic": "professor",
+                    "commands": [
+                        {
+                            "cmd": "if", "cond": { "partySize": 6 },
+                            "then": [{ "cmd": "message", "key": "events.sample.lab_full_team" }],
+                            "elsif": [
+                                { "cond": { "partySize": 2 }, "then": [{ "cmd": "message", "key": "events.sample.lab_growing" }] }
+                            ],
+                            "else": [{ "cmd": "message", "key": "events.sample.lab_go" }]
+                        }
+                    ]
+                }
+            ]
+        },
+        "sample_rival": {
+            "tags": ["rival"],
+            "pages": [
+                {
+                    "trigger": "action",
+                    "conditions": { "all": [{ "story": "got_starter" }, { "not": { "trainerDefeated": "sample_rival_lab" } }] },
+                    "graphic": "rival",
+                    "commands": [
+                        { "cmd": "message", "key": "events.sample.rival_challenge", "speaker": "trainers.sample_rival.name" },
+                        {
+                            "cmd": "trainerBattle", "trainer": "sample_rival_lab", "canLose": true,
+                            "onWin": [{ "cmd": "message", "key": "events.sample.rival_lost" }],
+                            "onLose": [{ "cmd": "message", "key": "events.sample.rival_won" }, { "cmd": "heal" }]
+                        },
+                        { "cmd": "setStory", "milestone": "first_rival_battle" },
+                        { "cmd": "move", "target": "self", "route": ["down", "down", "down"], "skipBlocked": true },
+                        { "cmd": "hide", "target": "self" }
+                    ]
+                }
+            ]
+        }
+    },
+    "common": {
+        "sample_heal_party": [
+            { "cmd": "fade", "dir": "out", "ms": 300 },
+            { "cmd": "heal" },
+            { "cmd": "me", "name": "heal" },
+            { "cmd": "fade", "dir": "in", "ms": 300 },
+            { "cmd": "message", "key": "events.sample.healed" }
+        ]
+    },
+    "listeners": {
+        "sample_first_badge": {
+            "on": "varChanged", "name": "badges", "once": true,
+            "conditions": { "var": "badges", "op": "ge", "value": 1 },
+            "commands": [{ "cmd": "message", "key": "events.sample.first_badge" }]
+        }
+    },
+    "hooks": {
+        "sample_rival_last_pokemon": {
+            "on": "faint", "trainer": "sample_rival_lab", "side": "foe",
+            "commands": [{ "cmd": "message", "key": "events.sample.rival_hang_on" }]
+        }
+    }
+}

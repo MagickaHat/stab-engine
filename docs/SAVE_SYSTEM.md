@@ -103,8 +103,17 @@ SaveData
 ├─ bag        { medicine: [{ item, quantity }], pokeballs: […], … }   one list per pocket
 ├─ flags      { got_starter: true, … }                yes/no facts
 ├─ variables  { badges: 3, rival_name: "Blue", … }    numbers and text
-└─ dialogue   { sample: "…" }                         ink story states
+├─ dialogue   { sample: "…" }                         ink story states
+├─ selfSwitches { "route1:12:A": true, … }            event self switches that are on
+├─ hiddenEvents { "route1:7": true, … }               events hidden with the `hide` command
+└─ story      { main: "got_starter", … }              last milestone of each story track
 ```
+
+The last three belong to the event system (see `docs/EVENT_SYSTEM.md`). They were added
+without changing `SAVE_VERSION`: older files that lack them load with empty values.
+While a cutscene or battle runs, `SaveManager.save()` throws `SaveError` with code `busy`
+(see `blockSaving()` in `src/state/session.ts`); check `isSavingBlocked()` to grey out a
+Save option.
 
 - `position.x` and `position.y` are tiles on `position.map`; `facing` is `up`, `down`,
   `left` or `right`.

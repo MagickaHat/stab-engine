@@ -1,5 +1,6 @@
 import { Battle } from './scenes/Battle';
 import { Game as MainGame } from './scenes/Game';
+import { Overworld } from './scenes/Overworld';
 import { AUTO, Core, Game, Scale, Types } from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from './config';
 
@@ -17,9 +18,11 @@ const config: Types.Core.GameConfig = {
         mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH
     },
-    //  The first scene starts by itself. `Battle` is started with a team (see scenes/Battle.ts).
+    //  The first scene starts by itself. `Battle` is started with a team (see scenes/Battle.ts),
+    //  `Overworld` with a map (see scenes/Overworld.ts).
     scene: [
         MainGame,
+        Overworld,
         Battle
     ]
 };

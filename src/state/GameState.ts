@@ -30,7 +30,8 @@ import { describeIssues, healed } from './pokemon.ts';
 import {
     DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY, MAX_MOVES, PARTY_SIZE, SaveData,
 } from './schema.ts';
-import type { Bag, PcBox, PcLocation, Position, SavedPokemon, VariableValue } from './schema.ts';
+import { eventKey, selfSwitchKey } from './schema.ts';
+import type { Bag, PcBox, PcLocation, Position, SavedPokemon, SelfSwitch, VariableValue } from './schema.ts';
 
 /** @brief Settings for a new game. */
 export interface NewGameOptions
@@ -107,6 +108,9 @@ export class GameState
             flags: {},
             variables: {},
             dialogue: {},
+            selfSwitches: {},
+            hiddenEvents: {},
+            story: {},
         });
     }
 
@@ -543,6 +547,87 @@ export class GameState
         }
         if (this.data.variables[name] === value) return;
         this.set({ variables: { ...this.data.variables, [name]: value } });
+    }
+
+    // --------------------------------------------------------------- Events
+
+    /**
+     * @brief Read one of an event's self switches.
+     * @param map Map ID.
+     * @param event Event ID on that map.
+     * @param letter `A` to `D`.
+     * @return `true` if it is on.
+     */
+    getSelfSwitch (map: string, event: number, letter: SelfSwitch): boolean
+    {
+        return this.data.selfSwitches[selfSwitchKey(map, event, letter)] ?? false;
+    }
+
+    /**
+     * @brief Turn one of an event's self switches on or off.
+     * @param map Map ID.
+     * @param event Event ID on that map.
+     * @param letter `A` to `D`.
+     * @param value Default: `true`.
+     */
+    setSelfSwitch (map: string, event: number, letter: SelfSwitch, value = true): void
+    {
+        const key = selfSwitchKey(map, event, letter);
+        if ((this.data.selfSwitches[key] ?? false) === value) return;
+        const selfSwitches = { ...this.data.selfSwitches };
+        if (value) selfSwitches[key] = true;
+        else delete selfSwitches[key];
+        this.set({ selfSwitches });
+    }
+
+    /**
+     * @brief Whether an event was hidden for good with the `hide` command.
+     * @param map Map ID.
+     * @param event Event ID on that map.
+     */
+    isEventHidden (map: string, event: number): boolean
+    {
+        return this.data.hiddenEvents[eventKey(map, event)] ?? false;
+    }
+
+    /**
+     * @brief Hide an event for good, or show it again.
+     * @param map Map ID.
+     * @param event Event ID on that map.
+     * @param hidden Default: `true`.
+     */
+    setEventHidden (map: string, event: number, hidden = true): void
+    {
+        const key = eventKey(map, event);
+        if ((this.data.hiddenEvents[key] ?? false) === hidden) return;
+        const hiddenEvents = { ...this.data.hiddenEvents };
+        if (hidden) hiddenEvents[key] = true;
+        else delete hiddenEvents[key];
+        this.set({ hiddenEvents });
+    }
+
+    /**
+     * @brief The last milestone reached on a story track.
+     * @param track Track name. Default: `"main"`.
+     * @return Milestone ID, or `undefined` if the track has not started.
+     */
+    getStory (track = 'main'): string | undefined
+    {
+        return this.data.story[track];
+    }
+
+    /**
+     * @brief Record the milestone a story track has reached.
+     *
+     * The state does not check the order; `src/events` compares milestones
+     * using the list in `src/events/registry/story.ts`.
+     * @param milestone Milestone ID.
+     * @param track Track name. Default: `"main"`.
+     */
+    setStory (milestone: string, track = 'main'): void
+    {
+        if (this.data.story[track] === milestone) return;
+        this.set({ story: { ...this.data.story, [track]: milestone } });
     }
 
     // --------------------------------------------------------------- Player

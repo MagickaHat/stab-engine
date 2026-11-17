@@ -105,3 +105,58 @@
 .sample-hud-button:active {
     background: #1a4a80;
 }
+
+/* --- Event dialogue (EventDialogue.tsx): messages, choices and name entry. --- */
+
+.event-dialogue {
+    position: absolute;
+    box-sizing: border-box;
+    color: #202020;
+    background: #f8f8f8;
+    border: 2px solid #404040;
+    border-radius: 3px;
+}
+
+.event-dialogue-box {
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    min-height: 40px;
+    padding: 4px 6px;
+}
+
+.event-dialogue-speaker {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.event-dialogue-text {
+    white-space: pre-wrap;
+}
+
+.event-dialogue-choices {
+    right: 4px;
+    bottom: 50px;
+    margin: 0;
+    padding: 3px 6px;
+    list-style: none;
+}
+
+.event-dialogue-choices li {
+    position: relative;
+    padding: 1px 0 1px 10px;
+}
+
+.event-dialogue-choices li.selected::before {
+    content: '▶';
+    position: absolute;
+    left: 1px;
+    font-size: 6px;
+    line-height: 10px;
+}
+
+.event-dialogue-input {
+    width: 100%;
+    font: inherit;
+    font-size: 8px;
+}

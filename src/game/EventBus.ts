@@ -42,6 +42,26 @@ export const GameEvents = {
      * `evolvePokemon()`.
      */
     BATTLE_EVOLUTIONS: 'battle-evolutions',
+    /**
+     * Phaser → anyone. A battle ended. Emitted just before `BATTLE_END`.
+     * Argument: `BattleResultData` (`win`, `lose` or `draw` for the local player).
+     */
+    BATTLE_RESULT: 'battle-result',
     /** Phaser → React. A battle finished being shown. Argument: the winner's name, or `null` for a tie. */
     BATTLE_END: 'battle-end',
+    /**
+     * Phaser → React. The event system shows a line of text. Argument: `DialogueRequest`
+     * (src/world/dialogue.ts). Call its `done()` when the player has read it.
+     */
+    DIALOGUE_MESSAGE: 'dialogue-message',
+    /**
+     * Phaser → React. The event system asks the player to pick an option.
+     * Argument: `ChoiceRequest` (src/world/dialogue.ts). Call its `pick(index)`.
+     */
+    DIALOGUE_CHOICE: 'dialogue-choice',
+    /**
+     * Phaser → React. The event system asks the player to type a name.
+     * Argument: `NameInputRequest` (src/world/dialogue.ts). Call its `submit(name)`.
+     */
+    DIALOGUE_NAME_INPUT: 'dialogue-name-input',
 } as const;

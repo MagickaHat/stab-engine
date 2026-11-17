@@ -1,5 +1,7 @@
 import { Scene } from 'phaser';
 import { EventBus, GameEvents } from '../EventBus';
+import { OVERWORLD_SCENE_KEY } from './Overworld';
+import type { OverworldData } from './Overworld';
 
 export class Game extends Scene
 {
@@ -18,6 +20,15 @@ export class Game extends Scene
 
     create ()
     {
+        //  Development shortcut: http://localhost:8080/?map=route1 opens that map (src/tiled/maps/route1.tmj).
+        const map = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('map') : null;
+        if (map)
+        {
+            const spawn = new URLSearchParams(window.location.search).get('spawn') ?? undefined;
+            this.scene.start(OVERWORLD_SCENE_KEY, { map, spawn } satisfies OverworldData);
+            return;
+        }
+
         // Positions and sizes come from the current game size, not fixed numbers,
         // so the scene still fits if the resolution changes (see src/game/config.ts).
         const { width, height } = this.scale;

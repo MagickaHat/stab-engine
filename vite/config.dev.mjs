@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import inkPlugin from './plugins/ink.mjs';
+import eventsPlugin from './plugins/events.mjs';
 
 export default defineConfig({
     base: './',
@@ -18,7 +19,8 @@ export default defineConfig({
     },
     plugins: [
         react(),
-        inkPlugin()
+        inkPlugin(),
+        eventsPlugin()
     ],
     server: {
         port: 8080

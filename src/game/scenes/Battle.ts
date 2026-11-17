@@ -76,6 +76,19 @@ export interface BattleSceneData
      * (a battle facility, a link battle). Default: `true`.
      */
     exp?: boolean;
+    /**
+     * Called after each step has been shown, and awaited before the next one.
+     * The event system passes its battle hooks here (see src/events/runtime/battleHooks.ts).
+     */
+    onStep?: (step: BattleStep, snapshot: BattleSnapshot) => Promise<void> | void;
+}
+
+/** @brief How a battle ended for the local player, sent with `GameEvents.BATTLE_RESULT`. */
+export interface BattleResultData
+{
+    result: 'win' | 'lose' | 'draw';
+    /** Winner's name, or `null` for a tie. */
+    winner: string | null;
 }
 
 /**
@@ -127,6 +140,7 @@ export class Battle extends Scene
     private options: BattleBridgeOptions;
     private usePlayerParty: boolean;
     private givesExp: boolean;
+    private onStep: BattleSceneData['onStep'];
     private manifest: AssetManifest;
     /** Pokémon on the field, by side and position (`"p1:0"`). */
     private readonly battlers = new Map<string, Battler>();
@@ -149,6 +163,7 @@ export class Battle extends Scene
         this.options = data.options;
         this.usePlayerParty = data.usePlayerParty ?? false;
         this.givesExp = data.exp ?? true;
+        this.onStep = data.onStep;
     }
 
     preload ()
@@ -193,7 +208,11 @@ export class Battle extends Scene
     private begin (party: PartyBattle | null): void
     {
         const bridge = new BattleBridge(this.options);
-        bridge.setPresenter((step, snapshot) => this.present(step, snapshot));
+        bridge.setPresenter(async (step, snapshot) =>
+        {
+            await this.present(step, snapshot);
+            await this.onStep?.(step, snapshot);
+        });
 
         const stopWatching = bridge.subscribe(() =>
         {
@@ -202,7 +221,13 @@ export class Battle extends Scene
             stopWatching();
             //  Save the party's condition first, so listeners already see it.
             this.settle(party);
-            EventBus.emit(GameEvents.BATTLE_END, snapshot.winner ?? null);
+            const winner = snapshot.winner ?? null;
+            const result: BattleResultData = {
+                result: winner === null ? 'draw' : winner === snapshot.me.name ? 'win' : 'lose',
+                winner,
+            };
+            EventBus.emit(GameEvents.BATTLE_RESULT, result);
+            EventBus.emit(GameEvents.BATTLE_END, winner);
         });
 
         this.events.once('shutdown', () =>

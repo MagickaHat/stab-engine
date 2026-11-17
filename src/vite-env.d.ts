@@ -8,3 +8,12 @@ declare module '*.ink' {
     const story: Record<string, unknown>;
     export default story;
 }
+
+/**
+ * @brief Every event file compiled by vite/plugins/events.mjs.
+ *        Pass it to `new EventManager({ bundle, ... })` (src/events).
+ */
+declare module 'virtual:stab-events' {
+    const bundle: import('./events/compile.ts').EventBundle;
+    export default bundle;
+}
