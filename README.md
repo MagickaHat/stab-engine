@@ -51,6 +51,8 @@ Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSO
 
 Pokémon and item graphics and cries are imported from a Pokémon Essentials resource pack (such as the Generation 9 Resource Pack) with `npm run assets:import -- --pack <folder>`. Sprites land in `public/assets/img/pokemon/<species>/`, cries in `public/assets/sound/se/cries/` and item icons in `public/assets/items/`, named with Showdown IDs and reduced to 1× scale (battle sprites are 96×96). See **[docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md)**.
 
+The rest of an Essentials project's graphics (tilesets, characters, UI…) come in with `npm run assets:graphics`. Battle animations come from an Essentials project or animation pack: `npm run assets:animations` imports their sheets and sounds, and `npm run animations:import` converts `PkmnAnimations.rxdata` into editable JSON in `content/animations/`, the base for the future animation player and editor. See **[docs/ANIMATION_SYSTEM.md](docs/ANIMATION_SYSTEM.md)**.
+
 ## Available Commands
 
 | Command | Description |
@@ -66,6 +68,9 @@ Pokémon and item graphics and cries are imported from a Pokémon Essentials res
 | `npm run pbs:compare` | Compare game data with Pokémon Showdown's and list differences |
 | `npm run pbs:schemas` | Regenerate JSON Schemas for editor autocompletion |
 | `npm run assets:import -- --pack <folder>` | Import sprites, icons and cries from an Essentials resource pack (see `docs/ASSET_PIPELINE.md`) |
+| `npm run assets:graphics -- --pack <folder>` | Import tilesets, characters, UI and other Essentials graphics into `public/assets/img` |
+| `npm run assets:animations -- --pack <folder>` | Import battle animation sheets and sounds |
+| `npm run animations:import -- --pack <folder>` | Convert `PkmnAnimations.rxdata` to JSON in `content/animations` (see `docs/ANIMATION_SYSTEM.md`) |
 | `npm run events:validate` | Check every event file and Tiled map against the registries (see `docs/EVENT_SYSTEM.md`) |
 | `npm run events:sync-tiled` | Write flags, items, species, trainers, scripts, story IDs and text keys into the Tiled project |
 | `npm run events:schema` | Regenerate `content/events/schema.json` for editor autocompletion |
@@ -109,6 +114,8 @@ We have provided a default project structure to get you started:
 | `src/events`                 | Event and scripting system: schema, compiler, interpreter, Tiled factories, registries. See `docs/EVENT_SYSTEM.md`. |
 | `src/world`                  | Overworld helpers: characters, map loading, dialogue requests, ink runner. |
 | `src/tiled`                  | Tiled project, editor extensions, object templates, maps and tilesets. |
+| `src/battle/animation`       | Battle animation format (types, constants). See `docs/ANIMATION_SYSTEM.md`. |
+| `content/animations`         | Battle animations (JSON), imported from Essentials by `npm run animations:import`. |
 | `content/events`, `content/trainers` | Event scripts, common events, listeners, battle hooks and trainers (JSON), compiled by `vite/plugins/events.mjs`. |
 | `content/locales`            | Translated text, one CSV per category and language. See `docs/LOCALIZATION.md`. |
 | `src/data`                   | Game data loader, Zod schemas and Showdown bridge. See `docs/DATA_PIPELINE.md`. |

@@ -1,4 +1,4 @@
-# Asset Pipeline (sprites, icons, cries, graphics)
+# Asset Pipeline (sprites, icons, cries, graphics, animations)
 
 STAB-engine does not ship Pokémon graphics or audio. `npm run assets:import` brings them in from
 a **Pokémon Essentials resource pack** — it was built for the
@@ -19,7 +19,8 @@ Essentials project folder has the same layout. Files are renamed to the Showdown
 7. [Using the assets in the game](#7-using-the-assets-in-the-game)
 8. [Changing what is imported](#8-changing-what-is-imported)
 9. [Other graphics: tilesets, UI, characters…](#9-other-graphics-tilesets-ui-characters)
-10. [Credits](#10-credits)
+10. [Battle animation sheets and sounds](#10-battle-animation-sheets-and-sounds)
+11. [Credits](#11-credits)
 
 ---
 
@@ -253,7 +254,53 @@ The filter is `filter: 'auto'` in the pack layout; set `'dominant'`, `'average'`
 the rule to force one. Anything listed under "Not a clean upscale" is worth a look in an image
 viewer at 4× zoom.
 
-## 10. Credits
+## 10. Battle animation sheets and sounds
+
+`npm run assets:animations` imports what battle animations draw and play, from an Essentials
+project or an animation pack (e.g. the Gen 9 Move Animation Project). The animation data itself
+is converted by `npm run animations:import`; see [ANIMATION_SYSTEM.md](ANIMATION_SYSTEM.md).
+
+```bash
+npm run assets:animations -- --pack ~/packs/Gen_9_Move_Animation_Project --dry-run
+npm run assets:animations -- --pack ~/packs/Gen_9_Move_Animation_Project
+npm run assets:animations -- --pack <dir> --only images        # or sounds
+```
+
+```
+Graphics/Animations/PRAS- Strike.png        → img/animations/pras_strike.png
+Graphics/Animations/!.png                   → img/animations/exclamation.png
+Audio/SE/Anim/PRSFX- King's Shield1.wav     → sound/se/anim/prsfx_kings_shield1.wav
+Audio/SE/Anim/Acupressure.ogg / .mp3        → sound/se/anim/acupressure.ogg / .mp3
+```
+
+Names follow the same rule as section 9. Apostrophes are dropped, and a name made only of
+symbols is spelled out. Sounds are copied as they are (`.ogg`, `.wav`, `.mp3`), so the animation
+data refers to the exact file; when a name has several formats, the data picks `.ogg` first.
+
+**Sheets.** Essentials sheets are 192×192 frames, 5 per row, drawn for a 512×384 screen. They
+become 96×96 frames for 256×192. Each frame is reduced like this:
+
+- **Clean 2× frames** are halved losslessly.
+- **Frames pasted one pixel off the 2×2 grid** (common in packs assembled from many sources) are
+  found and moved half an output pixel, so they halve losslessly too. Only frames with an empty
+  outer edge get their own grid. Full-bleed pictures (backgrounds) keep one grid for the whole
+  image, so no seams appear between frames. Report line: *moved half a pixel*.
+- **Pixel art with 1× detail** keeps the main colour of each block: no new colours, no mixels.
+  Report line: *Not a clean upscale*.
+- **Soft effects** (RPG Maker-style fire, water and light sheets with thousands of colours) are
+  blended. Report line: *Soft art*.
+
+On the Gen 9 project: 681 sheets in about 45 s.
+
+- 330 were clean;
+- 191 had frames realigned;
+- 152 still have some 1× detail (worth a look at 4× zoom);
+- 119 soft sheets were blended.
+
+The rule is `{ divide: 2, filter: 'auto', align: [192, 192] }` in
+`tools/assets/packs/animations.ts`.
+
+## 11. Credits
 
 Sprites in these packs newer than Generation 5 are fan-made. The importer copies the pack's
 credits file to `public/assets/credits/`; keep it with your game and credit the artists in your

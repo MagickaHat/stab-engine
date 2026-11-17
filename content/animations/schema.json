@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "stab-animation.schema.json",
+    "title": "STAB-engine battle animation",
+    "description": "One battle animation. Written by `npm run animations:import`; see docs/ANIMATION_SYSTEM.md and src/battle/animation/format.ts.",
+    "type": "object",
+    "required": ["format", "version", "name", "kind", "defaultFocus", "fps", "timings", "frames"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": { "type": "string" },
+        "format": { "const": "stab-animation" },
+        "version": { "const": 1 },
+        "name": { "type": "string", "description": "Lookup name in Essentials' convention: Move:TACKLE, OppMove:TACKLE, Common:Burn, or anything else." },
+        "kind": { "enum": ["move", "common", "other"] },
+        "id": { "type": "string", "description": "Showdown move ID or common animation ID." },
+        "opponent": { "type": "boolean", "description": "Version played when the opponent's side uses it." },
+        "graphic": { "type": "string", "description": "Sheet in public/assets/img/animations/, without .png. 96×96 frames, 5 per row." },
+        "hue": { "type": "number", "minimum": 0, "maximum": 360 },
+        "defaultFocus": { "$ref": "#/definitions/focus" },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "timings": { "type": "array", "items": { "$ref": "#/definitions/timing" } },
+        "frames": {
+            "type": "array",
+            "description": "One entry per frame; each frame lists its sprite slots (null = empty). Slot 0 is the user battler, slot 1 the target battler.",
+            "items": { "type": "array", "items": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/cel" }] } }
+        }
+    },
+    "definitions": {
+        "focus": {
+            "oneOf": [
+                { "enum": ["user", "target", "userAndTarget", "screen"] },
+                { "type": "number", "description": "Unknown Essentials focus value, kept as-is." }
+            ]
+        },
+        "quad": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+        "partialColor": { "type": "array", "items": { "type": ["number", "null"] }, "minItems": 4, "maxItems": 4 },
+        "cel": {
+            "type": "object",
+            "required": ["x", "y", "pattern", "focus"],
+            "additionalProperties": false,
+            "properties": {
+                "x": { "type": "number", "description": "Centre, in game pixels, relative to the focus (stage: user 64,112; target 192,48)." },
+                "y": { "type": "number" },
+                "pattern": { "anyOf": [{ "type": "integer" }, { "enum": ["user", "target"] }], "description": "Frame of the sheet (0, 1, 2…), or a battler's sprite." },
+                "focus": { "$ref": "#/definitions/focus" },
+                "zoomX": { "type": "number", "description": "Percent (default 100)." },
+                "zoomY": { "type": "number", "description": "Percent (default 100)." },
+                "angle": { "type": "number", "description": "Degrees, anticlockwise (default 0)." },
+                "mirror": { "type": "boolean" },
+                "blend": { "enum": ["add", "subtract"] },
+                "opacity": { "type": "number", "description": "0-255 (default 255); values outside are clamped when drawn." },
+                "color": { "$ref": "#/definitions/quad", "description": "Red, green, blue, strength (0-255)." },
+                "tone": { "$ref": "#/definitions/quad", "description": "Red, green, blue (-255-255), grey (0-255)." },
+                "flash": { "$ref": "#/definitions/quad" },
+                "priority": { "oneOf": [{ "enum": ["back", "front", "behindFocus", "aboveFocus"] }, { "type": "number" }] },
+                "hidden": { "type": "boolean" },
+                "locked": { "type": "boolean", "description": "Essentials editor flag; ignored by players." }
+            }
+        },
+        "timing": {
+            "type": "object",
+            "required": ["frame", "type"],
+            "properties": {
+                "frame": { "type": "integer", "minimum": 0 },
+                "type": { "enum": ["sound", "background", "foreground", "backgroundMove", "foregroundMove"] },
+                "sound": { "type": "string", "description": "File in public/assets/sound/se/anim/, with extension." },
+                "volume": { "type": "number" },
+                "pitch": { "type": "number" },
+                "flash": {
+                    "type": "object",
+                    "required": ["scope", "color", "duration"],
+                    "properties": { "scope": { "type": "number" }, "color": { "$ref": "#/definitions/quad" }, "duration": { "type": "number" } }
+                },
+                "graphic": { "type": "string", "description": "Picture in public/assets/img/animations/, without .png." },
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "opacity": { "type": "number" },
+                "color": { "$ref": "#/definitions/partialColor" },
+                "duration": { "type": "integer", "minimum": 0, "description": "Frames the move/fade takes." }
+            },
+            "allOf": [
+                { "if": { "properties": { "type": { "enum": ["backgroundMove", "foregroundMove"] } } }, "then": { "required": ["duration"] } }
+            ]
+        }
+    }
+}

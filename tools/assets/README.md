@@ -15,6 +15,7 @@ npm run assets:import -- --pack <dir> --force                       # convert un
 npm run assets:import -- --manifest-only                            # rebuild manifest.json only
 npm run assets:graphics -- --pack <Essentials project or pack>      # tilesets, UI, characters… → img/
 npm run assets:graphics -- --pack <dir> --only tilesets,ui --exclude "Graphics/UI/Mining"
+npm run assets:animations -- --pack <animation pack>                # animation sheets + sounds
 npm test                                                            # run the importer's tests
 ```
 
@@ -26,12 +27,13 @@ The pack must be extracted first (`.rar`/`.zip` → folder). Pass the folder tha
 | `import.ts` | CLI entry: plan → convert → clean up → manifest, credits, report. |
 | `packs/gen9.ts` | **Edit this.** Pack layout: which folder becomes which file, target sizes, form aliases. |
 | `packs/graphics.ts` | **Edit this.** Layout for the rest of `Graphics/`: what is left out, scale and filter. |
+| `packs/animations.ts` | Layout for `Graphics/Animations` and `Audio/SE/Anim` (data: see `tools/animations`). |
 | `pack.ts` | Types for pack definitions. Add a file in `packs/` and register it in `config.ts` for a new layout. |
 | `config.ts` | Paths and the list of known pack layouts. |
 | `plan.ts` | Decides the destination of every file. |
 | `resolve.ts` | Essentials names → Showdown species/forme IDs, using `content/pbs`. |
 | `essentials.ts` | Essentials file-name and PBS `FormName` parsing. |
-| `image.ts` | Lossless un-upscaling, mixel-free reduction of imperfect art, fixed-canvas fitting. |
+| `image.ts` | Lossless un-upscaling, grid realignment, mixel-free reduction of imperfect art, fixed-canvas fitting. |
 | `bmp.ts` | BMP reader (packs' stray `.bmp` files are imported as PNG). |
 | `png.ts` | PNG reader/writer (no native dependencies). |
 | `convert.ts`, `worker.ts`, `pool.ts` | Per-file conversion, run on all CPU cores. |

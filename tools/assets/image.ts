@@ -41,6 +41,19 @@ export interface ImageOp
     divide?: number | 'auto';
     /** Default `nearest`. */
     filter?: ResizeFilter;
+    /**
+     * With `divide` and `filter`: find where the source's enlarged pixels
+     * really start before reducing. Art that was pasted one pixel off the
+     * 2×2 grid is then still reduced losslessly (it moves by half a pixel),
+     * instead of every block straddling two source pixels.
+     *
+     * - `'image'`: one grid for the whole image.
+     * - `[w, h]`: a sprite sheet of `w`×`h` frames (e.g. `[192, 192]`). Each
+     *   frame whose outer edge is empty gets its own grid, since frames are
+     *   often drawn or pasted separately; frames that touch their edge
+     *   share the image's grid, so no seam opens between them.
+     */
+    align?: 'image' | [width: number, height: number];
 }
 
 /**
@@ -56,8 +69,10 @@ export interface ImageOp
  * - `odd-size`: the size is not a multiple of `divide`; left unchanged.
  * - `evened`: the size was not a multiple of `divide`; transparent pixels
  *   were added on the right/bottom before reducing.
+ * - `realigned`: (with `align`) some or all of the art sat off the pixel
+ *   grid and was moved by half an output pixel to make it reduce cleanly.
  */
-export type ImageNote = 'resampled' | 'smoothed' | 'padded' | 'oversize' | 'odd-size' | 'evened';
+export type ImageNote = 'resampled' | 'smoothed' | 'padded' | 'oversize' | 'odd-size' | 'evened' | 'realigned';
 
 /** @brief Result of `transform()`. */
 export interface TransformResult
@@ -393,6 +408,191 @@ export function extend (image: Image, width: number, height: number): Image
 }
 
 /**
+ * @brief Copy a rectangle of an image onto a block grid that starts `phase` pixels early.
+ *
+ * Pixel `(i, j)` of the result is source pixel `(x + i - px, y + j - py)`,
+ * clamped to the rectangle, so the edge colour fills the extra row/column
+ * (a sprite frame's empty edge stays empty; a background keeps its edge).
+ *
+ * @param image Source.
+ * @param x Rectangle left.
+ * @param y Rectangle top.
+ * @param width Rectangle width (clipped to the image).
+ * @param height Rectangle height (clipped to the image).
+ * @param px Horizontal phase, `0 ≤ px < k`.
+ * @param py Vertical phase, `0 ≤ py < k`.
+ * @param k Block size; the result's size is rounded up to a multiple of it.
+ * @return The resampled rectangle.
+ */
+export function sampleRegion (image: Image, x: number, y: number, width: number, height: number, px: number, py: number, k: number): Image
+{
+    width = Math.min(width, image.width - x);
+    height = Math.min(height, image.height - y);
+    const outW = Math.ceil(width / k) * k;
+    const outH = Math.ceil(height / k) * k;
+    const data = new Uint8Array(outW * outH * 4);
+    for (let j = 0; j < outH; j++)
+    {
+        const sy = y + Math.min(height - 1, Math.max(0, j - py));
+        for (let i = 0; i < outW; i++)
+        {
+            const sx = x + Math.min(width - 1, Math.max(0, i - px));
+            const o = (sy * image.width + sx) * 4;
+            data.set(image.data.subarray(o, o + 4), (j * outW + i) * 4);
+        }
+    }
+    return { width: outW, height: outH, data };
+}
+
+/**
+ * @brief Share of the not fully transparent `k`×`k` blocks that are one solid colour.
+ * @param image Image whose size is a multiple of `k`.
+ * @param k Block size.
+ * @return 0–1 (1 for an empty image).
+ */
+function solidShare (image: Image, k: number): number
+{
+    const src = packed(image);
+    let blocks = 0, solid = 0;
+    for (let by = 0; by < image.height; by += k)
+    {
+        for (let bx = 0; bx < image.width; bx += k)
+        {
+            const first = src[by * image.width + bx];
+            let same = true, empty = true;
+            for (let y = by; y < by + k; y++)
+            {
+                for (let x = bx; x < bx + k; x++)
+                {
+                    const value = src[y * image.width + x];
+                    if (value !== first) same = false;
+                    if (value !== 0) empty = false;
+                }
+            }
+            if (empty) continue;
+            blocks++;
+            if (same) solid++;
+        }
+    }
+    return blocks ? solid / blocks : 1;
+}
+
+/**
+ * @brief Find the block grid that fits a rectangle of art best.
+ * @param image Source.
+ * @param x Rectangle left.
+ * @param y Rectangle top.
+ * @param width Rectangle width.
+ * @param height Rectangle height.
+ * @param k Block size.
+ * @return `[px, py]`; `[0, 0]` unless another phase has strictly more solid blocks.
+ */
+export function bestPhase (image: Image, x: number, y: number, width: number, height: number, k: number): [number, number]
+{
+    let best: [number, number] = [0, 0];
+    let score = solidShare(sampleRegion(image, x, y, width, height, 0, 0, k), k);
+    for (let py = 0; py < k && score < 1; py++)
+    {
+        for (let px = 0; px < k && score < 1; px++)
+        {
+            if (!px && !py) continue;
+            const share = solidShare(sampleRegion(image, x, y, width, height, px, py, k), k);
+            if (share > score)
+            {
+                score = share;
+                best = [px, py];
+            }
+        }
+    }
+    return best;
+}
+
+/**
+ * @brief Whether the outermost ring of pixels of a rectangle is fully transparent.
+ * @param image Source.
+ * @param x Rectangle left.
+ * @param y Rectangle top.
+ * @param width Rectangle width (clipped to the image).
+ * @param height Rectangle height (clipped to the image).
+ * @return `true` if nothing touches the rectangle's edge.
+ */
+function emptyEdge (image: Image, x: number, y: number, width: number, height: number): boolean
+{
+    width = Math.min(width, image.width - x);
+    height = Math.min(height, image.height - y);
+    const alpha = (i: number, j: number) => image.data[((y + j) * image.width + x + i) * 4 + 3];
+    for (let i = 0; i < width; i++) if (alpha(i, 0) || alpha(i, height - 1)) return false;
+    for (let j = 0; j < height; j++) if (alpha(0, j) || alpha(width - 1, j)) return false;
+    return true;
+}
+
+/**
+ * @brief Reduce with a named filter.
+ * @param image Image whose size is a multiple of `k`.
+ * @param k Factor.
+ * @param filter Filter (not `auto`).
+ * @return The reduced image.
+ */
+function reduceWith (image: Image, k: number, filter: Exclude<ResizeFilter, 'auto'>): Image
+{
+    if (filter === 'average') return reduceAverage(image, k);
+    return filter === 'dominant' ? reduceDominant(image, k) : reduce(image, k);
+}
+
+/**
+ * @brief Reduce by `k` after putting the art back on its pixel grid (`ImageOp.align`).
+ * @param image Source.
+ * @param k Factor.
+ * @param filter Filter for blocks that are still not solid.
+ * @param align `'image'` or the frame size of a sprite sheet.
+ * @return Reduced image and notes.
+ */
+function reduceAligned (image: Image, k: number, filter: ResizeFilter, align: 'image' | [number, number]): TransformResult
+{
+    const notes: ImageNote[] = [];
+    if (image.width % k || image.height % k) notes.push('evened');
+    const [gx, gy] = bestPhase(image, 0, 0, image.width, image.height, k);
+    const chosen = filter === 'auto' ? chooseFilter(sampleRegion(image, 0, 0, image.width, image.height, gx, gy, k), k) : filter;
+    if (chosen === 'average')
+    {
+        // Soft art has no pixel grid to find; blend it where it is.
+        const whole = sampleRegion(image, 0, 0, image.width, image.height, 0, 0, k);
+        if (isUpscaledBy(whole, k)) return { image: reduce(whole, k), notes };
+        return { image: reduceAverage(whole, k), notes: [...notes, 'smoothed'] };
+    }
+
+    // Frames must start on whole output pixels; otherwise treat the sheet as one image.
+    const sheet = align !== 'image' && align[0] % k === 0 && align[1] % k === 0;
+    const [cellW, cellH] = sheet ? align : [image.width, image.height];
+    const out = { width: Math.ceil(image.width / k), height: Math.ceil(image.height / k), data: new Uint8Array(0) };
+    out.data = new Uint8Array(out.width * out.height * 4);
+    let lossy = false, moved = false;
+    for (let cy = 0; cy < image.height; cy += cellH)
+    {
+        for (let cx = 0; cx < image.width; cx += cellW)
+        {
+            const own = sheet && emptyEdge(image, cx, cy, cellW, cellH);
+            const [px, py] = own ? bestPhase(image, cx, cy, cellW, cellH, k) : [gx, gy];
+            const region = sampleRegion(image, cx, cy, cellW, cellH, px, py, k);
+            const clean = isUpscaledBy(region, k);
+            const reduced = clean ? reduce(region, k) : reduceWith(region, k, chosen);
+            if (!clean) lossy = true;
+            if ((px || py) && region.data.some((v, i) => i % 4 === 3 && v)) moved = true;
+            // Copy into place, clipped to the output (the last frame may be partial).
+            const ox = cx / k, oy = cy / k;
+            const w = Math.min(reduced.width, out.width - ox);
+            for (let y = 0; y < reduced.height && oy + y < out.height; y++)
+            {
+                out.data.set(reduced.data.subarray(y * reduced.width * 4, (y * reduced.width + w) * 4), ((oy + y) * out.width + ox) * 4);
+            }
+        }
+    }
+    if (moved) notes.push('realigned');
+    if (lossy) notes.push('resampled');
+    return { image: out, notes };
+}
+
+/**
  * @brief Place an image on a larger transparent canvas, centred horizontally
  *        and resting on the bottom edge (so battle sprites keep their feet,
  *        or the cut-off edge of a back sprite, on the baseline).
@@ -440,6 +640,8 @@ export function transform (image: Image, op: ImageOp): TransformResult
     }
 
     if (op.divide === 'auto') return { image: reduce(image, detectScale(image)), notes };
+
+    if (op.divide && op.divide > 1 && op.filter && op.align) return reduceAligned(image, op.divide, op.filter, op.align);
 
     if (op.divide && op.divide > 1)
     {

@@ -35,8 +35,9 @@ export const graphics: PackDefinition = {
         'Graphics/Items',
         'Graphics/Characters/Followers',
         'Graphics/Characters/Followers shiny',
-        // Not needed by the engine.
+        // Imported by the animations layout (`npm run assets:animations`).
         'Graphics/Animations',
+        // Not needed by the engine.
         'Graphics/Windowskins/Window.png',
         'Graphics/Windowskins/001-Blue01.png',
         'Graphics/UI/Controls help',
