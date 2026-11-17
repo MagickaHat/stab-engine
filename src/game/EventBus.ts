@@ -64,4 +64,9 @@ export const GameEvents = {
      * Argument: `NameInputRequest` (src/world/dialogue.ts). Call its `submit(name)`.
      */
     DIALOGUE_NAME_INPUT: 'dialogue-name-input',
+    /**
+     * Input → anyone. The player switched between keyboard, gamepad, mouse and
+     * touch. Argument: `InputDevice` (src/input/buttons.ts). Useful for button prompts.
+     */
+    INPUT_DEVICE_CHANGED: 'input-device-changed',
 } as const;

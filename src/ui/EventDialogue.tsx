@@ -4,9 +4,10 @@
  *
  * Listens for `GameEvents.DIALOGUE_MESSAGE`, `DIALOGUE_CHOICE` and
  * `DIALOGUE_NAME_INPUT` (see src/world/dialogue.ts) and answers each request
- * when the player is done: a tap or the action key (Z, Space, Enter) moves
- * past a message; arrow keys and the action key, or a tap, pick an option;
- * X or Escape cancels a choice that can be cancelled.
+ * when the player is done. Buttons come from the input system (src/input), so
+ * every device works the same: A (or a tap / left click) moves past a
+ * message; up and down move through options and A picks one; B (or a right
+ * click) cancels a choice that can be cancelled. Tapping an option picks it.
  *
  * Text comes already translated. Styles are in ui.css (`.event-dialogue`).
  * Restyle or replace this component freely; only the requests' callbacks
@@ -15,12 +16,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EventBus, GameEvents } from '../game/EventBus';
 import type { ChoiceRequest, DialogueRequest, NameInputRequest } from '../world/dialogue';
-
-/** @brief Keys that confirm. */
-const CONFIRM = new Set(['z', 'Z', ' ', 'Enter']);
-
-/** @brief Keys that cancel. */
-const CANCEL = new Set(['x', 'X', 'Escape']);
+import { useInputPress } from './useInput';
 
 /**
  * @brief Draws event messages, choices and name entry over the game.
@@ -79,26 +75,23 @@ export function EventDialogue ()
         nameInput.submit(name.trim() || nameInput.current);
     }, [nameInput, name]);
 
-    useEffect(() =>
+    //  While a message or choice is up, every button press belongs to it. Taps and left clicks
+    //  on the box and options are handled by their own pointer handlers; a right click is B.
+    useInputPress((button) =>
     {
-        if (!message && !choice) return undefined;
-        const onKey = (event: KeyboardEvent) =>
+        if (message)
         {
-            if (event.repeat) return;
-            if (choice)
-            {
-                const count = choice.options.length;
-                if (event.key === 'ArrowUp') setSelected((index) => (index + count - 1) % count);
-                else if (event.key === 'ArrowDown') setSelected((index) => (index + 1) % count);
-                else if (CONFIRM.has(event.key)) pick(selected);
-                else if (CANCEL.has(event.key) && choice.cancel >= 0) pick(choice.cancel);
-                return;
-            }
-            if (CONFIRM.has(event.key)) closeMessage();
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [message, choice, selected, pick, closeMessage]);
+            if (button === 'a' || button === 'b') closeMessage();
+            return true;
+        }
+        if (!choice) return false;
+        const count = choice.options.length;
+        if (button === 'up') setSelected((index) => (index + count - 1) % count);
+        else if (button === 'down') setSelected((index) => (index + 1) % count);
+        else if (button === 'a') pick(selected);
+        else if (button === 'b' && choice.cancel >= 0) pick(choice.cancel);
+        return true;
+    }, !!message || !!choice);
 
     if (nameInput)
     {
@@ -116,7 +109,7 @@ export function EventDialogue ()
     return (
         <>
             {(message || choice?.prompt) && (
-                <div className="event-dialogue event-dialogue-box ui-interactive" onPointerDown={closeMessage}>
+                <div className="event-dialogue event-dialogue-box ui-interactive" onPointerDown={(event) => event.button === 0 && closeMessage()}>
                     {message?.speaker && <div className="event-dialogue-speaker">{message.speaker}</div>}
                     <div className="event-dialogue-text">{message ? message.text : choice?.prompt}</div>
                 </div>
@@ -128,7 +121,7 @@ export function EventDialogue ()
                             key={index}
                             className={index === selected ? 'selected' : undefined}
                             onPointerEnter={() => setSelected(index)}
-                            onPointerDown={() => pick(index)}
+                            onPointerDown={(event) => event.button === 0 && pick(index)}
                         >
                             {option}
                         </li>

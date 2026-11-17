@@ -457,8 +457,9 @@ ignored (use them for notes). Map properties (class `StabMap`): `name` (text key
 - Tile layers draw in order. A layer with the bool property `above` draws over characters; one
   with `collision` is hidden and blocks every tile on it. Tileset tiles with the bool property
   `collides` block.
-- Controls: arrows/WASD to walk (Shift to run), Z/Space/Enter to act. Messages and choices are
-  drawn by `<EventDialogue>` (React) and accept the same keys or taps.
+- Controls come from the input system (`docs/INPUT_SYSTEM.md`): the D-pad walks, hold B to
+  run, A (or a tap / left click on the game) acts. Messages and choices are drawn by
+  `<EventDialogue>` (React) and take the same buttons, or a tap on the box or an option.
 - Assets (none are shipped; missing files are skipped):
   `assets/img/characters/<graphic>.png` (4×4 RPG Maker XP sheets), the player's
   `assets/img/characters/player.png`, emotes `assets/img/system/emotes.png` (16×16 frames,

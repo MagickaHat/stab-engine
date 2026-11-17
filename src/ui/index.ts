@@ -15,3 +15,7 @@ export { useBattle } from './useBattle';
 export type { BattleControls } from './useBattle';
 export { useGameState } from './useGameState';
 export { EventDialogue } from './EventDialogue';
+export { useInputPress, useLastDevice } from './useInput';
+export type { InputPressHandler } from './useInput';
+export { VirtualPad } from './VirtualPad';
+export type { VirtualPadProps, VirtualPadVisibility } from './VirtualPad';

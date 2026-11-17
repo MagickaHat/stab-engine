@@ -39,6 +39,10 @@ Maps are made in [Tiled](https://www.mapeditor.org/) (`src/tiled/stab.tiled-proj
 
 The UI is built with [React](https://react.dev) and drawn as HTML on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. Components go inside `<UiLayer>`, are laid out in game pixels (the game runs at 256×192) and follow the canvas when the screen or the game resolution changes. React and the scenes talk through an event bus. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
 
+## Input
+
+Keyboard, gamepads, mouse and touch all press the same twelve game buttons: the D-pad, A, B, X, Y, L, R, Start and Select. Scenes and UI only ask about those buttons (`input.justPressed('a')`), so every control scheme works everywhere. A tap or left click on the game is A and a right click is B; taps on UI act on that element. Touch screens get an on-screen pad, and players' key and gamepad bindings can be changed and are saved. The code lives in `src/input/`. See **[docs/INPUT_SYSTEM.md](docs/INPUT_SYSTEM.md)**.
+
 ## Game Data
 
 Pokémon, moves, abilities, items, natures, the type chart and learnsets are JSON files in `content/pbs/`, in Pokémon Showdown's data format. The official data is imported from [PokeAPI](https://pokeapi.co) with `npm run pokeapi:import` into `content/pbs/generated/`. Your own content and changes go in `content/pbs/custom/`, which is merged on top and can be split into content packs. Everything is validated with [Zod](https://zod.dev). See **[docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)**.
@@ -66,7 +70,7 @@ Pokémon and item graphics and cries are imported from a Pokémon Essentials res
 | `npm run events:sync-tiled` | Write flags, items, species, trainers, scripts, story IDs and text keys into the Tiled project |
 | `npm run events:schema` | Regenerate `content/events/schema.json` for editor autocompletion |
 | `npm run events:new -- <id> [file]` | Add an empty event script to `content/events/<file>.json` |
-| `npm test` | Run the unit tests (tools, battle bridge, game state, events) |
+| `npm test` | Run the unit tests (tools, battle bridge, game state, events, input) |
 
 ## Writing Code
 

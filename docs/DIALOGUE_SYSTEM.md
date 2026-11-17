@@ -340,6 +340,7 @@ import { Scene } from 'phaser';
 import labStory from '../../../content/dialogue/sample.ink';
 import { DialogueEngine } from '../../dialogue';
 import type { DialogueChoice } from '../../dialogue';
+import { input } from '../../input';
 
 export class Lab extends Scene
 {
@@ -367,9 +368,11 @@ export class Lab extends Scene
         this.dialogue.onChoices = (choices) => this.showChoices(choices);
         this.dialogue.onEnd = () => this.textBox.setText('');
 
-        this.input.keyboard?.on('keydown-SPACE', () => {
-            if (this.choiceTexts.length === 0) this.dialogue.advance();
+        //  The A button from any device (see docs/INPUT_SYSTEM.md).
+        const offPress = input.on((event) => {
+            if (event.type === 'press' && event.button === 'a' && this.choiceTexts.length === 0) this.dialogue.advance();
         });
+        this.events.once('shutdown', offPress);
 
         this.dialogue.advance();   // show the first line
     }

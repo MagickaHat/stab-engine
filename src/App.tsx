@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { PhaserGame, useCurrentScene } from './PhaserGame';
 import { EventBus, GameEvents } from './game/EventBus';
-import { EventDialogue, lockLandscape, RotateDevicePrompt, UiLayer } from './ui';
+import { EventDialogue, lockLandscape, RotateDevicePrompt, UiLayer, VirtualPad } from './ui';
 
 /**
  * @brief Sample HUD showing both directions of React ↔ Phaser communication.
@@ -49,6 +49,7 @@ export default function App ()
             <UiLayer>
                 <SampleHud />
                 <EventDialogue />
+                <VirtualPad />
             </UiLayer>
             <RotateDevicePrompt />
         </PhaserGame>
