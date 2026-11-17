@@ -32,4 +32,8 @@ export const GameEvents = {
     SCENE_READY: 'current-scene-ready',
     /** React → Phaser. Sample event: asks the active scene to shake the camera. */
     UI_SHAKE: 'ui-shake',
+    /** Phaser → React. A battle started. Argument: its `BattleBridge` (see src/battle/bridge). */
+    BATTLE_START: 'battle-start',
+    /** Phaser → React. A battle finished being shown. Argument: the winner's name, or `null` for a tie. */
+    BATTLE_END: 'battle-end',
 } as const;
