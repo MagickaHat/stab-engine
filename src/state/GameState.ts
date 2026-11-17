@@ -28,7 +28,7 @@ import { ID } from '../data/schemas/common.ts';
 import { ItemPocket } from '../data/schemas/engine.ts';
 import { describeIssues, healed } from './pokemon.ts';
 import {
-    DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY, PARTY_SIZE, SaveData,
+    DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY, MAX_MOVES, PARTY_SIZE, SaveData,
 } from './schema.ts';
 import type { Bag, PcBox, PcLocation, Position, SavedPokemon, VariableValue } from './schema.ts';
 
@@ -153,6 +153,11 @@ export class GameState
 
     /**
      * @brief Give the player a Pokémon. It goes to the PC if the party is full.
+     *
+     * A Pokémon without an original trainer (`ot.name` is empty, the default
+     * of `createPokemon()`) becomes the player's own. One that already has
+     * another trainer keeps it and counts as traded (see `isTraded()`).
+     *
      * @param pokemon The Pokémon (see `createPokemon()`).
      * @return Where it went, or `null` if the party and every box are full.
      * @throws Error if a Pokémon with the same `uid` is already owned.
@@ -160,6 +165,11 @@ export class GameState
     addToParty (pokemon: SavedPokemon): PokemonLocation | null
     {
         if (this.findPokemon(pokemon.uid)) throw new Error(`[state] a Pokémon with uid "${pokemon.uid}" is already owned`);
+        if (!pokemon.ot.name)
+        {
+            const { name, trainerId } = this.data.player;
+            pokemon = { ...pokemon, ot: { name, id: trainerId } };
+        }
         if (this.data.party.length < PARTY_SIZE)
         {
             this.set({ party: [...this.data.party, pokemon] });
@@ -256,6 +266,84 @@ export class GameState
             this.putInBox(found.location, updated);
         }
         return true;
+    }
+
+    /**
+     * @brief Whether a Pokémon came from another trainer. Traded Pokémon gain more experience.
+     * @param pokemon The Pokémon.
+     * @return `true` if its original trainer's ID is not the player's.
+     */
+    isTraded (pokemon: SavedPokemon): boolean
+    {
+        return pokemon.ot.id !== this.data.player.trainerId;
+    }
+
+    // ---------------------------------------------------------------- Moves
+
+    /**
+     * @brief Teach a Pokémon a move (level-up, TM, evolution...).
+     *
+     * The move is ready to use if the Pokémon has a free move slot; otherwise
+     * it goes to its move bank, from where `relearnMove()` can swap it in.
+     *
+     * @param uid The Pokémon's `uid`.
+     * @param move Move ID.
+     * @return `'moves'` or `'bank'` for where the move went; `null` if it already had the
+     *         move or no Pokémon with that `uid` is owned.
+     */
+    learnMove (uid: string, move: string): 'moves' | 'bank' | null
+    {
+        const pokemon = this.findPokemon(uid)?.pokemon;
+        if (!pokemon || pokemon.moves.some((entry) => entry.id === move) || pokemon.moveBank.includes(move)) return null;
+        if (pokemon.moves.length < MAX_MOVES)
+        {
+            this.updatePokemon(uid, { moves: [...pokemon.moves, { id: move, ppUps: 0 }] });
+            return 'moves';
+        }
+        this.updatePokemon(uid, { moveBank: [...pokemon.moveBank, move] });
+        return 'bank';
+    }
+
+    /**
+     * @brief Move one of a Pokémon's ready moves to its move bank.
+     * @param uid The Pokémon's `uid`.
+     * @param move ID of a move it has ready.
+     * @return `false`, changing nothing, if it does not have the move ready or it is its only move.
+     */
+    forgetMove (uid: string, move: string): boolean
+    {
+        const pokemon = this.findPokemon(uid)?.pokemon;
+        if (!pokemon || pokemon.moves.length < 2 || !pokemon.moves.some((entry) => entry.id === move)) return false;
+        return this.updatePokemon(uid, {
+            moves: pokemon.moves.filter((entry) => entry.id !== move),
+            moveBank: [...pokemon.moveBank, move],
+        });
+    }
+
+    /**
+     * @brief Take a move out of a Pokémon's move bank and make it ready again, with full PP.
+     * @param uid The Pokémon's `uid`.
+     * @param move ID of a move in its move bank.
+     * @param replace ID of the ready move to put in the bank in exchange. Needed when all
+     *                `MAX_MOVES` slots are taken; the new move takes that slot.
+     * @return `false`, changing nothing, if the move is not in the bank, `replace` is not a
+     *         ready move, or the slots are full and `replace` was left out.
+     */
+    relearnMove (uid: string, move: string, replace?: string): boolean
+    {
+        const pokemon = this.findPokemon(uid)?.pokemon;
+        if (!pokemon || !pokemon.moveBank.includes(move)) return false;
+        const bank = pokemon.moveBank.filter((id) => id !== move);
+        if (replace === undefined)
+        {
+            if (pokemon.moves.length >= MAX_MOVES) return false;
+            return this.updatePokemon(uid, { moves: [...pokemon.moves, { id: move, ppUps: 0 }], moveBank: bank });
+        }
+        if (!pokemon.moves.some((entry) => entry.id === replace)) return false;
+        return this.updatePokemon(uid, {
+            moves: pokemon.moves.map((entry) => (entry.id === replace ? { id: move, ppUps: 0 } : entry)),
+            moveBank: [...bank, replace],
+        });
     }
 
     // ------------------------------------------------------------------- PC

@@ -58,7 +58,8 @@ The code lives in `src/state/`. It imports neither Phaser nor React.
 | `src/state/SaveManager.ts` | `SaveManager`: slots, storage, versions, export/import. `SaveError`. |
 | `src/state/session.ts` | `getGameState()`, `setGameState()`: the game in progress. |
 | `src/state/battle.ts` | `partyBattle()`: takes the party into a battle and brings the result back. |
-| `src/state/experience.ts` | `expForLevel()`, `levelForExp()`, `expGain()`: growth curves and the experience formula. |
+| `src/state/experience.ts` | `expForLevel()`, `levelForExp()`, `expGain()`, `addEvs()`, `levelUpMoves()`: growth curves, the experience formula, effort values and level-up moves. |
+| `src/state/evolution.ts` | `findEvolution()`, `evolvePokemon()`, `evolvedAbility()`: evolving on level-up. |
 | `src/state/state.test.ts` | Tests. Run with `npm test`. |
 | `src/ui/useGameState.ts` | `useGameState()`: the React hook. |
 | `src/game/scenes/Battle.ts` | The battle scene; `usePlayerParty: true` makes it use the saved party. |
@@ -133,7 +134,8 @@ data.player.money;
 | Area | Methods |
 |------|---------|
 | Party | `addToParty(pokemon)`, `removeFromParty(index)`, `swapParty(a, b)`, `healParty()` |
-| Any owned Pokémon | `findPokemon(uid)`, `updatePokemon(uid, change)` |
+| Any owned Pokémon | `findPokemon(uid)`, `updatePokemon(uid, change)`, `isTraded(pokemon)` |
+| Moves | `learnMove(uid, move)`, `forgetMove(uid, move)`, `relearnMove(uid, move, replace?)` (see [the move bank](#new-moves-and-the-move-bank)) |
 | PC | `deposit(index, target?)`, `withdraw(from)`, `movePokemon(from, to)`, `removeFromPc(from)`, `renameBox(box, name)`, `setCurrentBox(box)` |
 | Bag | `addItem(item, quantity?, pocket?)`, `removeItem(item, quantity?)`, `countItem(item)` |
 | Flags, variables | `getFlag(name)`, `setFlag(name, value?)`, `getVar(name)`, `setVar(name, value)` |
@@ -167,7 +169,8 @@ stop();   // when no longer interested
 ## 6. Pokémon
 
 A `SavedPokemon` stores what makes one Pokémon itself: `uid`, `species`, `nickname`,
-`level`, `exp`, `ivs`, `evs`, `nature`, `ability`, `item`, `moves`, `hp`, `status`,
+`level`, `exp`, `ivs`, `evs`, `nature`, `ability`, `item`, `moves`, `moveBank`, `hp`,
+`status`,
 `shiny`, `gender`, `friendship`, `ball`, `teraType`, `ot` (original trainer) and `met`
 (map, level, date). IDs are Showdown IDs, as in the game data (`toID('Mr. Mime')` →
 `mrmime`).
@@ -314,60 +317,134 @@ this.scene.start(BATTLE_SCENE_KEY, data);
 
 - The party enters the battle with its saved HP, status conditions and PP.
 - Fainted Pokémon are left out of the team. If nobody can fight, the scene throws.
-- Every opponent that faints gives the party experience, and a Pokémon that reaches a
-  new level grows at once (see below).
-- When the battle ends (or the scene is left early), HP, status, PP, experience and level
-  are written back to the game state, before `GameEvents.BATTLE_END` is emitted.
+- Every opponent that faints gives the party experience and effort values. A Pokémon
+  that reaches a new level grows at once and learns that level's moves (see below).
+- When the battle ends (or the scene is left early), HP, status, PP, experience, level,
+  effort values and moves are written back to the game state. Then
+  `GameEvents.BATTLE_EVOLUTIONS` is emitted if anyone can evolve, then
+  `GameEvents.BATTLE_END`.
 
-### Experience and level-ups
+### Experience, effort values and level-ups
 
 The simulator has no experience points, so `src/state` adds them:
 
 - **Who gets it:** every party member in the battle that has not fainted, as in
-  Generation 9. Those that were not on the field against the defeated Pokémon get half.
+  Generation 9. Those that were not on the field against the defeated Pokémon get half
+  the experience.
 - **How much:** the formula of Generation 7 onwards (`expGain()` in
   `src/state/experience.ts`), from the defeated species' `baseExp` and level and the
-  receiver's level. A held Lucky Egg gives 1.5×.
+  receiver's level. A traded Pokémon gets 1.5×, and so does one holding a Lucky Egg
+  (2.25× for both).
+- **Traded** means the Pokémon's original trainer ID is not the player's
+  (`state.isTraded()`). `addToParty()` makes the player the original trainer of a Pokémon
+  that has none, so give gift and in-game trade Pokémon an `ot` in `createPokemon()`.
+- **Effort values:** the defeated species' `evYield` goes to the same Pokémon, level 100
+  included, up to 252 per stat and 510 in total (`addEvs()`). Stats are worked out again
+  at once.
 - **Level-ups happen during the battle.** The Pokémon's level and stats change in the
-  running battle and its HP rises with its maximum HP. The protocol gets
-  `|-message|Sparky gained 530 Exp. Points!`, `|-message|Sparky grew to Lv. 12!` and, for a
-  Pokémon on the field, a `|detailschange|` line, so `BattleSnapshot` shows the new level.
-- **Levels** follow the species' `growthRate` (`expForLevel()` / `levelForExp()`), up to
-  level 100.
-- `baseExp` and `growthRate` come from `species_info.json`; the scene loads that table
-  before the battle starts.
+  running battle and its HP rises with its maximum HP. Levels follow the species'
+  `growthRate` (`expForLevel()` / `levelForExp()`), up to level 100.
+- **The new level is shown at once.** A `|detailschange|` protocol line is sent for the
+  Pokémon, on the field or on the bench, so `BattleSnapshot` has the new level by the
+  time the "grew to" message is presented.
 
-Pass `exp: false` in `BattleSceneData` for a battle that should give none.
+### New moves and the move bank
 
-Not done yet: learning moves and evolving on level-up, effort values, and the
-experience bonus for traded Pokémon. A benched Pokémon's new level reaches the
-`BattleSnapshot` with the next choice the player is offered; the game state is always
-correct after the battle.
+A Pokémon that levels up learns the moves of the levels it passed (the species'
+level-up list in `learnsets.json`, Generation 9 by default):
 
-Held items follow the rule the games use since Generation 9:
+- With a free move slot, the move is **ready at once** and can be used in the same battle.
+- With four moves already, nothing is forgotten: the move goes to the Pokémon's **move
+  bank** (`SavedPokemon.moveBank`).
 
-- An item that was used up, knocked off or taken during the battle is **back afterwards**:
-  Throat Spray, Focus Sash, Air Balloon, White Herb, Weakness Policy and so on.
-- **Berries are the exception.** A Berry the Pokémon ate or flung is removed from it for
-  good. A Berry that was only knocked off or taken by the opponent comes back, and so does
-  one restored during the battle (Recycle, Harvest).
+Outside battle the player rearranges moves freely, as in Generation 9:
 
-The rule is `usedUpBerry()` in `src/state/battle.ts`; change it there if your game should
-be stricter or more generous.
+```ts
+state.relearnMove(uid, 'electroball', 'growl');   // bank → ready, Growl goes to the bank
+state.relearnMove(uid, 'growl');                  // into a free slot
+state.forgetMove(uid, 'tailwhip');                // ready → bank (not the last move)
+state.learnMove(uid, 'thunderbolt');              // a TM: ready if there is room, else the bank
+```
+
+A move taken from the bank has full PP. PP Ups used on a move are lost when it goes to
+the bank.
+
+### Battle text
+
+Each of these adds a `|-message|` line to the protocol, in order, right after the
+opponent faints:
+
+```
+Sparky gained 530 Exp. Points!
+Sparky grew to Lv. 12!
+Sparky learned Electro Ball! It was stored in its move bank.
+Bulbasaur learned Growth!
+```
+
+The bridge turns each into a step whose `text` is the message, like every other line of
+battle text, so a message box that prints `snapshot.step.text` shows them with no extra
+code. The wording is in `partyBattle()` in `src/state/battle.ts`; `messages: false`
+leaves the lines out.
+
+### Evolution after the battle
+
+`finish()` also reports which party members levelled up and can now evolve. The battle
+scene passes that on as an event just before `BATTLE_END`, and only when there is
+something to evolve:
+
+```ts
+EventBus.on(GameEvents.BATTLE_EVOLUTIONS, (evolutions: PendingEvolution[]) =>
+{
+    // [{ uid, from: 'caterpie', into: 'metapod' }, …] in party order
+});
+```
+
+Nothing has changed yet at that point. The evolution scene shows each one and, unless
+the player cancels it, makes it happen:
+
+```ts
+const { pokedex, learnsets } = await loadPbs(['pokedex', 'learnsets']);
+const { pokemon } = state.findPokemon(uid)!;
+
+evolvePokemon(state, uid, into, {
+    ability: evolvedAbility(pokedex[from].abilities, pokedex[into].abilities, pokemon.ability),
+    moves: levelUpMoves(learnsets[into]?.learnset, -1, 0),     // moves learned on evolving
+});
+```
+
+`evolvePokemon()` changes the species and keeps everything else (nickname, level, HP,
+`uid`). `findEvolution()` is the rule behind the list: `level-up` methods only, with these
+conditions checked: level, gender, held item, a known move or move type, friendship,
+Attack against Defense, a species or type in the party, and the time of day (pass
+`timeOfDay` in the `exp` options, otherwise those evolutions do not happen). An Everstone
+prevents evolution. Methods that depend on the overworld (a location, rain, steps) and
+the other triggers (items, trades) are for the code that handles those.
+
+The scene loads the `speciesInfo` and `learnsets` tables before a party battle starts
+(`learnsets.json` is about 4.6 MB, fetched once and then cached).
+Pass `exp: false` in `BattleSceneData` for a battle that should give none of this; the
+tables are then not loaded.
+
+Not done yet: the sequences themselves (there is no evolution scene), and items that
+change the effort values gained (Macho Brace, Power items).
 
 Outside the scene (tests, your own battle code), use `partyBattle()` directly. Leave out
 `exp` and the party gains no experience:
 
 ```ts
-const { speciesInfo } = await loadPbs(['speciesInfo']);
-const link = partyBattle(state, { exp: { species: (id) => speciesInfo[id] } });
+const { speciesInfo, learnsets } = await loadPbs(['speciesInfo', 'learnsets']);
+const link = partyBattle(state, {
+    exp: { species: (id) => speciesInfo[id], learnset: (id) => learnsets[id] },
+});
 const bridge = new BattleBridge({
     p1: { name: 'Red', team: link.team },
     p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
     prepare: link.prepare,
 });
 // … once the battle has ended, and before bridge.destroy():
-const gains = link.finish();     // [{ uid, gained, fromLevel, toLevel }, …]
+const { gains, evolutions } = link.finish();
+// gains:      [{ uid, gained, fromLevel, toLevel, learned, banked, evs }, …]
+// evolutions: [{ uid, from, into }, …]
 ```
 
 ---
@@ -461,6 +538,11 @@ To change something from a component, call the methods of `getGameState()`.
 | `partyBattle(state, options?)` | `{ team, uids, prepare, finish }` for a battle. Options: `side`, `exp`. |
 | `expForLevel(growth, level)`, `levelForExp(growth, exp)` | Total experience at a level, and the level for an amount of experience. |
 | `expGain(input)` | Experience for defeating one Pokémon. |
+| `addEvs(evs, gained)` | Effort values after a gain, within the limits. |
+| `levelUpMoves(learnset, fromLevel, toLevel, gen?)` | Moves learned between two levels. |
+| `findEvolution(pokemon, methods, context?)` | The species a Pokémon evolves into after a level-up, or `null`. |
+| `evolvePokemon(state, uid, into, options?)` | Change a Pokémon's species (and ability, and teach it moves). |
+| `evolvedAbility(from, into, ability)` | The ability in the same slot on the evolved species. |
 | `parseSaveFile(json)` | Check and upgrade save file text without a `SaveManager`. |
 | `useGameState()` | React hook (`src/ui`). |
 

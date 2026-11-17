@@ -28,6 +28,15 @@ export const DEFAULT_BOX_SIZE = 30;
 /** @brief Most of one item the bag holds. */
 export const MAX_ITEM_QUANTITY = 999;
 
+/** @brief Most moves a Pokémon has ready at once. */
+export const MAX_MOVES = 4;
+
+/** @brief Most effort values in one stat. */
+export const MAX_EV = 252;
+
+/** @brief Most effort values over all six stats. */
+export const MAX_TOTAL_EVS = 510;
+
 /** @brief Most money the player can carry. */
 export const MAX_MONEY = 9_999_999;
 
@@ -89,6 +98,12 @@ export const SavedPokemon = z.object({
     item: ID.optional(),
     /** One to four moves, in the order shown in menus. */
     moves: z.array(SavedMove).min(1).max(4),
+    /**
+     * The move bank: IDs of moves it has learned but does not have ready, in
+     * the order they were learned. The player can swap them back in outside
+     * battle (`GameState.relearnMove()`), as in Generation 9.
+     */
+    moveBank: z.array(ID),
     /** Current HP; 0 means fainted. Left out when at full HP. */
     hp: z.number().int().min(0).optional(),
     /** Status condition. Left out when healthy. */

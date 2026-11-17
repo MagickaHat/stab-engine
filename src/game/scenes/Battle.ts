@@ -29,9 +29,11 @@
  *
  * To fight with the player's saved party instead of a fixed team, add
  * `usePlayerParty: true`. The party then enters the battle with its saved HP,
- * status and PP, gains experience and levels for every opponent it defeats,
- * and the result is written back to the game state when the battle ends
- * (see src/state/battle.ts):
+ * status and PP, gains experience, effort values, levels and moves for every
+ * opponent it defeats, and the result is written back to the game state when
+ * the battle ends (see src/state/battle.ts). Pokémon that can then evolve
+ * are announced with `GameEvents.BATTLE_EVOLUTIONS`, for an evolution scene
+ * to pick up:
  * @code
  * const data: BattleSceneData = {
  *     usePlayerParty: true,
@@ -175,12 +177,12 @@ export class Battle extends Scene
             this.begin(this.linkParty(null));
             return;
         }
-        //  Experience needs each species' base experience and growth curve.
+        //  Experience needs each species' base experience, growth curve and level-up moves.
         let left = false;
         this.events.once('shutdown', () => { left = true; });
-        void loadPbs(['speciesInfo']).then(({ speciesInfo }) =>
+        void loadPbs(['speciesInfo', 'learnsets']).then((data) =>
         {
-            if (!left) this.begin(this.linkParty(speciesInfo));
+            if (!left) this.begin(this.linkParty(data));
         });
     }
 
@@ -199,15 +201,15 @@ export class Battle extends Scene
             if (snapshot.phase !== 'ended') return;
             stopWatching();
             //  Save the party's condition first, so listeners already see it.
-            party?.finish();
+            this.settle(party);
             EventBus.emit(GameEvents.BATTLE_END, snapshot.winner ?? null);
         });
 
         this.events.once('shutdown', () =>
         {
             stopWatching();
-            //  Left before the end: keep the damage taken so far. Does nothing after a normal end.
-            party?.finish();
+            //  Left before the end: keep what happened so far. Does nothing after a normal end.
+            this.settle(party);
             setActiveBattle(null);
             bridge.destroy();
             this.battlers.clear();
@@ -221,18 +223,28 @@ export class Battle extends Scene
     }
 
     /**
+     * @brief Writes the battle's results to the game state and announces evolutions.
+     * @param party The link to the saved party, or `null` for a battle with fixed teams.
+     */
+    private settle (party: PartyBattle | null): void
+    {
+        const evolutions = party?.finish().evolutions ?? [];
+        if (evolutions.length) EventBus.emit(GameEvents.BATTLE_EVOLUTIONS, evolutions);
+    }
+
+    /**
      * @brief Puts the saved party in the local player's place in `this.options`.
-     * @param speciesInfo The species table, for experience; `null` for a battle that gives none.
+     * @param data The species and learnset tables, for experience; `null` for a battle that gives none.
      * @return The link to call `finish()` on when the battle is over.
      * @throws Error if no game is in progress or no party Pokémon can fight.
      */
-    private linkParty (speciesInfo: PbsData['speciesInfo'] | null): PartyBattle
+    private linkParty (data: Pick<PbsData, 'speciesInfo' | 'learnsets'> | null): PartyBattle
     {
         const state = requireGameState();
         const side = this.options.perspective === 'p2' ? 'p2' : 'p1';
         const link = partyBattle(state, {
             side,
-            exp: speciesInfo ? { species: (id) => speciesInfo[id] } : undefined,
+            exp: data ? { species: (id) => data.speciesInfo[id], learnset: (id) => data.learnsets[id] } : undefined,
         });
         const prepare = this.options.prepare;
         this.options = {

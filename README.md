@@ -29,7 +29,7 @@ Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudio
 
 ## Game State and Saves
 
-The party, PC, bag, flags, variables and the player's position are one plain-data `GameState` kept outside Phaser, in `src/state/`. `SaveManager` writes it to save slots (browser `localStorage` by default, three slots) as versioned JSON and checks every file it loads. The battle scene can fight with the saved party: it gains experience and levels during the battle, and HP, status, PP, experience and level are written back afterwards. See **[docs/SAVE_SYSTEM.md](docs/SAVE_SYSTEM.md)**.
+The party, PC, bag, flags, variables and the player's position are one plain-data `GameState` kept outside Phaser, in `src/state/`. `SaveManager` writes it to save slots (browser `localStorage` by default, three slots) as versioned JSON and checks every file it loads. The battle scene can fight with the saved party: it gains experience, effort values, levels and moves during the battle, the result is written back afterwards, and Pokémon that can then evolve are announced for an evolution scene. See **[docs/SAVE_SYSTEM.md](docs/SAVE_SYSTEM.md)**.
 
 ## UI
 

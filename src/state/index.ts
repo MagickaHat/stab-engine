@@ -18,12 +18,18 @@ export { getGameState, requireGameState, setGameState, subscribeGameState } from
 export { createPokemon, healed, isFainted, makeUid, NATURE_IDS } from './pokemon.ts';
 export type { NewPokemon } from './pokemon.ts';
 export { partyBattle, setBattleLevel, toPokemonSet, maxPP, usedUpBerry } from './battle.ts';
-export type { ExpOptions, ExpResult, ExpSpecies, PartyBattle, PartyBattleOptions, PartySide } from './battle.ts';
-export { expForLevel, expGain, levelForExp, MAX_LEVEL, LUCKY_EGG_BONUS } from './experience.ts';
+export type {
+    BattleOutcome, ExpOptions, ExpResult, ExpSpecies, PartyBattle, PartyBattleOptions, PartySide,
+} from './battle.ts';
+export { evolvedAbility, evolvePokemon, findEvolution } from './evolution.ts';
+export type { EvolutionContext, EvolveOptions, PendingEvolution } from './evolution.ts';
+export {
+    addEvs, expForLevel, expGain, levelForExp, levelUpMoves, MAX_LEVEL, LUCKY_EGG_BONUS, TRADED_BONUS,
+} from './experience.ts';
 export type { ExpGainInput, GrowthRate } from './experience.ts';
 export {
     SaveData, SavedPokemon, SavedMove, PlayerData, Position, Facing, Gender, PcStorage, PcBox, Bag, BagStack,
     IVSpread, EVSpread, VariableValue,
-    PARTY_SIZE, DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY,
+    PARTY_SIZE, MAX_MOVES, MAX_EV, MAX_TOTAL_EVS, DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY,
 } from './schema.ts';
 export type { PcLocation } from './schema.ts';

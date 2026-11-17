@@ -10,7 +10,8 @@ import type { BattleSnapshot } from '../battle/bridge/snapshot.ts';
 import { importTeam, SAMPLE_TEAM_P2 } from '../battle/teams.ts';
 import { partyBattle } from './battle.ts';
 import type { ExpSpecies } from './battle.ts';
-import { expForLevel, expGain, levelForExp } from './experience.ts';
+import { evolvedAbility, evolvePokemon, findEvolution } from './evolution.ts';
+import { addEvs, expForLevel, expGain, levelForExp, levelUpMoves } from './experience.ts';
 import { GameState } from './GameState.ts';
 import { createPokemon } from './pokemon.ts';
 import type { NewPokemon } from './pokemon.ts';
@@ -516,17 +517,36 @@ test('experience: growth curves and the gain formula', () =>
     assert.equal(expGain({ ...even, baseExp: 0, participated: true }), 0);
 });
 
-test('partyBattle: experience and level-ups apply during the battle and are saved after it', async () =>
+/** @brief Reads a generated PBS table. */
+function readTable<T> (file: string): Record<string, T>
 {
-    const info = JSON.parse(fs.readFileSync(new URL('../../content/pbs/generated/species_info.json', import.meta.url), 'utf8')) as Record<string, ExpSpecies>;
+    return JSON.parse(fs.readFileSync(new URL(`../../content/pbs/generated/${file}`, import.meta.url), 'utf8')) as Record<string, T>;
+}
+
+test('partyBattle: experience, effort values, level-ups and new moves apply during the battle and are saved after it', async () =>
+{
+    const info = readTable<ExpSpecies>('species_info.json');
+    const learnsets = readTable<{ learnset?: Record<string, string[]> }>('learnsets.json');
     const magikarp = 'Magikarp\nLevel: 30\nAbility: Swift Swim\n- Splash';
 
-    const state = GameState.create();
-    state.addToParty(createPokemon({ species: 'pikachu', level: 10, ability: 'static', moves: ['thundershock'], uid: 'lead', nickname: 'Sparky' }, seeded(1)));
+    const state = GameState.create({ name: 'Red', trainerId: 1 });
+    //  Four moves already: what the lead learns goes to its move bank.
+    state.addToParty(createPokemon({
+        species: 'pikachu', level: 10, ability: 'static', moves: ['thundershock', 'growl', 'tailwhip', 'quickattack'],
+        uid: 'lead', nickname: 'Sparky',
+    }, seeded(1)));
+    //  One move: what it learns is ready at once.
     state.addToParty(createPokemon({ species: 'bulbasaur', level: 5, ability: 'overgrow', moves: ['tackle'], uid: 'bench', exp: 140 }, seeded(2)));
     state.addToParty(createPokemon({ species: 'snorlax', level: 100, ability: 'thickfat', moves: ['rest'], uid: 'max' }, seeded(3)));
+    //  From another trainer, one level short of evolving, and already near the effort value limits.
+    state.addToParty(createPokemon({
+        species: 'caterpie', level: 6, ability: 'runaway', moves: ['tackle'], uid: 'traded',
+        ot: { name: 'Blue', id: 2 }, evs: { hp: 252, atk: 252, spe: 5 },
+    }, seeded(4)));
+    assert.deepEqual(state.getSnapshot().party.map((p) => [p.ot.name, state.isTraded(p)]),
+        [['Red', false], ['Red', false], ['Red', false], ['Blue', true]]);
 
-    const link = partyBattle(state, { exp: { species: (id) => info[id] } });
+    const link = partyBattle(state, { exp: { species: (id) => info[id], learnset: (id) => learnsets[id] } });
     const bridge = new BattleBridge({
         p1: { name: 'Red', team: link.team },
         p2: { name: 'Rival', team: importTeam(`${magikarp}\n\n${magikarp}`), ai: 'random' },
@@ -536,25 +556,31 @@ test('partyBattle: experience and level-ups apply during the battle and are save
     const lines: string[] = [];
     const forward = bridge.engine.onProtocol;
     bridge.engine.onProtocol = (batch) => { lines.push(...batch); forward(batch); };
-    //  HP of the lead as the player is shown it, each time a choice is offered.
+    //  The lead as the player is shown it, each time a choice is offered.
     const shown: { level: number; maxhp: number }[] = [];
+    //  The party's levels in the snapshot at the moment each "grew to" message is presented.
+    const levelsWhenTold: Record<string, number | undefined> = {};
     bridge.subscribe(() =>
     {
-        const lead = bridge.getSnapshot().me.active[0];
-        if (bridge.getSnapshot().choice && lead) shown.push({ level: lead.level, maxhp: lead.maxhp });
+        const snapshot = bridge.getSnapshot();
+        const lead = snapshot.me.active[0];
+        if (snapshot.choice && lead) shown.push({ level: lead.level, maxhp: lead.maxhp });
+        //  `step.text` is what a battle text box prints.
+        const told = /^(.+) grew to Lv\. (\d+)!$/.exec(snapshot.step?.text ?? '');
+        if (told) levelsWhenTold[`${told[1]} ${told[2]}`] = snapshot.me.team.find((view) => view.name === told[1])?.level;
     });
 
     const end = await playOut(bridge);
     assert.equal(end.winner, 'Red');
 
     //  What the rules say two level 30 Magikarp are worth, one after the other.
-    const expected = (growth: ExpSpecies['growthRate'], start: number, participated: boolean) =>
+    const expected = (growth: ExpSpecies['growthRate'], start: number, participated: boolean, traded = false) =>
     {
         let exp = start;
         let gained = 0;
         for (let i = 0; i < 2; i++)
         {
-            const gain = expGain({ baseExp: info.magikarp.baseExp!, defeatedLevel: 30, level: levelForExp(growth, exp), participated });
+            const gain = expGain({ baseExp: info.magikarp.baseExp!, defeatedLevel: 30, level: levelForExp(growth, exp), participated, traded });
             exp += gain;
             gained += gain;
         }
@@ -563,37 +589,94 @@ test('partyBattle: experience and level-ups apply during the battle and are save
     //  The lead was made without `exp`, so it starts at the least level 10 needs; the bench has 140.
     const lead = expected('medium', expForLevel('medium', 10), true);
     const bench = expected('medium-slow', 140, false);
-    assert.ok(lead.level > 10 && bench.level > 5, 'the opponents are worth at least a level');
+    const traded = expected('medium', expForLevel('medium', 6), false, true);
+    assert.ok(traded.gained > expected('medium', expForLevel('medium', 6), false).gained, 'traded Pokémon gain more');
+    assert.deepEqual([lead.level, bench.level], [12, 11]);
 
     //  During the battle: the simulator's Pokémon have grown, stats included.
     const battle = bridge.engine.battle!;
-    const [simLead, simBench, simMax] = battle.p1.pokemon;
-    assert.deepEqual([simLead.level, simBench.level, simMax.level], [lead.level, bench.level, 100]);
-    assert.deepEqual(simLead.baseStoredStats, battle.spreadModify(simLead.species.baseStats, simLead.set));
-    assert.equal(simLead.maxhp, simLead.baseStoredStats.hp);
-    assert.equal(simBench.maxhp, battle.spreadModify(simBench.species.baseStats, simBench.set).hp);
-    assert.ok(lines.some((line) => line.startsWith(`|detailschange|p1a: Sparky|Pikachu, L${lead.level}`)), 'the new level is announced');
-    assert.ok(lines.some((line) => line.startsWith('|-message|Sparky gained ')));
-    assert.ok(lines.includes(`|-message|Bulbasaur grew to Lv. ${bench.level}!`));
-    //  The player saw the lead at level 10 first and at a higher level, with more HP, before the end.
+    const [simLead, simBench, simMax, simTraded] = battle.p1.pokemon;
+    assert.deepEqual([simLead.level, simBench.level, simMax.level, simTraded.level], [12, 11, 100, traded.level]);
+    for (const sim of battle.p1.pokemon)
+    {
+        assert.deepEqual(sim.baseStoredStats, battle.spreadModify(sim.species.baseStats, sim.set), `${sim.name}: stats`);
+        assert.equal(sim.maxhp, sim.baseStoredStats.hp, `${sim.name}: max HP`);
+    }
+    //  Effort values: each Magikarp gives 1 Speed, used in the stats above.
+    assert.equal(simLead.set.evs.spe, 2);
+    assert.equal(simMax.set.evs.spe, 2, 'level 100 still gains effort values');
+    assert.deepEqual([simTraded.set.evs.hp, simTraded.set.evs.atk, simTraded.set.evs.spe], [252, 252, 6], 'stops at 510 in total');
+
+    //  New moves: ready at once with a free slot, otherwise in the move bank.
+    assert.deepEqual(simBench.baseMoveSlots.map((slot) => slot.id), ['tackle', 'growth', 'leechseed']);
+    assert.deepEqual(simBench.moveSlots.map((slot) => [slot.id, slot.pp]), [['tackle', 35], ['growth', 20], ['leechseed', 10]]);
+    assert.equal(simLead.baseMoveSlots.length, 4);
+
+    //  The battle text.
+    const messages = lines.filter((line) => line.startsWith('|-message|')).map((line) => line.slice('|-message|'.length));
+    assert.ok(messages.some((text) => /^Sparky gained \d+ Exp\. Points!$/.test(text)));
+    assert.ok(messages.includes('Bulbasaur grew to Lv. 11!'));
+    assert.ok(messages.includes('Bulbasaur learned Growth!'));
+    assert.ok(messages.includes('Bulbasaur learned Leech Seed!'));
+    assert.ok(messages.includes('Sparky learned Electro Ball! It was stored in its move bank.'));
+    assert.ok(messages.indexOf('Sparky grew to Lv. 12!') < messages.indexOf('Sparky learned Electro Ball! It was stored in its move bank.'));
+
+    //  The new level is shown as soon as it is announced, on the field and on the bench.
+    assert.ok(lines.some((line) => line.startsWith('|detailschange|p1a: Sparky|Pikachu, L12')));
+    assert.ok(lines.some((line) => line.startsWith('|detailschange|p1: Bulbasaur|Bulbasaur, L11')));
+    for (const [told, level] of Object.entries(levelsWhenTold))
+    {
+        assert.equal(level, Number(told.split(' ').pop()), `${told}: the snapshot has the level when the message is shown`);
+    }
+    assert.deepEqual(
+        ['Sparky 11', 'Sparky 12', 'Bulbasaur 11', `Caterpie ${simTraded.level}`].filter((told) => !(told in levelsWhenTold)), [],
+    );
     assert.equal(shown[0].level, 10);
-    assert.ok(shown.some((view) => view.level > 10 && view.maxhp > shown[0].maxhp));
-    assert.equal(end.me.team.find((view) => view.name === 'Sparky')?.level, lead.level);
+    assert.ok(shown.some((view) => view.level > 10 && view.maxhp > shown[0].maxhp), 'the lead grew between two turns');
+    assert.deepEqual(end.me.team.map((view) => view.level).sort((a, b) => a - b), [11, 12, traded.level, 100].sort((a, b) => a - b));
+    //  Announcing the level must not disturb what the viewer knows of the ability.
+    assert.equal(end.me.team.find((view) => view.name === 'Caterpie')?.ability, 'runaway');
 
     //  After the battle: written back to the game state.
-    const results = link.finish();
+    const outcome = link.finish();
     bridge.destroy();
-    assert.deepEqual(results, [
-        { uid: 'lead', gained: lead.gained, fromLevel: 10, toLevel: lead.level },
-        { uid: 'bench', gained: bench.gained, fromLevel: 5, toLevel: bench.level },
-        { uid: 'max', gained: 0, fromLevel: 100, toLevel: 100 },
+    assert.deepEqual(outcome.gains, [
+        { uid: 'lead', gained: lead.gained, fromLevel: 10, toLevel: 12, learned: [], banked: ['electroball'], evs: { spe: 2 } },
+        { uid: 'bench', gained: bench.gained, fromLevel: 5, toLevel: 11, learned: ['growth', 'leechseed'], banked: [], evs: { spe: 2 } },
+        { uid: 'max', gained: 0, fromLevel: 100, toLevel: 100, learned: [], banked: [], evs: { spe: 2 } },
+        { uid: 'traded', gained: traded.gained, fromLevel: 6, toLevel: traded.level, learned: outcome.gains[3].learned, banked: [], evs: { spe: 1 } },
     ]);
-    const [savedLead, savedBench, savedMax] = state.getSnapshot().party;
-    assert.deepEqual([savedLead.level, savedLead.exp], [lead.level, lead.exp]);
-    assert.deepEqual([savedBench.level, savedBench.exp], [bench.level, bench.exp]);
-    assert.deepEqual([savedMax.level, savedMax.exp], [100, expForLevel('slow', 100)], 'level 100 gains nothing');
+    assert.deepEqual(outcome.evolutions, [{ uid: 'traded', from: 'caterpie', into: 'metapod' }]);
+
+    const [savedLead, savedBench, savedMax, savedTraded] = state.getSnapshot().party;
+    assert.deepEqual([savedLead.level, savedLead.exp], [12, lead.exp]);
+    assert.deepEqual([savedBench.level, savedBench.exp], [11, bench.exp]);
+    assert.deepEqual([savedMax.level, savedMax.exp], [100, expForLevel('slow', 100)], 'level 100 gains no experience');
+    assert.deepEqual([savedTraded.level, savedTraded.exp], [traded.level, traded.exp]);
     assert.equal(savedLead.hp, undefined, 'unhurt, so still at full HP at its new level');
-    assert.deepEqual(link.finish(), [], 'a second call does nothing');
+    assert.deepEqual(savedLead.moves.map((move) => move.id), ['thundershock', 'growl', 'tailwhip', 'quickattack']);
+    assert.deepEqual(savedLead.moveBank, ['electroball']);
+    assert.deepEqual(savedBench.moves, [{ id: 'tackle', ppUps: 0 }, { id: 'growth', ppUps: 0 }, { id: 'leechseed', ppUps: 0 }]);
+    assert.deepEqual(savedBench.moveBank, []);
+    assert.equal(savedLead.evs.spe, 2);
+    assert.equal(savedTraded.evs.spe, 6);
+    assert.deepEqual(link.finish(), { gains: [], evolutions: [] }, 'a second call does nothing');
+
+    //  What the evolution scene does once it has shown the evolution.
+    const pokedex = readTable<{ abilities: Record<string, string> }>('pokedex.json');
+    const [{ uid, from, into }] = outcome.evolutions;
+    assert.equal(evolvePokemon(state, uid, into, {
+        ability: evolvedAbility(pokedex[from].abilities, pokedex[into].abilities, savedTraded.ability),
+        moves: levelUpMoves(learnsets[into].learnset, -1, 0),
+    }), true);
+    const metapod = state.getSnapshot().party[3];
+    assert.deepEqual([metapod.species, metapod.ability, metapod.level, metapod.uid], ['metapod', 'shedskin', traded.level, 'traded']);
+    assert.ok(metapod.moves.some((move) => move.id === 'harden'), 'Metapod learns Harden on evolving');
+
+    //  Everything new survives a save and load.
+    const saves = new SaveManager({ storage: new MemoryStorage() });
+    saves.save(0, state);
+    assert.deepEqual(saves.load(0).getSnapshot().party, state.getSnapshot().party);
 });
 
 test('partyBattle: no experience unless it is asked for', async () =>
@@ -608,10 +691,113 @@ test('partyBattle: no experience unless it is asked for', async () =>
         prepare: link.prepare,
     });
     assert.equal((await playOut(bridge)).winner, 'Red');
-    assert.deepEqual(link.finish(), []);
+    assert.deepEqual(link.finish(), { gains: [], evolutions: [] });
     bridge.destroy();
     const [lead] = state.getSnapshot().party;
-    assert.deepEqual([lead.level, lead.exp], [10, 1000]);
+    assert.deepEqual([lead.level, lead.exp, lead.evs.spe, lead.moves.length], [10, 1000, 0, 1]);
+});
+
+test('experience: effort values, the traded bonus and level-up moves', () =>
+{
+    const none = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
+    assert.deepEqual(addEvs(none, { spe: 2, hp: 1 }), { ...none, hp: 1, spe: 2 });
+    assert.deepEqual(addEvs({ ...none, spe: 251 }, { spe: 3 }), { ...none, spe: 252 }, '252 per stat');
+    const nearlyFull = { ...none, hp: 252, atk: 252, def: 5 };
+    assert.deepEqual(addEvs(nearlyFull, { def: 3 }), { ...nearlyFull, def: 6 }, '510 in total');
+    const full = { ...none, hp: 252, atk: 252, def: 6 };
+    assert.equal(addEvs(full, { spe: 3 }), full, 'the same object when nothing fits');
+
+    const even = { baseExp: 112, defeatedLevel: 50, level: 50, participated: true };
+    assert.equal(expGain({ ...even, traded: true }), 1681);
+    assert.equal(expGain({ ...even, traded: true, luckyEgg: true }), 2521);
+
+    const learnset = {
+        tackle: ['9L1', '8L1'], vinewhip: ['9L3', '8L7'], growth: ['9L6'], leechseed: ['9L9'], toxic: ['9M', '8L50'],
+        petaldance: ['9L0'],
+    };
+    assert.deepEqual(levelUpMoves(learnset, 2, 6), ['vinewhip', 'growth']);
+    assert.deepEqual(levelUpMoves(learnset, 6, 6), []);
+    assert.deepEqual(levelUpMoves(learnset, -1, 0), ['petaldance'], 'moves learned on evolving');
+    assert.deepEqual(levelUpMoves(learnset, 6, 60, 8), ['vinewhip', 'toxic'], 'another generation');
+    assert.deepEqual(levelUpMoves({ tackle: ['7L1'], harden: ['7L4', '6L5'] }, 1, 9), ['harden'], 'newest generation that has any');
+    assert.deepEqual(levelUpMoves(undefined, 1, 100), []);
+});
+
+test('GameState: the move bank', () =>
+{
+    const state = GameState.create();
+    state.addToParty(pikachu(0, { moves: ['thundershock', 'growl', 'tailwhip'], moveBank: ['nuzzle'] }));
+    const moves = () => state.getSnapshot().party[0].moves.map((move) => move.id);
+    const bank = () => state.getSnapshot().party[0].moveBank;
+
+    assert.equal(state.learnMove('pika0', 'quickattack'), 'moves');
+    assert.equal(state.learnMove('pika0', 'thunderwave'), 'bank', 'the four slots are taken');
+    assert.equal(state.learnMove('pika0', 'growl'), null, 'already ready');
+    assert.equal(state.learnMove('pika0', 'nuzzle'), null, 'already in the bank');
+    assert.deepEqual([moves(), bank()], [['thundershock', 'growl', 'tailwhip', 'quickattack'], ['nuzzle', 'thunderwave']]);
+
+    assert.equal(state.relearnMove('pika0', 'nuzzle'), false, 'no free slot and nothing to replace');
+    assert.equal(state.relearnMove('pika0', 'surf', 'growl'), false, 'not in the bank');
+    assert.equal(state.relearnMove('pika0', 'nuzzle', 'surf'), false, 'not a ready move');
+    state.updatePokemon('pika0', (p) => ({ ...p, moves: p.moves.map((move) => ({ ...move, pp: 1, ppUps: 2 })) }));
+    assert.equal(state.relearnMove('pika0', 'nuzzle', 'growl'), true);
+    assert.deepEqual([moves(), bank()], [['thundershock', 'nuzzle', 'tailwhip', 'quickattack'], ['thunderwave', 'growl']]);
+    assert.deepEqual(state.getSnapshot().party[0].moves[1], { id: 'nuzzle', ppUps: 0 }, 'a relearned move has full PP');
+
+    assert.equal(state.forgetMove('pika0', 'tailwhip'), true);
+    assert.equal(state.forgetMove('pika0', 'surf'), false);
+    assert.equal(state.relearnMove('pika0', 'growl'), true, 'a free slot needs no replacement');
+    assert.deepEqual([moves(), bank()], [['thundershock', 'nuzzle', 'quickattack', 'growl'], ['thunderwave', 'tailwhip']]);
+
+    for (const move of ['nuzzle', 'quickattack', 'growl']) assert.equal(state.forgetMove('pika0', move), true);
+    assert.equal(state.forgetMove('pika0', 'thundershock'), false, 'the last move cannot be forgotten');
+});
+
+test('evolution: conditions for evolving on level-up', () =>
+{
+    const eevee = pikachu(0, { species: 'eevee', level: 20, friendship: 200, moves: ['tackle', 'babydolleyes'] });
+    const methods = [
+        { into: 'vaporeon', trigger: 'use-item', item: 'waterstone' },
+        { into: 'espeon', trigger: 'level-up', timeOfDay: 'day' as const, minHappiness: 160 },
+        { into: 'umbreon', trigger: 'level-up', timeOfDay: 'night' as const, minHappiness: 160 },
+        { into: 'sylveon', trigger: 'level-up', knownMoveType: 'Fairy', minHappiness: 160 },
+    ];
+    const moveType = (move: string) => (move === 'babydolleyes' ? 'Fairy' : 'Normal');
+    assert.equal(findEvolution(eevee, methods), null, 'nothing can be checked without a context');
+    assert.equal(findEvolution(eevee, methods, { timeOfDay: 'night' }), 'umbreon');
+    assert.equal(findEvolution(eevee, methods, { timeOfDay: 'day', moveType }), 'espeon', 'the first that applies');
+    assert.equal(findEvolution(eevee, methods, { moveType }), 'sylveon');
+    assert.equal(findEvolution({ ...eevee, friendship: 100 }, methods, { timeOfDay: 'day', moveType }), null);
+    assert.equal(findEvolution({ ...eevee, item: 'everstone' }, methods, { timeOfDay: 'day' }), null);
+    assert.equal(findEvolution(eevee, undefined), null);
+
+    const level = [{ into: 'charmeleon', trigger: 'level-up', minLevel: 16 }];
+    assert.equal(findEvolution({ ...eevee, level: 15 }, level), null);
+    assert.equal(findEvolution({ ...eevee, level: 16 }, level), 'charmeleon');
+
+    const tyrogue = [
+        { into: 'hitmonlee', trigger: 'level-up', minLevel: 20, relativePhysicalStats: 1 },
+        { into: 'hitmonchan', trigger: 'level-up', minLevel: 20, relativePhysicalStats: -1 },
+        { into: 'hitmontop', trigger: 'level-up', minLevel: 20, relativePhysicalStats: 0 },
+    ];
+    assert.equal(findEvolution(eevee, tyrogue), null);
+    assert.equal(findEvolution(eevee, tyrogue, { stats: { atk: 30, def: 40 } }), 'hitmonchan');
+    assert.equal(findEvolution(eevee, tyrogue, { stats: { atk: 40, def: 40 } }), 'hitmontop');
+
+    const gendered = [{ into: 'gallade', trigger: 'level-up', minLevel: 20, gender: 'M' as const }];
+    assert.equal(findEvolution({ ...eevee, gender: 'F' }, gendered), null);
+    assert.equal(findEvolution({ ...eevee, gender: 'M' }, gendered), 'gallade');
+
+    const mantyke = [{ into: 'mantine', trigger: 'level-up', partySpecies: 'remoraid' }];
+    assert.equal(findEvolution(eevee, mantyke, { party: [eevee] }), null);
+    assert.equal(findEvolution(eevee, mantyke, { party: [eevee, pikachu(1, { species: 'remoraid' })] }), 'mantine');
+
+    //  Conditions only the overworld can check are never met here.
+    assert.equal(findEvolution(eevee, [{ into: 'leafeon', trigger: 'level-up', location: 'eterna-forest' }]), null);
+    assert.equal(findEvolution(eevee, [{ into: 'goodra', trigger: 'level-up', minLevel: 5, needsOverworldRain: true }]), null);
+
+    assert.equal(evolvedAbility({ 0: 'Shield Dust', H: 'Run Away' }, { 0: 'Shed Skin' }, 'runaway'), 'shedskin');
+    assert.equal(evolvedAbility({ 0: 'Static', H: 'Lightning Rod' }, { 0: 'Static', H: 'Lightning Rod' }, 'lightningrod'), 'lightningrod');
 });
 
 test('partyBattle: needs a Pokémon that can fight', () =>

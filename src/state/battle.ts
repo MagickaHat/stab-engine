@@ -8,19 +8,22 @@
  * 1. `team`: the party as a packed team string for `PlayerOptions.team`.
  * 2. `prepare`: applies each Pokémon's saved HP, status and PP before the
  *    battle begins (it is `BattleEngineOptions.prepare`).
- * 3. `finish()`: after the battle, writes HP, status, PP, experience and
- *    level back into the `GameState`.
+ * 3. `finish()`: after the battle, writes HP, status, PP, experience, level,
+ *    effort values and learned moves back into the `GameState`, and reports
+ *    who can now evolve.
  *
  * @code
- * const { speciesInfo } = await loadPbs(['speciesInfo']);
- * const link = partyBattle(state, { exp: { species: (id) => speciesInfo[id] } });
+ * const { speciesInfo, learnsets } = await loadPbs(['speciesInfo', 'learnsets']);
+ * const link = partyBattle(state, {
+ *     exp: { species: (id) => speciesInfo[id], learnset: (id) => learnsets[id] },
+ * });
  * const bridge = new BattleBridge({
  *     p1: { name: state.getSnapshot().player.name, team: link.team },
  *     p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
  *     prepare: link.prepare,
  * });
  * // ... when the battle has ended:
- * link.finish();
+ * const { gains, evolutions } = link.finish();
  * @endcode
  *
  * The battle scene does this for you when it is started with
@@ -30,10 +33,15 @@
  * stay in the party untouched.
  *
  * Experience is the simulator's missing piece: Showdown has no levels to gain.
- * With the `exp` option, every opponent that faints gives experience to the
- * party members that can still fight (half to those that were not on the
- * field against it, as in Generation 9). A Pokémon that reaches a new level
- * grows at once: its level and stats change in the running battle.
+ * With the `exp` option, every opponent that faints gives its effort values
+ * and experience to the party members that can still fight (half the
+ * experience to those that were not on the field against it, as in
+ * Generation 9; 1.5 times as much to traded Pokémon). A Pokémon that reaches a
+ * new level grows at once: its level and stats change in the running battle,
+ * and it learns the moves of that level. A new move takes a free move slot
+ * and can be used straight away; with four moves already, it goes to the
+ * Pokémon's move bank (`GameState.relearnMove()`). Each of these adds a
+ * `|-message|` line to the protocol for the battle text.
  *
  * Held items follow the rule the games use since Generation 9: an item that
  * was used up, knocked off or taken during the battle is back afterwards
@@ -42,22 +50,30 @@
  */
 import { Teams } from '@pkmn/sim';
 import type { Battle, ID, Pokemon, PokemonSet } from '@pkmn/sim';
-import { expForLevel, expGain, levelForExp, MAX_LEVEL } from './experience.ts';
+import type { EvolutionMethod } from '../data/schemas/engine.ts';
+import { findEvolution } from './evolution.ts';
+import type { EvolutionContext, PendingEvolution } from './evolution.ts';
+import { addEvs, expForLevel, expGain, levelForExp, levelUpMoves, MAX_LEVEL } from './experience.ts';
 import type { GrowthRate } from './experience.ts';
 import type { GameState } from './GameState.ts';
 import { isFainted } from './pokemon.ts';
-import type { SavedPokemon } from './schema.ts';
+import { MAX_MOVES } from './schema.ts';
+import type { EVSpread, SavedMove, SavedPokemon } from './schema.ts';
 
 /** @brief A side of a two-player battle. */
 export type PartySide = 'p1' | 'p2';
 
-/** @brief What the experience rules need to know about a species. */
+/** @brief What the experience rules need to know about a species (a `SpeciesInfo` fits). */
 export interface ExpSpecies
 {
     /** Experience it gives when defeated, before scaling. `null` or 0: none. */
     baseExp: number | null;
     /** How fast it levels up. */
     growthRate: GrowthRate;
+    /** Effort values it gives when defeated, e.g. `{ spe: 2 }`. Left out: none. */
+    evYield?: Partial<EVSpread>;
+    /** How it evolves. Left out: it is never reported as ready to evolve. */
+    evolutions?: EvolutionMethod[];
 }
 
 /** @brief Turns experience on for a battle. See `PartyBattleOptions.exp`. */
@@ -71,8 +87,18 @@ export interface ExpOptions
      */
     species: (id: string) => ExpSpecies | undefined;
     /**
+     * Looks up a species' learnset, normally in the `learnsets` table:
+     * `(id) => learnsets[id]`. Left out: no moves are learned on level-up.
+     */
+    learnset?: (id: string) => { learnset?: Record<string, string[]> } | undefined;
+    /** Generation whose level-up moves are used. Default: 9. */
+    gen?: number;
+    /** The time in the game world, for evolutions that need one. */
+    timeOfDay?: EvolutionContext['timeOfDay'];
+    /**
      * `false` to leave out the `|-message|` protocol lines ("Sparky gained 120
-     * Exp. Points!", "Sparky grew to Lv. 12!"). Default: `true`.
+     * Exp. Points!", "Sparky grew to Lv. 12!", "Sparky learned Thunder
+     * Wave!"). Default: `true`.
      */
     messages?: boolean;
 }
@@ -86,7 +112,7 @@ export interface PartyBattleOptions
     exp?: ExpOptions;
 }
 
-/** @brief Experience one Pokémon gained in a battle. */
+/** @brief What one Pokémon gained in a battle. */
 export interface ExpResult
 {
     /** `uid` of the Pokémon. */
@@ -97,6 +123,24 @@ export interface ExpResult
     fromLevel: number;
     /** Level after the battle. */
     toLevel: number;
+    /** IDs of the moves it learned and has ready. */
+    learned: string[];
+    /** IDs of the moves it learned that went to its move bank, as its move slots were full. */
+    banked: string[];
+    /** Effort values gained, e.g. `{ spe: 4 }`. */
+    evs: Partial<EVSpread>;
+}
+
+/** @brief What a battle changed for the party, from `PartyBattle.finish()`. */
+export interface BattleOutcome
+{
+    /** What each team member gained, in team order. Empty without the `exp` option. */
+    gains: ExpResult[];
+    /**
+     * Team members that levelled up and can now evolve, in team order. Show
+     * each one's evolution and then call `evolvePokemon()` (evolution.ts).
+     */
+    evolutions: PendingEvolution[];
 }
 
 /** @brief The connection between the saved party and one battle. See `partyBattle()`. */
@@ -109,16 +153,16 @@ export interface PartyBattle
     /** Pass as `BattleEngineOptions.prepare`: applies saved HP, status and PP. */
     prepare: (battle: Battle) => void;
     /**
-     * Writes each Pokémon's HP, status and PP back into the `GameState`, and
-     * removes Berries that were used up (other held items are kept). Call
-     * it once the battle has ended (or been left) and before the battle is
-     * destroyed. Does nothing if the battle never began.
+     * Writes the battle's results into the `GameState`: HP, status, PP, and
+     * with the `exp` option experience, level, effort values and learned
+     * moves. Berries that were used up are removed (other held items are
+     * kept). Call it once the battle has ended (or been left) and before the
+     * battle is destroyed.
      *
-     * Experience and levels gained are written too.
-     * @return What each team member gained, in team order (empty without the `exp` option,
-     *         and on a second call).
+     * @return What was gained and who can evolve. Empty lists if the battle never began,
+     *         and on a second call.
      */
-    finish: () => ExpResult[];
+    finish: () => BattleOutcome;
 }
 
 /**
@@ -180,11 +224,30 @@ export function usedUpBerry (battle: Battle, pokemon: Pokemon, item: string): bo
 }
 
 /**
- * @brief Raise a Pokémon's level in a running battle.
+ * @brief Work out a Pokémon's stats again after its level or effort values changed.
  *
- * Its stats are worked out again for the new level and its HP rises by as
- * much as its maximum HP did. A transformed Pokémon keeps the stats it
- * copied; only its level changes.
+ * Its HP rises by as much as its maximum HP did. A transformed Pokémon keeps
+ * the stats it copied.
+ *
+ * @param battle The simulator's battle.
+ * @param pokemon The simulator's Pokémon.
+ */
+function refreshStats (battle: Battle, pokemon: Pokemon): void
+{
+    if (pokemon.transformed) return;
+    const stats = battle.spreadModify(pokemon.species.baseStats, pokemon.set);
+    pokemon.baseStoredStats = stats;
+    for (const stat of ['atk', 'def', 'spa', 'spd', 'spe'] as const) pokemon.storedStats[stat] = stats[stat];
+    pokemon.updateMaxHp();
+}
+
+/**
+ * @brief Raise a Pokémon's level in a running battle and show it at once.
+ *
+ * Its stats are worked out again for the new level. A `|detailschange|`
+ * protocol line carries the new level to whoever shows the battle, whether
+ * the Pokémon is on the field or not, so `BattleSnapshot` has it as soon as
+ * the line is presented instead of at the player's next choice.
  *
  * @param battle The simulator's battle.
  * @param pokemon The simulator's Pokémon.
@@ -196,14 +259,55 @@ export function setBattleLevel (battle: Battle, pokemon: Pokemon, level: number)
     (pokemon as { level: number }).level = level;
     pokemon.set.level = level;
     pokemon.details = pokemon.getUpdatedDetails();
-    if (pokemon.transformed) return;
+    refreshStats(battle, pokemon);
 
-    const stats = battle.spreadModify(pokemon.species.baseStats, pokemon.set);
-    pokemon.baseStoredStats = stats;
-    for (const stat of ['atk', 'def', 'spa', 'spd', 'spe'] as const) pokemon.storedStats[stat] = stats[stat];
-    pokemon.updateMaxHp();
-    //  Tell whoever shows the battle about the new level.
-    if (pokemon.isActive) battle.add('detailschange', pokemon, pokemon.details);
+    //  Under an Illusion the line would give the disguise away; the next request has the level.
+    if (pokemon.illusion) return;
+    battle.add('detailschange', pokemon, pokemon.details);
+    //  Viewers reset the ability to the species' first on that line; put the real one back.
+    if (pokemon.ability !== battle.toID(pokemon.species.abilities['0']))
+    {
+        battle.add('-ability', pokemon, pokemon.getAbility().name, '[silent]');
+    }
+}
+
+/**
+ * @brief Give a Pokémon a new move slot in a running battle, with full PP.
+ * @param battle The simulator's battle.
+ * @param pokemon The simulator's Pokémon.
+ * @param move Move ID.
+ */
+function addBattleMove (battle: Battle, pokemon: Pokemon, move: string): void
+{
+    const data = battle.dex.moves.get(move);
+    if (!data.exists) return;
+    const slot = {
+        move: data.name, id: data.id, pp: data.pp, maxpp: data.pp, target: data.target,
+        disabled: false, disabledSource: '', used: false,
+    };
+    pokemon.baseMoveSlots.push(slot);
+    //  A transformed Pokémon uses the moves it copied until it leaves the field.
+    if (!pokemon.transformed) pokemon.moveSlots.push(slot);
+}
+
+/** @brief What a team member has gained so far in the battle. */
+interface Progress
+{
+    growth: GrowthRate;
+    /** Total experience. */
+    exp: number;
+    gained: number;
+    fromLevel: number;
+    traded: boolean;
+    /** Effort values now, and before the battle. */
+    evs: EVSpread;
+    startEvs: EVSpread;
+    /** IDs of every move it knows: ready moves and move bank. */
+    known: Set<string>;
+    /** IDs of its ready moves. */
+    ready: string[];
+    learned: string[];
+    banked: string[];
 }
 
 /**
@@ -220,14 +324,23 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
     const members = state.getSnapshot().party.filter((pokemon) => !isFainted(pokemon));
     if (!members.length) throw new Error('[state] partyBattle: the party has no Pokémon that can fight');
 
-    /** Experience so far, by `uid`. Only filled when the battle gives experience. */
-    const progress = new Map<string, { growth: GrowthRate; exp: number; gained: number; fromLevel: number }>();
+    /** The simulator's Pokémon by `uid`, filled in by `prepare`. */
+    const battlers = new Map<string, Pokemon>();
+    /** Gains so far, by `uid`. Only filled when the battle gives experience. */
+    const progress = new Map<string, Progress>();
     /** For each opponent, the party members that were on the field against it. */
     const fought = new Map<Pokemon, Set<Pokemon>>();
+    let sim: Battle | null = null;
 
-    /** Species data for the experience rules, falling back to the base species for formes. */
-    const speciesOf = (battle: Battle, id: string): ExpSpecies | undefined =>
-        exp?.species(id) ?? exp?.species(battle.toID(battle.dex.species.get(id).baseSpecies));
+    /** Looks something up by species ID, falling back to the base species for formes. */
+    const lookup = <T>(battle: Battle, find: ((id: string) => T | undefined) | undefined, id: string): T | undefined =>
+        find?.(id) ?? find?.(battle.toID(battle.dex.species.get(id).baseSpecies));
+
+    /** Adds a `|-message|` line unless messages are turned off. */
+    const say = (battle: Battle, text: string): void =>
+    {
+        if (exp?.messages !== false) battle.add('-message', text);
+    };
 
     /** Remember who is facing whom right now. */
     const markFought = (battle: Battle): void =>
@@ -246,42 +359,75 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
         }
     };
 
-    /** An opponent fainted: share out its experience and apply level-ups. */
+    /** A Pokémon went from `fromLevel` to its current level: teach it the moves of those levels. */
+    const teach = (battle: Battle, pokemon: Pokemon, entry: Progress, fromLevel: number): void =>
+    {
+        const learnset = lookup(battle, exp?.learnset, pokemon.baseSpecies.id)?.learnset;
+        for (const move of levelUpMoves(learnset, fromLevel, pokemon.level, exp?.gen))
+        {
+            if (entry.known.has(move)) continue;
+            entry.known.add(move);
+            const name = battle.dex.moves.get(move).name || move;
+            if (entry.ready.length < MAX_MOVES)
+            {
+                entry.ready.push(move);
+                entry.learned.push(move);
+                addBattleMove(battle, pokemon, move);
+                say(battle, `${pokemon.name} learned ${name}!`);
+            }
+            else
+            {
+                entry.banked.push(move);
+                say(battle, `${pokemon.name} learned ${name}! It was stored in its move bank.`);
+            }
+        }
+    };
+
+    /** An opponent fainted: share out its effort values and experience, and apply level-ups. */
     const award = (battle: Battle, defeated: Pokemon): void =>
     {
         const own = battle.getSide(side);
         if (defeated.side === own || defeated.side === own.allySide) return;
-        const baseExp = speciesOf(battle, defeated.species.id)?.baseExp ?? 0;
+        const species = lookup(battle, exp?.species, defeated.species.id);
         const participants = fought.get(defeated);
         for (const [uid, pokemon] of battlers)
         {
             const entry = progress.get(uid);
-            if (!entry || pokemon.fainted || pokemon.level >= MAX_LEVEL) continue;
+            if (!entry || pokemon.fainted) continue;
+
+            const evs = addEvs(entry.evs, species?.evYield ?? {});
+            if (evs !== entry.evs)
+            {
+                entry.evs = evs;
+                pokemon.set.evs = { ...evs };
+                refreshStats(battle, pokemon);
+            }
+
+            if (pokemon.level >= MAX_LEVEL) continue;
             const gained = Math.min(
                 expGain({
-                    baseExp,
+                    baseExp: species?.baseExp ?? 0,
                     defeatedLevel: defeated.level,
                     level: pokemon.level,
                     participated: participants?.has(pokemon) ?? false,
                     luckyEgg: pokemon.item === 'luckyegg',
+                    traded: entry.traded,
                 }),
                 expForLevel(entry.growth, MAX_LEVEL) - entry.exp,
             );
             if (gained <= 0) continue;
             entry.exp += gained;
             entry.gained += gained;
-            if (exp?.messages !== false) battle.add('-message', `${pokemon.name} gained ${gained} Exp. Points!`);
+            say(battle, `${pokemon.name} gained ${gained} Exp. Points!`);
 
+            const before = pokemon.level;
             const level = levelForExp(entry.growth, entry.exp);
-            if (level <= pokemon.level) continue;
+            if (level <= before) continue;
             setBattleLevel(battle, pokemon, level);
-            if (exp?.messages !== false) battle.add('-message', `${pokemon.name} grew to Lv. ${level}!`);
+            say(battle, `${pokemon.name} grew to Lv. ${level}!`);
+            teach(battle, pokemon, entry, before);
         }
     };
-
-    /** The simulator's Pokémon by `uid`, filled in by `prepare`. */
-    const battlers = new Map<string, Pokemon>();
-    let sim: Battle | null = null;
 
     const prepare = (battle: Battle): void =>
     {
@@ -293,10 +439,21 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
             battlers.set(saved.uid, pokemon);
             if (exp)
             {
-                const growth = speciesOf(battle, saved.species)?.growthRate ?? 'medium';
-                //  A Pokémon made without `exp` starts at the least its level needs.
-                const start = Math.max(saved.exp, expForLevel(growth, saved.level));
-                progress.set(saved.uid, { growth, exp: start, gained: 0, fromLevel: saved.level });
+                const growth = lookup(battle, exp.species, saved.species)?.growthRate ?? 'medium';
+                progress.set(saved.uid, {
+                    growth,
+                    //  A Pokémon made without `exp` starts at the least its level needs.
+                    exp: Math.max(saved.exp, expForLevel(growth, saved.level)),
+                    gained: 0,
+                    fromLevel: saved.level,
+                    traded: state.isTraded(saved),
+                    evs: saved.evs,
+                    startEvs: saved.evs,
+                    known: new Set([...saved.moves.map((move) => move.id), ...saved.moveBank]),
+                    ready: saved.moves.map((move) => move.id),
+                    learned: [],
+                    banked: [],
+                });
             }
 
             for (const slot of pokemon.baseMoveSlots)
@@ -326,44 +483,78 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
         });
     };
 
-    const finish = (): ExpResult[] =>
+    const finish = (): BattleOutcome =>
     {
-        const results: ExpResult[] = [];
+        const outcome: BattleOutcome = { gains: [], evolutions: [] };
+        const battle = sim;
+        if (!battle) return outcome;
+
         for (const [uid, pokemon] of battlers)
         {
             const entry = progress.get(uid);
-            if (entry) results.push({ uid, gained: entry.gained, fromLevel: entry.fromLevel, toLevel: pokemon.level });
             state.updatePokemon(uid, (saved) =>
             {
                 const { hp: _hp, status: _status, item, ...rest } = saved;
                 const next: SavedPokemon = {
                     ...rest,
-                    moves: saved.moves.map((move) =>
+                    moves: (entry?.ready ?? saved.moves.map((move) => move.id)).map((id) =>
                     {
-                        const slot = pokemon.baseMoveSlots.find((entry) => entry.id === move.id);
-                        const used = slot && slot.pp < slot.maxpp;
-                        return used ? { id: move.id, ppUps: move.ppUps, pp: slot.pp } : { id: move.id, ppUps: move.ppUps };
+                        const move: SavedMove = { id, ppUps: saved.moves.find((known) => known.id === id)?.ppUps ?? 0 };
+                        const slot = pokemon.baseMoveSlots.find((known) => known.id === id);
+                        if (slot && slot.pp < slot.maxpp) move.pp = slot.pp;
+                        return move;
                     }),
                 };
                 const hp = pokemon.fainted ? 0 : pokemon.hp;
                 if (hp < pokemon.maxhp) next.hp = hp;
+                //  A fainted Pokémon has no status condition.
+                if (hp > 0 && pokemon.status) next.status = pokemon.status as SavedPokemon['status'];
                 //  The saved item is kept whatever happened to it, unless it is a Berry that was used up.
-                if (item && !(sim && usedUpBerry(sim, pokemon, item))) next.item = item;
+                if (item && !usedUpBerry(battle, pokemon, item)) next.item = item;
                 if (entry)
                 {
                     next.exp = entry.exp;
                     next.level = pokemon.level;
+                    next.evs = entry.evs;
+                    next.moveBank = [...saved.moveBank, ...entry.banked];
                 }
-                //  A fainted Pokémon has no status condition.
-                if (hp > 0 && pokemon.status) next.status = pokemon.status as SavedPokemon['status'];
                 return next;
             });
+            if (!entry) continue;
+
+            const evs: Partial<EVSpread> = {};
+            for (const stat of Object.keys(entry.evs) as (keyof EVSpread)[])
+            {
+                if (entry.evs[stat] > entry.startEvs[stat]) evs[stat] = entry.evs[stat] - entry.startEvs[stat];
+            }
+            outcome.gains.push({
+                uid, gained: entry.gained, fromLevel: entry.fromLevel, toLevel: pokemon.level,
+                learned: entry.learned, banked: entry.banked, evs,
+            });
         }
+
+        //  Evolutions are checked once everyone is saved, as some depend on the rest of the party.
+        const party = state.getSnapshot().party;
+        for (const [uid, pokemon] of battlers)
+        {
+            const entry = progress.get(uid);
+            const saved = party.find((member) => member.uid === uid);
+            if (!entry || !saved || pokemon.fainted || pokemon.level <= entry.fromLevel) continue;
+            const into = findEvolution(saved, lookup(battle, exp?.species, saved.species)?.evolutions, {
+                timeOfDay: exp?.timeOfDay,
+                party,
+                stats: { atk: pokemon.baseStoredStats.atk, def: pokemon.baseStoredStats.def },
+                moveType: (move) => battle.dex.moves.get(move).type,
+                speciesTypes: (species) => battle.dex.species.get(species).types,
+            });
+            if (into) outcome.evolutions.push({ uid, from: saved.species, into });
+        }
+
         battlers.clear();
         progress.clear();
         fought.clear();
         sim = null;
-        return results;
+        return outcome;
     };
 
     return {

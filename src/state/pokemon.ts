@@ -25,6 +25,8 @@ export interface NewPokemon
     ability: string;
     /** One to four move IDs. They start with full PP. */
     moves: readonly string[];
+    /** Moves it has learned but does not have ready. Default: none. */
+    moveBank?: readonly string[];
     /** Default: none. */
     nickname?: string;
     /** Default: 0. Pass the experience the species needs for `level`. */
@@ -46,7 +48,10 @@ export interface NewPokemon
     /** Poké Ball ID. Default: `pokeball`. */
     ball?: string;
     teraType?: string;
-    /** Original trainer. Default: nobody (`{ name: '', id: 0 }`). */
+    /**
+     * Original trainer. Default: nobody (`{ name: '', id: 0 }`), which
+     * `GameState.addToParty()` replaces with the player.
+     */
     ot?: { name: string; id: number };
     /** Map it was obtained on. Default: `""`. */
     metMap?: string;
@@ -103,6 +108,7 @@ export function createPokemon (options: NewPokemon, random: () => number = Math.
         nature: options.nature ?? NATURE_IDS[Math.floor(random() * NATURE_IDS.length)],
         ability: options.ability,
         moves: options.moves.map((id) => ({ id, ppUps: 0 })),
+        moveBank: [...(options.moveBank ?? [])],
         shiny: options.shiny ?? false,
         gender: options.gender ?? 'N',
         friendship: options.friendship ?? 70,
