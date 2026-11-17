@@ -5,7 +5,9 @@
     "compatibilityVersion": 1100,
     "extensionsPath": "extensions",
     "folders": [
-        "."
+        "events",
+        "maps",
+        "tilesets"
     ],
     "properties": [
     ],
