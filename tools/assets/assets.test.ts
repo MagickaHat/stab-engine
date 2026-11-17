@@ -7,9 +7,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { formKey, parseAssetName, parseFormNames } from './essentials.ts';
-import { detectScale, transform } from './image.ts';
+import { decodeBmp } from './bmp.ts';
+import { assetName, excludedBy, formKey, parseAssetName, parseFormNames } from './essentials.ts';
+import { chooseFilter, detectScale, reduceAverage, reduceDominant, transform } from './image.ts';
 import { gen9 } from './packs/gen9.ts';
+import { graphics } from './packs/graphics.ts';
 import { planPack } from './plan.ts';
 import { decodePng, encodePng, pngSize } from './png.ts';
 import type { Image } from './png.ts';
@@ -216,13 +218,13 @@ test('resolve: words are compared the way Showdown writes them', () =>
 
 test('gen9 pack: Alcremie, Minior and item names', () =>
 {
-    const alcremie = gen9.forms.ALCREMIE as (form: number) => string | undefined;
+    const alcremie = gen9.forms!.ALCREMIE as (form: number) => string | undefined;
     assert.equal(alcremie(0), 'alcremie');
     assert.equal(alcremie(1), 'alcremie/vanillacreamberrysweet');
     assert.equal(alcremie(7), 'alcremie/rubycreamstrawberrysweet');
     assert.equal(alcremie(62), 'alcremie/rainbowswirlribbonsweet');
     assert.equal(alcremie(63), undefined);
-    const minior = gen9.forms.MINIOR as (form: number) => string | undefined;
+    const minior = gen9.forms!.MINIOR as (form: number) => string | undefined;
     assert.deepEqual([minior(0), minior(7), minior(8), minior(3)], ['minior/meteor', 'minior', 'minior/orange', undefined]);
     assert.equal(gen9.item!('machine_FIRE'), 'tm_fire');
     assert.equal(gen9.item!('machine_tr_WATER'), 'tr_water');
@@ -254,6 +256,149 @@ test('plan: sprites go to img/pokemon/<species>, cries to one flat sound/se/crie
             'sound/se/cries/charizardmegax.ogg',
             'sound/se/cries/kyuremform3.ogg',
         ]);
+    }
+    finally
+    {
+        fs.rmSync(packDir, { recursive: true, force: true });
+    }
+});
+
+/**
+ * @brief Build an image from rows of single-character colour names.
+ * @param rows Equal-length strings; `.` is transparent, other characters are colours.
+ * @return The image.
+ */
+function fromRows (rows: string[]): Image
+{
+    const palette: Record<string, number[]> = { '.': [0, 0, 0, 0], 'k': [0, 0, 0, 255], 'w': [255, 255, 255, 255], 'r': [255, 0, 0, 255], 'g': [0, 160, 0, 255] };
+    const data = new Uint8Array(rows.length * rows[0].length * 4);
+    rows.forEach((row, y) => [...row].forEach((c, x) => data.set(palette[c], (y * row.length + x) * 4)));
+    return { width: rows[0].length, height: rows.length, data };
+}
+
+test('image: dominant keeps the main colour of each block and never invents one', () =>
+{
+    const image = fromRows([
+        'wwkk',
+        'wkkk',
+        'gggg',
+        'grgg',
+    ]);
+    assert.deepEqual(reduceDominant(image, 2), fromRows(['wk', 'gg']));
+    // A thin black line through white survives a 2-2 tie: it is the rarer colour around the block.
+    const line = fromRows([
+        'wwwwww',
+        'wwwwww',
+        'wwkkww',
+        'wwwwww',
+        'wwwwww',
+        'wwwwww',
+    ]);
+    assert.deepEqual(reduceDominant(line, 2), fromRows(['www', 'wkw', 'www']));
+});
+
+test('image: average blends by alpha, so transparent pixels do not darken edges', () =>
+{
+    const image = fromRows(['w.', '..']);
+    const out = reduceAverage(image, 2);
+    assert.deepEqual([...out.data], [255, 255, 255, 64]);
+});
+
+test('image: auto treats gradients as soft art and small palettes as pixel art', () =>
+{
+    const gradient: Image = { width: 32, height: 32, data: new Uint8Array(32 * 32 * 4) };
+    for (let i = 0; i < 32 * 32; i++) gradient.data.set([i % 256, i % 256, (i * 3) % 256, 255], i * 4);
+    assert.equal(chooseFilter(gradient, 2), 'average');
+    assert.equal(chooseFilter(makeImage(32, 32, 8), 2), 'dominant');
+});
+
+test('image: filtered divide is lossless on clean art and evens odd sizes', () =>
+{
+    const sprite = makeImage(10, 6, 30);
+    assert.deepEqual(transform(upscale(sprite, 2), { divide: 2, filter: 'auto' }), { image: sprite, notes: [] });
+    const odd = transform(makeImage(5, 3, 3), { divide: 2, filter: 'dominant' });
+    assert.deepEqual([odd.image.width, odd.image.height], [3, 2]);
+    assert.deepEqual(odd.notes, ['evened', 'resampled']);
+});
+
+test('BMP: 24-bit bottom-up and 32-bit bitfield bitmaps with alpha', () =>
+{
+    /** Build a 2×2 bitmap: header of `size` bytes (masks stored right after the first 40). */
+    const bitmap = (size: number, bits: number, compression: number, masks: number[], pixels: number[]) =>
+    {
+        const info = Buffer.alloc(size);
+        info.writeUInt32LE(size, 0);
+        info.writeInt32LE(2, 4);
+        info.writeInt32LE(2, 8); // positive height: rows stored bottom-up
+        info.writeUInt16LE(1, 12);
+        info.writeUInt16LE(bits, 14);
+        info.writeUInt32LE(compression, 16);
+        masks.forEach((mask, i) => info.writeUInt32LE(mask, 40 + i * 4));
+        const head = Buffer.alloc(14);
+        head.write('BM', 0, 'latin1');
+        head.writeUInt32LE(14 + size, 10);
+        return Buffer.concat([head, info, Buffer.from(pixels)]);
+    };
+    // 24-bit BGR, rows padded to 4 bytes. Stored: bottom row (blue, green), then top row (red, white).
+    const rgb = decodeBmp(bitmap(40, 24, 0, [], [255, 0, 0, 0, 255, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0]));
+    assert.deepEqual([...rgb.data], [255, 0, 0, 255, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 0, 255]);
+    // 32-bit with an alpha mask (56-byte header). Stored: bottom row (half-transparent red, clear), top row (two opaque black).
+    const argb = decodeBmp(bitmap(56, 32, 3, [0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000],
+        [0, 0, 255, 128, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 255]));
+    assert.deepEqual([...argb.data], [0, 0, 0, 255, 0, 0, 0, 255, 255, 0, 0, 128, 0, 0, 0, 0]);
+    assert.throws(() => decodeBmp(Buffer.from('not a bitmap at all, sorry')), /not a BMP/);
+});
+
+test('essentials: engine names and exclusion patterns', () =>
+{
+    assert.equal(assetName('Town Map'), 'town_map');
+    assert.equal(assetName('trainer_POKEMONTRAINER_Red'), 'trainer_pokemontrainer_red');
+    assert.equal(assetName('021-Normal01'), '021_normal01');
+    assert.equal(assetName('Pokémon Centre'), 'pokemon_centre');
+    assert.equal(assetName('!'), null);
+    assert.equal(excludedBy('Graphics/UI/Debug/icon.png', ['Graphics/UI/Debug']), 'Graphics/UI/Debug');
+    assert.equal(excludedBy('graphics/ui/controls help/a.png', ['Graphics/UI/Controls_help']), 'Graphics/UI/Controls_help');
+    assert.equal(excludedBy('Graphics/Windowskins/Window.png', ['Graphics/Windowskins/window']), 'Graphics/Windowskins/window');
+    assert.equal(excludedBy('Graphics/Characters/Followers shiny/X.png', ['Graphics/Characters/Followers*']), 'Graphics/Characters/Followers*');
+    assert.equal(excludedBy('Graphics/UI/Debugger/a.png', ['Graphics/UI/Debug']), null, 'whole names only');
+    assert.equal(excludedBy('Graphics/Windowskins/Window2.png', ['Graphics/Windowskins/Window.png']), null);
+});
+
+test('plan: graphics copies Graphics/ into img/ with engine names, minus excluded folders', () =>
+{
+    const packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stab-pack-'));
+    try
+    {
+        for (const file of [
+            'Graphics/Tilesets/Outside.png', 'Graphics/UI/Town Map/mapPlayer000.png', 'Graphics/UI/itemstorage_bg.PNG',
+            'Graphics/Characters/NPC 01.png', 'Graphics/Characters/Followers/PIKACHU.png', 'Graphics/Battle animations/ring.bmp',
+            'Graphics/Pokemon/Front/PIKACHU.png', 'Graphics/Items/POTION.png', 'Graphics/Animations/Fire1.png',
+            'Graphics/UI/Debug/x.png', 'Graphics/UI/Controls help/y.png', 'Graphics/Windowskins/Window.png',
+            'Graphics/Windowskins/001-Blue01.png', 'Graphics/Windowskins/choice 1.png', 'Graphics/Titles/notes.txt',
+            'Graphics/Titles/Thumbs.db', 'Graphics/Titles/title.png', 'Graphics/Titles/Title.png',
+        ])
+        {
+            fs.mkdirSync(path.dirname(path.join(packDir, file)), { recursive: true });
+            fs.writeFileSync(path.join(packDir, file), '');
+        }
+        const dex: DexIndex = { species: {}, items: new Set() };
+        const plan = planPack(packDir, graphics, dex, new Map(), undefined, ['Graphics/Tilesets']);
+        assert.deepEqual(plan.files.map((file) => file.dest).sort(), [
+            'img/battle_animations/ring.png',
+            'img/characters/npc_01.png',
+            'img/titles/title.png',
+            'img/ui/itemstorage_bg.png',
+            'img/ui/town_map/mapplayer000.png',
+            'img/windowskins/choice_1.png',
+        ]);
+        assert.deepEqual(plan.report.skipped, ['Graphics/Titles/notes.txt']);
+        assert.equal(plan.report.duplicates.length, 1, 'Title.png and title.png share a name');
+        assert.ok(plan.report.excluded.includes('Graphics/Tilesets (1 file)'));
+        assert.deepEqual(plan.files.find((f) => f.dest === 'img/battle_animations/ring.png')?.image, { divide: 2, filter: 'auto' });
+        assert.ok(plan.kinds.has('ui') && plan.kinds.has('characters') && !plan.kinds.has('tilesets'), 'excluded folders are not offered as kinds');
+
+        const onlyUi = planPack(packDir, graphics, dex, new Map(), new Set(['ui']));
+        assert.deepEqual(onlyUi.files.map((file) => file.kind), ['ui', 'ui']);
     }
     finally
     {

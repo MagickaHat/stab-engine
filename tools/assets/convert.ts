@@ -4,6 +4,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { decodeBmp } from './bmp.ts';
 import { transform } from './image.ts';
 import type { ImageNote, ImageOp } from './image.ts';
 import { decodePng, encodePng } from './png.ts';
@@ -15,7 +16,7 @@ export interface Job
     src: string;
     /** Absolute output path. */
     dest: string;
-    /** Resize instructions for PNGs; `null` copies the file byte for byte. */
+    /** Resize instructions for images (`.png`, `.bmp`; written as PNG); `null` copies the file byte for byte. */
     image: ImageOp | null;
 }
 
@@ -45,7 +46,9 @@ export function runJob (job: Job): JobResult
             fs.copyFileSync(job.src, job.dest);
             return { dest: job.dest, notes: [] };
         }
-        const { image, notes } = transform(decodePng(fs.readFileSync(job.src)), job.image);
+        const bytes = fs.readFileSync(job.src);
+        const decoded = path.extname(job.src).toLowerCase() === '.bmp' ? decodeBmp(bytes) : decodePng(bytes);
+        const { image, notes } = transform(decoded, job.image);
         fs.writeFileSync(job.dest, encodePng(image));
         return { dest: job.dest, size: [image.width, image.height], notes };
     }

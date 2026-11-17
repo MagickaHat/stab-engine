@@ -2,7 +2,9 @@
  * @file import.ts
  * @brief CLI: imports sprites, icons and cries from a Pokémon Essentials
  *        resource pack into `public/assets`, renamed to Showdown IDs and
- *        resized to the engine's 1× pixel scale.
+ *        resized to the engine's 1× pixel scale. With `--format graphics`
+ *        it imports the rest of `Graphics/` (tilesets, UI, characters…) into
+ *        `img/` instead (see `packs/graphics.ts`).
  *
  * @code
  * npm run assets:import -- --pack ~/packs/Generation_9_Pack            # import everything
@@ -11,6 +13,7 @@
  * npm run assets:import -- --pack <dir> --pack <dir2>                  # layer packs (later wins)
  * npm run assets:import -- --pack <dir> --force                        # convert unchanged files again
  * npm run assets:import -- --manifest-only                             # just rebuild manifest.json
+ * npm run assets:graphics -- --pack ~/Essentials                       # tilesets, UI, characters… → img/
  * @endcode
  *
  * Steps: list the pack → resolve names against `content/pbs` → convert files
@@ -32,7 +35,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { ASSETS_DIR, CACHE_DIR, PACKS, PBS_DIR, PIPELINE_VERSION, ROOT } from './config.ts';
+import { ASSETS_DIR, CACHE_DIR, DEFAULT_FORMAT, PACKS, PBS_DIR, PIPELINE_VERSION, ROOT } from './config.ts';
 import type { Job } from './convert.ts';
 import { readFormNames } from './essentials.ts';
 import type { ImageNote } from './image.ts';
@@ -41,6 +44,7 @@ import { planPack } from './plan.ts';
 import type { PlanReport, PlannedFile } from './plan.ts';
 import { runJobs } from './pool.ts';
 import { loadDexIndex } from './resolve.ts';
+import type { DexIndex } from './resolve.ts';
 
 /** @brief What the importer remembers about one output file. */
 interface Remembered
@@ -50,13 +54,18 @@ interface Remembered
     notes: ImageNote[];
 }
 
-/** @brief Importer memory: pack folder → output path → details. Lets later runs skip unchanged files. */
+/**
+ * @brief Importer memory: `<format>:<pack folder>` → output path → details.
+ *        Lets later runs skip unchanged files, and lets each layout clean up
+ *        only its own outputs when one pack folder is imported with several.
+ */
 type State = Record<string, Record<string, Remembered>>;
 
 const { values: args } = parseArgs({
     options: {
         'pack': { type: 'string', multiple: true },
-        'format': { type: 'string', default: 'gen9' },
+        'format': { type: 'string', default: DEFAULT_FORMAT },
+        'exclude': { type: 'string', multiple: true, default: [] },
         'out': { type: 'string', default: ASSETS_DIR },
         'only': { type: 'string' },
         'dry-run': { type: 'boolean', default: false },
@@ -74,8 +83,12 @@ if (args.help || (!args.pack?.length && !args['manifest-only']))
         'Usage: npm run assets:import -- --pack <extracted pack folder> [options]',
         '',
         '  --pack <dir>       Pack to import. Repeat to layer packs; later ones win.',
-        `  --format <name>    Pack layout: ${Object.keys(PACKS).join(', ')} (default gen9).`,
-        '  --only <kinds>     Comma-separated kinds, e.g. front,back,icon,overworld,footprint,cry,item.',
+        `  --format <name>    Pack layout: ${Object.keys(PACKS).join(', ')} (default ${DEFAULT_FORMAT}).`,
+        '                     gen9: Pokémon sprites, icons, cries, items. graphics: the rest of Graphics/.',
+        '  --only <kinds>     Comma-separated kinds, e.g. front,back,icon,overworld,footprint,cry,item',
+        '                     (gen9) or Graphics folders such as tilesets,ui,characters (graphics).',
+        '  --exclude <path>   Leave out a folder or file, from the pack root (graphics). Repeatable;',
+        '                     e.g. --exclude "Graphics/UI/Mining". `*` matches part of a name.',
         '  --out <dir>        Output folder (default public/assets).',
         '  --dry-run          Show what would happen; write nothing.',
         '  --force            Convert files again even if unchanged.',
@@ -103,9 +116,11 @@ if (!pack)
     console.error(`✗ Unknown --format "${args.format}". Known: ${Object.keys(PACKS).join(', ')}`);
     process.exit(1);
 }
-const kinds = new Set(pack.rules.map((rule) => rule.kind));
 const only = args.only ? new Set(args.only.split(',').map((kind) => kind.trim()).filter(Boolean)) : undefined;
-for (const kind of only ?? [])
+// Kinds of `tree` rules come from the pack's folders, so those are checked after planning.
+const fixedKinds = !pack.rules.some((rule) => rule.target === 'tree');
+const kinds = new Set(pack.rules.map((rule) => rule.kind));
+for (const kind of fixedKinds ? only ?? [] : [])
 {
     if (!kinds.has(kind))
     {
@@ -115,8 +130,10 @@ for (const kind of only ?? [])
 }
 
 // ---- plan ------------------------------------------------------------------
-const dex = loadDexIndex(PBS_DIR);
-if (!Object.keys(dex.species).length)
+// Showdown IDs are only needed to name Pokémon and items.
+const needsDex = pack.rules.some((rule) => rule.target !== 'tree');
+const dex: DexIndex = needsDex ? loadDexIndex(PBS_DIR) : { species: {}, items: new Set() };
+if (needsDex && !Object.keys(dex.species).length)
 {
     console.error('✗ content/pbs has no pokedex. Run `npm run pokeapi:import` first; it provides the Showdown IDs.');
     process.exit(1);
@@ -124,7 +141,17 @@ if (!Object.keys(dex.species).length)
 
 const stateFile = path.join(CACHE_DIR, `state-${crypto.createHash('sha1').update(outDir).digest('hex').slice(0, 10)}.json`);
 const state: State = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, 'utf8')) as State : {};
+/** @brief State key of one pack folder imported with this layout. */
+const stateKey = (packDir: string) => `${pack.name}:${packDir}`;
+// Older state files were keyed by the folder alone, and only gen9 existed then.
+for (const key of Object.keys(state))
+{
+    if (!path.isAbsolute(key)) continue;
+    state[`${DEFAULT_FORMAT}:${key}`] = { ...state[key], ...state[`${DEFAULT_FORMAT}:${key}`] };
+    delete state[key];
+}
 const planned = new Map<string, PlannedFile & { packDir: string; sig: string }>();
+const found = new Set<string>();
 const reports: { packDir: string; report: PlanReport }[] = [];
 let overridden = 0;
 
@@ -143,7 +170,8 @@ for (const given of args.pack!)
         console.error(`✗ ${given} is not a folder. Extract the pack archive first and pass the folder that contains "Graphics".`);
         process.exit(1);
     }
-    const { files, report } = planPack(packDir, pack, dex, formNames, only);
+    const { files, report, kinds: packKinds } = planPack(packDir, pack, dex, formNames, only, args.exclude);
+    for (const kind of packKinds) found.add(kind);
     if (!files.length)
     {
         console.error(`✗ Nothing to import from ${given}. Expected folders such as "${pack.rules[0].dir}" directly inside it.`);
@@ -158,13 +186,21 @@ for (const given of args.pack!)
     }
     reports.push({ packDir, report });
 }
+for (const kind of fixedKinds ? [] : only ?? [])
+{
+    if (!found.has(kind))
+    {
+        console.error(`✗ Nothing of kind "${kind}" in --only. Found: ${[...found].sort().join(', ')}`);
+        process.exit(1);
+    }
+}
 
 // ---- decide what needs doing -------------------------------------------------
 const jobs: (Job & { key: string; packDir: string; sig: string })[] = [];
 for (const [dest, file] of planned)
 {
     const target = path.join(outDir, dest);
-    const upToDate = !args.force && state[file.packDir]?.[dest]?.sig === file.sig && fs.existsSync(target);
+    const upToDate = !args.force && state[stateKey(file.packDir)]?.[dest]?.sig === file.sig && fs.existsSync(target);
     if (!upToDate) jobs.push({ src: file.src, dest: target, image: file.image, key: dest, packDir: file.packDir, sig: file.sig });
 }
 
@@ -174,13 +210,14 @@ if (!only)
 {
     for (const { packDir } of reports)
     {
-        for (const dest of Object.keys(state[packDir] ?? {}))
+        const key = stateKey(packDir);
+        for (const dest of Object.keys(state[key] ?? {}))
         {
             const owner = planned.get(dest);
             if (owner?.packDir === packDir) continue;
-            const stillOwned = owner || Object.entries(state).some(([other, outputs]) => other !== packDir && dest in outputs);
+            const stillOwned = owner || Object.entries(state).some(([other, outputs]) => other !== key && dest in outputs);
             if (!stillOwned) stale.push(dest);
-            if (!args['dry-run']) delete state[packDir][dest];
+            if (!args['dry-run']) delete state[key][dest];
         }
     }
 }
@@ -210,7 +247,7 @@ if (!args['dry-run'])
             errors.push(`${path.relative(job.packDir, job.src)}: ${result.error}`);
             continue;
         }
-        (state[job.packDir] ??= {})[job.key] = { sig: job.sig, notes: result.notes };
+        (state[stateKey(job.packDir)] ??= {})[job.key] = { sig: job.sig, notes: result.notes };
     }
 
     for (const dest of stale)
@@ -241,23 +278,26 @@ if (!args['dry-run'])
 }
 
 // ---- report ------------------------------------------------------------------
-const noted: Record<ImageNote, string[]> = { 'resampled': [], 'padded': [], 'oversize': [], 'odd-size': [] };
+const noted: Record<ImageNote, string[]> = { 'resampled': [], 'smoothed': [], 'padded': [], 'oversize': [], 'odd-size': [], 'evened': [] };
 for (const [dest, file] of planned)
 {
-    for (const note of state[file.packDir]?.[dest]?.notes ?? []) noted[note].push(`${dest} (from ${file.srcRel})`);
+    for (const note of state[stateKey(file.packDir)]?.[dest]?.notes ?? []) noted[note].push(`${dest} (from ${file.srcRel})`);
 }
 const sections: [title: string, lines: string[]][] = [
     ['Could not be converted', errors],
     ['Forms with no known name (imported as form<N>; add an alias in tools/assets/packs to name them)', reports.flatMap((r) => r.report.unresolved)],
     ['Species not in content/pbs', reports.flatMap((r) => r.report.unknownSpecies)],
     ['Items not in content/pbs (imported under the ID shown)', reports.flatMap((r) => r.report.unknownItems)],
-    ['Not a clean upscale: reduced by dropping pixels, may look rough', noted.resampled],
+    ['Not a clean upscale: one colour kept per block (no new colours), check fine detail', noted.resampled],
+    ['Soft art (gradients, translucency): reduced by blending', noted.smoothed],
     ['Smaller than the canvas: placed bottom-centre with padding', noted.padded],
     ['Larger than the canvas even at 1×: left at reduced size', noted.oversize],
     ['Size not divisible by the pack scale: left unchanged', noted['odd-size']],
+    ['Size not divisible by the pack scale: transparent pixels added right/bottom', noted.evened],
     ['Same destination as another file: not imported', reports.flatMap((r) => r.report.duplicates)],
     ['File names not understood: skipped', reports.flatMap((r) => r.report.skipped)],
     ['Pack folders not found', reports.flatMap((r) => r.report.missingDirs)],
+    ['Left out (pack layout exclude list and --exclude)', reports.flatMap((r) => r.report.excluded)],
     ['Stale outputs removed', stale],
 ];
 

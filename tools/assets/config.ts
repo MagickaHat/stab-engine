@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PackDefinition } from './pack.ts';
 import { gen9 } from './packs/gen9.ts';
+import { graphics } from './packs/graphics.ts';
 
 /** @brief Repository root. */
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -29,7 +30,10 @@ export const ITEMS_DIR = 'img/items';
 export const CACHE_DIR = path.join(ROOT, 'tools/assets/.cache');
 
 /** @brief Pack layouts the importer knows, by `--format` name. */
-export const PACKS: Record<string, PackDefinition> = { gen9 };
+export const PACKS: Record<string, PackDefinition> = { gen9, graphics };
 
 /** @brief Bump when conversion output changes, to make every file be converted again. */
 export const PIPELINE_VERSION = 1;
+
+/** @brief Default `--format` of `npm run assets:import`. */
+export const DEFAULT_FORMAT = 'gen9';

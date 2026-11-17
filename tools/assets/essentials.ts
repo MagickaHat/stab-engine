@@ -124,3 +124,58 @@ export function findDir (root: string, relative: string): string | null
     }
     return current;
 }
+
+/**
+ * @brief Default engine name for a folder or file copied from a pack:
+ *        lower case, accents removed, every run of other characters turned
+ *        into one `_`. Matches the engine's asset names (`front_shiny`, `tm_fire`).
+ * @param name Original name without extension, e.g. `'Town Map'`, `'trainer_POKEMONTRAINER_Red'`.
+ * @return `'town_map'`, `'trainer_pokemontrainer_red'`; `null` if nothing is left (e.g. `'!'`).
+ */
+export function assetName (name: string): string | null
+{
+    const id = name.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    return id || null;
+}
+
+/**
+ * @brief Comparison form of one path part: lower case, spaces and `_` treated alike.
+ * @param part Folder or file name.
+ * @return Normalised name.
+ */
+function pathKey (part: string): string
+{
+    return part.toLowerCase().replace(/[\s_]+/g, '_');
+}
+
+/**
+ * @brief Check a path against exclusion patterns.
+ *
+ * A pattern matches the path itself or any folder above it, so
+ * `'Graphics/UI/Debug'` leaves out everything in that folder. Upper/lower
+ * case and spaces vs `_` are ignored, `*` matches any run of characters
+ * within one name, and the last part may leave out the file extension.
+ *
+ * @param relPath Path from the pack root with `/`, e.g. `'Graphics/UI/Debug/icon.png'`.
+ * @param patterns Patterns, e.g. `['Graphics/UI/Debug', 'Graphics/Characters/Followers*']`.
+ * @return The first matching pattern, or `null`.
+ */
+export function excludedBy (relPath: string, patterns: readonly string[]): string | null
+{
+    const parts = relPath.split('/').map(pathKey);
+    for (const pattern of patterns)
+    {
+        const want = pattern.replace(/\\/g, '/').split('/').filter(Boolean).map(pathKey);
+        if (!want.length || want.length > parts.length) continue;
+        const matches = want.every((part, i) =>
+        {
+            const regex = new RegExp(`^${part.split('*').map((piece) => piece.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
+            const name = parts[i];
+            const isFile = i === parts.length - 1;
+            return regex.test(name) || (isFile && regex.test(name.replace(/\.[^.]*$/, '')));
+        });
+        if (matches) return pattern;
+    }
+    return null;
+}
