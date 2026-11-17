@@ -28,6 +28,7 @@ index.html
 | `src/ui/useGameViewport.ts` | Hook that tracks the game's resolution and on-screen size. |
 | `src/ui/orientation.ts`, `src/ui/RotateDevicePrompt.tsx` | Landscape lock and the "rotate your device" message. |
 | `src/ui/useBattle.ts` | `useBattle()`: the battle in progress and the player's choices. |
+| `src/ui/useGameState.ts` | `useGameState()`: the game in progress (party, bag, money, flags). See `docs/SAVE_SYSTEM.md`. |
 | `src/ui/ui.css` | Styles for the layer and the sample HUD. |
 
 ## 2. Adding UI

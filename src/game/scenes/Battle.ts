@@ -26,6 +26,20 @@
  * };
  * this.scene.start(BATTLE_SCENE_KEY, data);
  * @endcode
+ *
+ * To fight with the player's saved party instead of a fixed team, add
+ * `usePlayerParty: true`. The party then enters the battle with its saved HP,
+ * status and PP, and the result is written back to the game state when the
+ * battle ends (see src/state/battle.ts):
+ * @code
+ * const data: BattleSceneData = {
+ *     usePlayerParty: true,
+ *     options: {
+ *         p1: { team: '' },   // name and team come from the game state
+ *         p2: { name: 'Rival', team: importTeam(SAMPLE_TEAM_P2), ai: 'random' },
+ *     },
+ * };
+ * @endcode
  */
 import { Scene } from 'phaser';
 import type { GameObjects } from 'phaser';
@@ -33,6 +47,8 @@ import { BattleBridge, cryPath, setActiveBattle, spritePath } from '../../battle
 import type {
     AssetManifest, BattleBridgeOptions, BattleSnapshot, BattleStep, PokemonView, StepPokemon,
 } from '../../battle';
+import { partyBattle, requireGameState } from '../../state';
+import type { PartyBattle } from '../../state';
 import { EventBus, GameEvents } from '../EventBus';
 
 /** @brief Key of the battle scene, for `this.scene.start()`. */
@@ -43,6 +59,13 @@ export interface BattleSceneData
 {
     /** Teams, format and AI: the same options as `BattleBridge` / `BattleEngine`. */
     options: BattleBridgeOptions;
+    /**
+     * `true` to fight with the party of the game in progress (`getGameState()`).
+     * The local player's `team` in `options` is then ignored, and their `name`
+     * defaults to the saved player name. Requires a game state with at least
+     * one Pokémon that has not fainted.
+     */
+    usePlayerParty?: boolean;
 }
 
 /**
@@ -92,6 +115,7 @@ interface Battler
 export class Battle extends Scene
 {
     private options: BattleBridgeOptions;
+    private usePlayerParty: boolean;
     private manifest: AssetManifest;
     /** Pokémon on the field, by side and position (`"p1:0"`). */
     private readonly battlers = new Map<string, Battler>();
@@ -112,6 +136,7 @@ export class Battle extends Scene
             throw new Error('Battle: start this scene with { options } (see BattleSceneData).');
         }
         this.options = data.options;
+        this.usePlayerParty = data.usePlayerParty ?? false;
     }
 
     preload ()
@@ -125,6 +150,7 @@ export class Battle extends Scene
         this.battlers.clear();
         this.manifest = (this.cache.json.get(MANIFEST_KEY) as AssetManifest | undefined) ?? { pokemon: {}, cries: [] };
 
+        const party = this.usePlayerParty ? this.linkParty() : null;
         const bridge = new BattleBridge(this.options);
         bridge.setPresenter((step, snapshot) => this.present(step, snapshot));
 
@@ -133,12 +159,16 @@ export class Battle extends Scene
             const snapshot = bridge.getSnapshot();
             if (snapshot.phase !== 'ended') return;
             stopWatching();
+            //  Save the party's condition first, so listeners already see it.
+            party?.finish();
             EventBus.emit(GameEvents.BATTLE_END, snapshot.winner ?? null);
         });
 
         this.events.once('shutdown', () =>
         {
             stopWatching();
+            //  Left before the end: keep the damage taken so far. Does nothing after a normal end.
+            party?.finish();
             setActiveBattle(null);
             bridge.destroy();
             this.battlers.clear();
@@ -149,6 +179,33 @@ export class Battle extends Scene
         EventBus.emit(GameEvents.SCENE_READY, this);
 
         bridge.start();
+    }
+
+    /**
+     * @brief Puts the saved party in the local player's place in `this.options`.
+     * @return The link to call `finish()` on when the battle is over.
+     * @throws Error if no game is in progress or no party Pokémon can fight.
+     */
+    private linkParty (): PartyBattle
+    {
+        const state = requireGameState();
+        const side = this.options.perspective === 'p2' ? 'p2' : 'p1';
+        const link = partyBattle(state, side);
+        const prepare = this.options.prepare;
+        this.options = {
+            ...this.options,
+            [side]: {
+                ...this.options[side],
+                name: this.options[side].name ?? state.getSnapshot().player.name,
+                team: link.team,
+            },
+            prepare: (battle) =>
+            {
+                link.prepare(battle);
+                prepare?.(battle);
+            },
+        };
+        return link;
     }
 
     /**

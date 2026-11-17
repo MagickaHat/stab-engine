@@ -19,4 +19,4 @@ export type { Locale, TextField } from './i18n.ts';
 export type { SpeciesData, PokedexTable } from './schemas/pokedex.ts';
 export type { MoveData, MovesTable } from './schemas/moves.ts';
 export type { AbilityData, ItemData, NatureData, TypeData, LearnsetData } from './schemas/misc.ts';
-export type { SpeciesInfo, ItemInfo, EvolutionMethod } from './schemas/engine.ts';
+export type { SpeciesInfo, ItemInfo, ItemPocket, EvolutionMethod } from './schemas/engine.ts';
