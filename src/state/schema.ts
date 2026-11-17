@@ -198,5 +198,46 @@ export const SaveData = z.object({
     variables: z.record(z.string(), VariableValue),
     /** Story states from `DialogueEngine.save()`, by story name. */
     dialogue: z.record(z.string(), z.string()),
+    /**
+     * Event self switches (A to D, as in RPG Maker XP) that are on, keyed by
+     * `"<map>:<event id>:<letter>"` (see `selfSwitchKey()`). A missing key is off.
+     * Added after version 1 shipped, so older files without it load as empty.
+     */
+    selfSwitches: z.record(z.string(), z.boolean()).default({}),
+    /** Events hidden for good with the `hide` command, keyed by `"<map>:<event id>"`. */
+    hiddenEvents: z.record(z.string(), z.boolean()).default({}),
+    /**
+     * Story progress: for each story track (`"main"`, a side quest...), the
+     * ID of the last milestone reached. The order of milestones is defined in
+     * `src/events/registry/story.ts`.
+     */
+    story: z.record(z.string(), z.string()).default({}),
 });
 export type SaveData = z.infer<typeof SaveData>;
+
+/** @brief The four self switch letters every event has. */
+export const SELF_SWITCHES = ['A', 'B', 'C', 'D'] as const;
+export type SelfSwitch = (typeof SELF_SWITCHES)[number];
+
+/**
+ * @brief Key of an event in `SaveData.hiddenEvents` and the start of its self switch keys.
+ * @param map Map ID.
+ * @param event Event ID on that map (the Tiled object ID).
+ * @return `"<map>:<event>"`.
+ */
+export function eventKey (map: string, event: number): string
+{
+    return `${map}:${event}`;
+}
+
+/**
+ * @brief Key of a self switch in `SaveData.selfSwitches`.
+ * @param map Map ID.
+ * @param event Event ID on that map.
+ * @param letter `A` to `D`.
+ * @return `"<map>:<event>:<letter>"`.
+ */
+export function selfSwitchKey (map: string, event: number, letter: SelfSwitch): string
+{
+    return `${eventKey(map, event)}:${letter}`;
+}

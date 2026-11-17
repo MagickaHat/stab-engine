@@ -22,6 +22,7 @@ import { z } from 'zod';
 import { GameState } from './GameState.ts';
 import { describeIssues } from './pokemon.ts';
 import { SaveData } from './schema.ts';
+import { isSavingBlocked, savingBlockers } from './session.ts';
 
 /** @brief Format version written by this code. Raise it when `SaveData` changes shape, and add a migration. */
 export const SAVE_VERSION = 1;
@@ -74,8 +75,9 @@ export class MemoryStorage implements SaveStorage
  * - `newer`: it was written by a later version of the game.
  * - `invalid`: it is a save file, but its data does not match `SaveData`.
  * - `storage`: the storage is missing or refused the write (full, private browsing...).
+ * - `busy`: saving is blocked right now, e.g. during a cutscene (see `blockSaving()`).
  */
-export type SaveErrorCode = 'empty' | 'corrupt' | 'newer' | 'invalid' | 'storage';
+export type SaveErrorCode = 'empty' | 'corrupt' | 'newer' | 'invalid' | 'storage' | 'busy';
 
 /** @brief The error thrown by `SaveManager`. Check `code` to decide what to tell the player. */
 export class SaveError extends Error
@@ -236,9 +238,15 @@ export class SaveManager
      * @param state The game to save.
      * @return A summary of what was written.
      * @throws SaveError `storage` if the storage refuses the write. The slot keeps its old contents.
+     * @throws SaveError `busy` while saving is blocked (a cutscene or battle is running, see
+     *         `blockSaving()`). Nothing is written.
      */
     save (slot: number, state: GameState): SaveSummary
     {
+        if (isSavingBlocked())
+        {
+            throw new SaveError('busy', `saving is blocked right now (${savingBlockers().join(', ')})`);
+        }
         const file: SaveFile = { version: SAVE_VERSION, savedAt: this.now().toISOString(), data: state.toJSON() };
         this.write(slot, JSON.stringify(file));
         return summarize(slot, file);

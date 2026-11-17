@@ -14,7 +14,9 @@ export {
 export type {
     Migration, SaveErrorCode, SaveFile, SaveManagerOptions, SaveStorage, SaveSummary, SlotInfo,
 } from './SaveManager.ts';
-export { getGameState, requireGameState, setGameState, subscribeGameState } from './session.ts';
+export {
+    getGameState, requireGameState, setGameState, subscribeGameState, blockSaving, isSavingBlocked, savingBlockers,
+} from './session.ts';
 export { createPokemon, healed, isFainted, makeUid, NATURE_IDS } from './pokemon.ts';
 export type { NewPokemon } from './pokemon.ts';
 export { partyBattle, setBattleLevel, toPokemonSet, maxPP, usedUpBerry } from './battle.ts';
@@ -32,4 +34,5 @@ export {
     IVSpread, EVSpread, VariableValue,
     PARTY_SIZE, MAX_MOVES, MAX_EV, MAX_TOTAL_EVS, DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY,
 } from './schema.ts';
-export type { PcLocation } from './schema.ts';
+export { SELF_SWITCHES, eventKey, selfSwitchKey } from './schema.ts';
+export type { PcLocation, SelfSwitch } from './schema.ts';

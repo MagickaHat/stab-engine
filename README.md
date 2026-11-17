@@ -31,6 +31,10 @@ Dialogue, cutscenes and NPC scripts are written in [ink](https://www.inklestudio
 
 The party, PC, bag, flags, variables and the player's position are one plain-data `GameState` kept outside Phaser, in `src/state/`. `SaveManager` writes it to save slots (browser `localStorage` by default, three slots) as versioned JSON and checks every file it loads. The battle scene can fight with the saved party: it gains experience, effort values, levels and moves during the battle, the result is written back afterwards, and Pokémon that can then evolve are announced for an evolution scene. See **[docs/SAVE_SYSTEM.md](docs/SAVE_SYSTEM.md)**.
 
+## Events, Scripting and Maps
+
+Maps are made in [Tiled](https://www.mapeditor.org/) (`src/tiled/stab.tiled-project`) and events follow Pokémon Essentials / RPG Maker XP: each event has pages with conditions, a trigger and commands, plus self switches A–D. Scripts are JSON files in `content/events/` (no code is ever evaluated at run time, so it works in Android WebViews), compiled and checked at build time. The overworld scene (`src/game/scenes/Overworld.ts`) draws the map, moves the player and runs cutscenes: movement routes for several characters at once, pathfinding, camera pans and shakes, emotes, fades, tints, music, sound effects and cries, trainer battles with teams built at battle time, battle hooks, global listeners, and translated text. Saving is blocked while a cutscene runs. See **[docs/EVENT_SYSTEM.md](docs/EVENT_SYSTEM.md)**.
+
 ## UI
 
 The UI is built with [React](https://react.dev) and drawn as HTML on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. Components go inside `<UiLayer>`, are laid out in game pixels (the game runs at 256×192) and follow the canvas when the screen or the game resolution changes. React and the scenes talk through an event bus. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
@@ -58,7 +62,11 @@ Pokémon and item graphics and cries are imported from a Pokémon Essentials res
 | `npm run pbs:compare` | Compare game data with Pokémon Showdown's and list differences |
 | `npm run pbs:schemas` | Regenerate JSON Schemas for editor autocompletion |
 | `npm run assets:import -- --pack <folder>` | Import sprites, icons and cries from an Essentials resource pack (see `docs/ASSET_PIPELINE.md`) |
-| `npm test` | Run the unit tests (tools, battle bridge, game state) |
+| `npm run events:validate` | Check every event file and Tiled map against the registries (see `docs/EVENT_SYSTEM.md`) |
+| `npm run events:sync-tiled` | Write flags, items, species, trainers, scripts, story IDs and text keys into the Tiled project |
+| `npm run events:schema` | Regenerate `content/events/schema.json` for editor autocompletion |
+| `npm run events:new -- <id> [file]` | Add an empty event script to `content/events/<file>.json` |
+| `npm test` | Run the unit tests (tools, battle bridge, game state, events) |
 
 ## Writing Code
 
@@ -94,10 +102,15 @@ We have provided a default project structure to get you started:
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
 | `src/state`                  | Game state and save system (party, PC, bag, flags, position). See `docs/SAVE_SYSTEM.md`. |
 | `content/dialogue`           | ink story files (`.ink`), compiled by `vite/plugins/ink.mjs`. |
+| `src/events`                 | Event and scripting system: schema, compiler, interpreter, Tiled factories, registries. See `docs/EVENT_SYSTEM.md`. |
+| `src/world`                  | Overworld helpers: characters, map loading, dialogue requests, ink runner. |
+| `src/tiled`                  | Tiled project, editor extensions, object templates, maps and tilesets. |
+| `content/events`, `content/trainers` | Event scripts, common events, listeners, battle hooks and trainers (JSON), compiled by `vite/plugins/events.mjs`. |
+| `content/locales`            | Translated text, one CSV per category and language. See `docs/LOCALIZATION.md`. |
 | `src/data`                   | Game data loader, Zod schemas and Showdown bridge. See `docs/DATA_PIPELINE.md`. |
 | `content/pbs/generated`      | Game data imported from PokeAPI (do not edit). |
 | `content/pbs/custom`         | Your data overrides and new content (content packs). |
-| `tools`                      | Node tools: PokeAPI importer (`tools/pokeapi`), validator etc. (`tools/pbs`), asset importer (`tools/assets`). |
+| `tools`                      | Node tools: PokeAPI importer (`tools/pokeapi`), validator etc. (`tools/pbs`), asset importer (`tools/assets`), event tools (`tools/events`). |
 
 
 ## Handling Assets

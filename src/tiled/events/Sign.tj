@@ -1,0 +1,11 @@
+{
+    "object": {
+        "height": 16,
+        "name": "",
+        "rotation": 0,
+        "type": "Sign",
+        "visible": true,
+        "width": 16
+    },
+    "type": "template"
+}

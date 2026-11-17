@@ -1,0 +1,26 @@
+key,text
+system.yes,Yes
+system.no,No
+system.obtained_item,{player} obtained {quantity} × {item}!
+system.bag_full,"The Bag is full, so {player} can't carry any more."
+system.obtained_pokemon,{player} obtained {species}!
+system.no_room_pokemon,There is no room for {species}.
+system.prize_money,{player} got ${amount} for winning!
+system.learned_move,{pokemon} learned {move}!
+trainers.sample_rival.name,{var:rival_name}
+events.sample.professor,Professor
+events.sample.lab_hello,"Ah, {player}! You're here at last."
+events.sample.lab_pick,Which Pokémon will you choose?
+events.sample.pick_bulbasaur,{species:bulbasaur}
+events.sample.pick_charmander,{species:charmander}
+events.sample.pick_squirtle,{species:squirtle}
+events.sample.lab_full_team,What a splendid team you have!
+events.sample.lab_growing,Your team is growing nicely.
+events.sample.lab_go,Go on now. The world of Pokémon awaits!
+events.sample.rival_challenge,"{player}! Let's see whose Pokémon is stronger!"
+events.sample.rival_lost,"What? I picked the wrong Pokémon!"
+events.sample.rival_won,"Ha! I knew I'd win!"
+events.sample.rival_defeat,Hmph. Lucky shot.
+events.sample.rival_hang_on,Come on! Hang in there!
+events.sample.healed,Your Pokémon are fully healed.
+events.sample.first_badge,You earned your first Gym Badge!

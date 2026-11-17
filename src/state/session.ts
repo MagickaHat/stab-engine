@@ -60,3 +60,54 @@ export function subscribeGameState (listener: () => void): () => void
     listeners.add(listener);
     return () => { listeners.delete(listener); };
 }
+
+/** @brief Reasons saving is blocked right now, each with how many holds it has. */
+const saveBlockers = new Map<string, number>();
+
+/**
+ * @brief Forbid saving until the returned function is called.
+ *
+ * Cutscenes, battles and other scripted sequences call this, so a save can
+ * never capture the game halfway through one. `SaveManager.save()` throws
+ * `SaveError('busy')` while any hold is in place. Holds stack: saving is
+ * allowed again once every one has been released.
+ *
+ * @code
+ * const release = blockSaving('cutscene');
+ * try { await playCutscene(); } finally { release(); }
+ * @endcode
+ *
+ * @param reason Why, for error messages and debugging (e.g. `"cutscene"`).
+ * @return Releases this hold. Calling it more than once does nothing.
+ */
+export function blockSaving (reason: string): () => void
+{
+    saveBlockers.set(reason, (saveBlockers.get(reason) ?? 0) + 1);
+    let released = false;
+    return () =>
+    {
+        if (released) return;
+        released = true;
+        const left = (saveBlockers.get(reason) ?? 1) - 1;
+        if (left > 0) saveBlockers.set(reason, left);
+        else saveBlockers.delete(reason);
+    };
+}
+
+/**
+ * @brief Whether something is holding saving back (see `blockSaving()`).
+ * @return `true` while at least one hold is in place.
+ */
+export function isSavingBlocked (): boolean
+{
+    return saveBlockers.size > 0;
+}
+
+/**
+ * @brief The reasons saving is blocked right now.
+ * @return Reason names, e.g. `["cutscene"]`. Empty when saving is allowed.
+ */
+export function savingBlockers (): string[]
+{
+    return [...saveBlockers.keys()];
+}
