@@ -23,10 +23,26 @@ import type { TiledProject } from './tiledProject.ts';
 function registries (extra: Partial<Registries> = {}): Registries
 {
     return {
-        Flag: ['got_starter'], Variable: ['badges'], Item: ['potion'], Species: ['pikachu'], Move: ['tackle'],
-        TrainerId: ['joey'], StoryMilestone: ['intro', 'got_starter'], StoryTrack: ['main'], InkStory: ['sample'],
-        InkKnot: ['sample.professor'], TextKey: ['hello', 'system.yes'], Script: ['npc'], CommonEvent: [], Map: ['route1'],
-        TriggerType: ['action'], Direction: ['down', 'up', 'left', 'right'], MoveType: ['fixed'], Emote: ['exclamation'], Native: [],
+        Flag: ['got_starter'],
+        Variable: ['badges'],
+        Item: ['potion'],
+        Species: ['pikachu'],
+        Move: ['tackle'],
+        TrainerId: ['joey'],
+        StoryMilestone: ['intro', 'got_starter'],
+        StoryTrack: ['main'],
+        InkStory: ['sample'],
+        InkKnot: ['sample.professor'],
+        TextKey: ['hello', 'system.yes'],
+        Script: ['npc'],
+        CommonEvent: [],
+        Map: ['route1'],
+        TriggerType: ['action'],
+        Direction: ['down', 'up', 'left', 'right'],
+        MoveType: ['fixed'],
+        Emote: ['exclamation'],
+        Native: [],
+        Picture: ['introbg'],
         ...extra,
     };
 }
@@ -56,8 +72,7 @@ test('syncProject writes enums and classes, keeps custom types and IDs, and is s
     assert.deepEqual(once.folders, ['maps']);
 });
 
-test('checks catch unknown names, missing text and commands that cannot run in battles', () =>
-{
+test('checks catch unknown names, missing text and commands that cannot run in battles', () => {
     const file: EventFile = {
         scripts: {
             npc: {
@@ -67,12 +82,14 @@ test('checks catch unknown names, missing text and commands that cannot run in b
                         { cmd: 'message', key: 'hello' },
                         { cmd: 'message', key: 'nope' },
                         { cmd: 'giveItem', item: 'potoin' },
-                        { cmd: 'setVar', var: 'badges', value: { var: 'badgs' } },
+                        { cmd: 'setVar', var : 'badges', value: { var : 'badgs' } },
                         { cmd: 'trainerBattle', trainer: 'joey2' },
                         { cmd: 'warp', map: 'route9', x: 1, y: 1 },
                         { cmd: 'ink', story: 'sample', knot: 'missing' },
                         { cmd: 'setStory', milestone: 'beat_elite_four' },
                         { cmd: 'emote', target: 'self', emote: 'exclamation' },
+                        { cmd: 'showPicture', id: 1, name: 'introbg' },
+                        { cmd: 'showPicture', id: 2, name: 'intro_missing' },
                     ],
                 }],
             },
@@ -101,6 +118,9 @@ test('checks catch unknown names, missing text and commands that cannot run in b
     }
     assert.ok(messages.some((m) => m.startsWith('warning: autorun page never changes its own conditions')));
     assert.ok(!messages.some((m) => m.includes('"emote"')));
+    assert.ok(messages.includes(
+        'warning: picture "intro_missing" not found (expected public/assets/img/pictures/intro_missing.png)'));
+    assert.ok(!messages.some((m) => m.includes('"introbg"')));
     assert.equal(findings[0].level, 'error');
 });
 

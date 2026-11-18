@@ -1,3 +1,12 @@
 key,text,notes,tags,hash
 ui.language.title,Escolhe o teu idioma,,,4545ebf7
 ui.language.confirm,Jogar em {language}? O idioma deste jogo guardado não poderá ser alterado mais tarde.,,,43489714
+ui.title.press_start,PRIME START,,,019999d0
+ui.load.continue,CONTINUAR,,,71395504
+ui.load.new_game,NOVO JOGO,,,c81d14d1
+ui.load.player,JOGADOR,,,bd490d80
+ui.load.badges,INSÍGNIAS,,,83265091
+ui.load.pokedex,POKéDEX,,,dfa761d1
+ui.load.time,TEMPO,,,22befb24
+ui.load.corrupt,Este jogo guardado está danificado e não pode ser carregado.,,,22f31a47
+ui.load.newer,Este jogo guardado é de uma versão mais recente do jogo.,,,0fc10ce8

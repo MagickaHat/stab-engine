@@ -14,5 +14,5 @@ export type {
     OtherStep, StatusStep, StepPokemon, SwitchStep, TurnStep, WeatherStep,
 } from './steps.ts';
 export { getActiveBattle, setActiveBattle, subscribeActiveBattle } from './session.ts';
-export { cryPath, spritePath, CRY_DIR, POKEMON_SPRITE_DIR } from './assets.ts';
-export type { AssetManifest, SpriteFacing, SpriteFiles, SpriteSubject } from './assets.ts';
+export {cryPath, spritePath, splitSpeciesId, CRY_DIR, POKEMON_SPRITE_DIR} from './assets.ts';
+export type {AssetManifest, SpriteFacing, SpriteFiles, SpriteKind, SpriteSubject} from './assets.ts';

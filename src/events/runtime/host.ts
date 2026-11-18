@@ -10,7 +10,7 @@
  */
 import type { PokemonSet } from '@pkmn/sim';
 import type { BattleSnapshot, BattleStep } from '../../battle/bridge/index.ts';
-import type { BattleResult, Direction, Trainer } from '../schema.ts';
+import type {BattleResult, Direction, PictureEase, PictureOrigin, Trainer} from '../schema.ts';
 import type { ItemPocket } from '../../data/schemas/engine.ts';
 
 /**
@@ -48,6 +48,31 @@ export interface Actor
 }
 
 /** @brief Where a warp goes. */
+/** @brief A picture to show (`showPicture`), in screen pixels. */
+export interface PictureRequest {
+    /** Picture number; higher numbers are drawn on top. */
+    id: number;
+    /** File in assets/img/pictures, without `.png`. */
+    name: string;
+    x: number;
+    y: number;
+    /** Whether `x`/`y` is the picture's top-left corner or its centre. */
+    origin: PictureOrigin;
+    /** 0 (invisible) to 1. */
+    opacity: number;
+    /** Flip horizontally. */
+    mirror: boolean;
+    /** Fade-in time in milliseconds (0: at once). */
+    ms: number;
+}
+
+/** @brief Where a `movePicture` takes a picture. Values left out stay as they are. */
+export interface PictureMove {
+    x?: number;
+    y?: number;
+    opacity?: number;
+}
+
 export interface WarpRequest
 {
     map: string;
@@ -138,6 +163,16 @@ export interface WorldHost
     /** Tint the screen; `alpha` 0 removes the tint. */
     tint (color: string, alpha: number, ms: number): Promise<void>;
     flash (color: string, ms: number): Promise<void>;
+
+    /**
+     * Show a picture (assets/img/pictures/<name>.png) fixed to the screen,
+     * replacing picture `id` if there is one. Resolves once it has faded in.
+     */
+    showPicture(picture: PictureRequest): Promise<void>;
+    /** Move or fade picture `id` to new values over `ms`. Missing pictures are ignored. */
+    movePicture(id: number, to: PictureMove, ms: number, ease: PictureEase): Promise<void>;
+    /** Remove picture `id` (`'all'`: every picture), fading it out over `ms`. */
+    erasePicture(id: number|'all', ms: number): Promise<void>;
 
     playSe (name: string, volume?: number): void;
     /** Play background music (`null` stops it). */

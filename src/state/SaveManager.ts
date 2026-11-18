@@ -185,8 +185,17 @@ export interface SaveSummary
     playTimeMs: number;
     /** Map the player is on. */
     map: string;
-    /** The party, first Pokémon first. */
-    party: { species: string; level: number }[];
+    /**
+     * The party, first Pokémon first. `species` includes the forme
+     * (`rotomwash`); `shiny` and `gender` pick the right icon.
+     */
+    party: { species: string; level: number; shiny: boolean; gender: 'M' | 'F' | 'N' }[];
+    /** The `badges` variable (0 when it is not a number). */
+    badges: number;
+    /** Species the player has owned (Pokédex). */
+    pokedexOwned: number;
+    /** The language of the save (`GameState.language`). */
+    language: string;
 }
 
 /** @brief One slot as `SaveManager.list()` reports it. */
@@ -371,14 +380,18 @@ export class SaveManager
 /** @brief The summary of a save file. */
 function summarize (slot: number, file: SaveFile): SaveSummary
 {
-    const { player, party } = file.data;
+    const { player, party, variables, pokedex, language } = file.data;
+    const badges = Number(variables.badges ?? 0);
     return {
         slot,
         savedAt: file.savedAt,
         playerName: player.name,
         playTimeMs: player.playTimeMs,
         map: player.position.map,
-        party: party.map(({ species, level }) => ({ species, level })),
+        party: party.map(({ species, level, shiny, gender }) => ({ species, level, shiny, gender })),
+        badges: Number.isFinite(badges) ? badges : 0,
+        pokedexOwned: Object.values(pokedex).filter((entry) => entry.owned).length,
+        language,
     };
 }
 

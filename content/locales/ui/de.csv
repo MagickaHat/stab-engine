@@ -22,3 +22,12 @@ ui.battle.command.rock,STEIN,,,776d7fb4
 ui.battle.command.bait,KÖDER,,,fe325511
 ui.battle.command.cancel,ZURÜCK,,,52fabbdb
 ui.trainer_card.title,TRAINERPASS,,,b064b734
+ui.title.press_start,START DRÜCKEN,,,019999d0
+ui.load.continue,WEITER,,,71395504
+ui.load.new_game,NEUES SPIEL,,,c81d14d1
+ui.load.player,SPIELER,,,bd490d80
+ui.load.badges,ORDEN,,,83265091
+ui.load.pokedex,POKéDEX,,,dfa761d1
+ui.load.time,ZEIT,,,22befb24
+ui.load.corrupt,Dieser Spielstand ist beschädigt und kann nicht geladen werden.,,,22f31a47
+ui.load.newer,Dieser Spielstand stammt aus einer neueren Version des Spiels.,,,0fc10ce8

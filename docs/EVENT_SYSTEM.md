@@ -236,6 +236,9 @@ Every command is an object with `cmd`. Values marked *value* accept a number or 
 | `{ "cmd": "fade", "dir": "out", "color": "#000000", "ms": 400 }` | Fade the screen out or `in`. |
 | `{ "cmd": "tint", "color": "#ff8040", "alpha": 0.3, "ms": 500 }` | Tint the screen (`alpha: 0` removes it). |
 | `{ "cmd": "flash", "color": "#ffffff", "ms": 300 }` | Flash. |
+| `{ "cmd": "showPicture", "id": 2, "name": "introoak", "x": 128, "y": 96, "origin": "center", "ms": 400 }` | Show a picture (`assets/img/pictures/<name>.png`) fixed to the screen (see **Pictures** below). |
+| `{ "cmd": "movePicture", "id": 2, "x": 64, "opacity": 0.5, "ms": 500, "ease": "out" }` | Move and/or fade a picture. |
+| `{ "cmd": "erasePicture", "id": 2, "ms": 300 }` / `"id": "all"` | Remove a picture (or all), fading out over `ms`. |
 | `{ "cmd": "se", "name": "door" }` | Sound effect `assets/sound/se/<name>.ogg`. |
 | `{ "cmd": "bgm", "name": "route1", "fadeMs": 500 }` / `"name": null` | Change or stop the music (`assets/sound/bgm`). |
 | `{ "cmd": "me", "name": "item_get" }` | Jingle (`assets/sound/me`), pausing the music. |
@@ -246,6 +249,35 @@ Every command is an object with `cmd`. Values marked *value* accept a number or 
 | `{ "cmd": "setGraphic", "target": T, "graphic": "rival_run" }` | Change a character's graphic. |
 | `{ "cmd": "warp", "map": "town", "spawn": "door", "transition": "fade" }` | Go to another map (`x`/`y` or a `Spawn` name; optional `dir`). |
 | `{ "cmd": "playerControl", "enabled": false }` | Stop (or allow) walking during parallel scripts. |
+
+### Pictures
+
+Pictures are images drawn over the map and fixed to the screen, as in RPG Maker XP: backdrops,
+portraits and title cards for cutscenes such as the opening speech (`content/events/intro.json`).
+
+- `id` is 1 to 50. Higher numbers are drawn on top; showing a picture with a number already in
+  use replaces it. Pictures are drawn above characters and emotes and under the screen tint, and
+  every fade affects them.
+- `name` is a file in `public/assets/img/pictures/` without `.png`. `npm run events:validate`
+  warns about names with no file, and Tiled lists the files in the `Picture` enum.
+- `x`/`y` are screen pixels (the game is 256×192), whole numbers. `origin` says what they place:
+  `topLeft` (default) or `center` (the centre is rounded to a whole pixel, so nothing sits half a
+  pixel off). Pictures are never scaled.
+- `opacity` is 0 to 1 (default 1); `mirror: true` flips the picture horizontally.
+- `ms` fades a picture in (`showPicture`) or out (`erasePicture`), or sets how long a
+  `movePicture` takes; `ease` is `linear` (default), `in`, `out` or `inOut`. A `movePicture`
+  only changes the values it gives.
+- Every picture command waits until it is done; `"wait": false` lets the script go on (like
+  `move`, `waitMoves` waits for it). Moving a picture again stops its current move where it is.
+- Pictures last until they are erased, also across warps, but are not saved.
+
+```json
+{ "cmd": "showPicture", "id": 1, "name": "introbg" },
+{ "cmd": "showPicture", "id": 2, "name": "introoak", "x": 128, "y": 85, "origin": "center", "ms": 400 },
+{ "cmd": "message", "key": "events.intro.hello", "speaker": "events.intro.professor" },
+{ "cmd": "movePicture", "id": 2, "x": 64, "ms": 500, "ease": "out" },
+{ "cmd": "erasePicture", "id": "all", "ms": 300 }
+```
 
 ### Pokémon, items and the player
 
@@ -408,7 +440,14 @@ Add a flag or variable by adding a line to its registry, then run
 
 Open `src/tiled/stab.tiled-project` in Tiled 1.11 or later. Maps go in `src/tiled/maps/`
 (saved as JSON, `.tmj`), tilesets and their images in `src/tiled/tilesets/` (`.tsj` or
-embedded).
+embedded). Save maps and tilesets as **JSON** (`File → Save As…`, "Tiled JSON map files
+(*.tmj)" / "Tiled JSON tileset files (*.tsj)"): the XML formats (`.tmx`, `.tsx`) are not
+loaded. The tileset images imported from Essentials (`npm run assets:graphics`) are already in
+`src/tiled/tilesets/`.
+
+New games start on the map `intro` (`NEW_GAME` in `src/game/title/titleConfig.ts`): its `Event`
+object runs the autorun script `intro_professor` (`content/events/intro.json`), where the
+opening speech goes. See `docs/TITLE_SCREEN.md`.
 
 ### Syncing the project
 

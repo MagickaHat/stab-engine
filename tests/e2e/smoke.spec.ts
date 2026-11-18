@@ -6,8 +6,14 @@
  */
 import {expect, test} from '@playwright/test';
 
-/** @brief Key of the scene the game starts in (src/game/scenes/Game.ts). */
-const FIRST_SCENE = 'Game';
+/**
+ * @brief Key of the first scene that stays on screen: `Boot` loads the intro's
+ *        images and hands over to the splashes at once (src/game/title/sceneKeys.ts).
+ */
+const FIRST_SCENE = 'Splash';
+
+/** @brief Key of the title screen, reached once the splashes are skipped. */
+const TITLE_SCENE = 'Title';
 
 test('the game boots to its first scene without errors', async ({ page }) => {
     const errors: string[] = [];
@@ -22,10 +28,12 @@ test('the game boots to its first scene without errors', async ({ page }) => {
     expect(box?.width ?? 0).toBeGreaterThan(0);
     expect(box?.height ?? 0).toBeGreaterThan(0);
 
-    //  Keyboard and pointer input reach the game without breaking it.
+    //  Keyboard and pointer input reach the game without breaking it: a click and
+    //  Start skip the two splashes, which leads to the title screen.
     await canvas.click();
-    await page.keyboard.press('Enter');
     await page.waitForTimeout(500);
+    await page.keyboard.press('Enter');
+    await expect(page.locator(`canvas[data-scene="${TITLE_SCENE}"]`)).toBeVisible({ timeout: 15_000 });
 
     expect(errors).toEqual([]);
 });

@@ -31,15 +31,14 @@
  * in development builds characters without art are drawn as outlines.
  */
 import { Cameras, Loader, Scene, Tilemaps } from 'phaser';
+import type {Tweens} from 'phaser';
 import type { GameObjects, Sound } from 'phaser';
 import bundle from 'virtual:stab-events';
 import { CRY_DIR } from '../../battle';
 import {
     directionTowards, DIRECTION_DELTA, EMOTE_FRAME_SIZE, EMOTES, EventManager, instantiateMap, runRoute,
 } from '../../events';
-import type {
-    Actor, BattleRequest, BattleResult, Direction, RuntimeData, SpawnPoint, WarpRequest, WorldHost,
-} from '../../events';
+import type {Actor, BattleRequest, BattleResult, Direction, PictureEase, PictureMove, PictureRequest, RuntimeData, SpawnPoint, WarpRequest, WorldHost,} from '../../events';
 import { input } from '../../input';
 import { getGameState } from '../../state';
 import type { GameState } from '../../state';
@@ -81,6 +80,40 @@ const EMOTE_SHEET = 'assets/img/system/emotes.png';
 
 /** @brief How long an emote bubble stays, in milliseconds. */
 const EMOTE_MS = 700;
+
+/** @brief Folder of the pictures shown by the `showPicture` command, relative to the page. */
+export const PICTURE_DIR = 'assets/img/pictures';
+
+/** @brief Depth of picture 0: above characters and emotes, below the screen tint. Picture `n` is drawn at this + `n`. */
+const PICTURE_DEPTH = 2600;
+
+/** @brief Play time is added to the save in steps of this many milliseconds, not every frame. */
+const PLAY_TIME_STEP_MS = 1000;
+
+/** @brief Phaser ease of each `movePicture` ease. */
+const PICTURE_EASE: Record<PictureEase, string> = {
+    linear: 'Linear',
+    in : 'Quad.easeIn',
+    out: 'Quad.easeOut',
+    inOut: 'Quad.easeInOut',
+};
+
+/** @brief A picture on screen. */
+interface ShownPicture
+{
+    image: GameObjects.Image;
+    /** Where `x`/`y` are measured from, relative to the top-left corner (whole pixels). */
+    anchorX: number;
+    anchorY: number;
+    /** Position and opacity as the script sees them; `x`/`y` are the anchor's position. */
+    x: number;
+    y: number;
+    opacity: number;
+    /** The move or fade in progress, if any. */
+    tween: Tweens.Tween|null;
+    /** Ends the current move's promise early (picture erased or replaced). */
+    finish: (() => void)|null;
+}
 
 /** @brief Milliseconds between autonomous moves for each move frequency (1 to 6). */
 const MOVE_DELAY = [0, 4000, 2000, 1000, 500, 250, 60] as const;
@@ -124,6 +157,9 @@ export class Overworld extends Scene implements WorldHost
     private bgm: { name: string; sound: Sound.BaseSound } | null = null;
     private readonly loading = new Map<string, Promise<boolean>>();
     private hasEmotes = false;
+    private readonly pictures = new Map<number, ShownPicture>();
+    /** Play time not yet added to the save (see `PLAY_TIME_STEP_MS`). */
+    private unsavedPlayTime = 0;
 
     constructor ()
     {
@@ -147,11 +183,17 @@ export class Overworld extends Scene implements WorldHost
         let left = false;
         const onModal = ({ open }: UiModalInfo) => { this.uiModalOpen = open; };
         this.uiModalOpen = isUiModalOpen();
+        //  The development HUD's SHAKE button (src/App.tsx), a sample of React → Phaser.
+        const onShake = () => this.cameras.main.shake(250, 0.02);
         EventBus.on(GameEvents.UI_MODAL_CHANGED, onModal);
+        EventBus.on(GameEvents.UI_SHAKE, onShake);
         this.events.once('shutdown', () =>
         {
             left = true;
             EventBus.off(GameEvents.UI_MODAL_CHANGED, onModal);
+            EventBus.off(GameEvents.UI_SHAKE, onShake);
+            this.flushPlayTime();
+            for (const id of [...this.pictures.keys()]) this.removePicture(id);
             this.eventManager?.dispose();
             this.bgm?.sound.stop();
         });
@@ -380,7 +422,9 @@ export class Overworld extends Scene implements WorldHost
 
     update (_time: number, delta: number)
     {
-        if (!this.ready || this.changingMap) return;
+        if (!this.ready) return;
+        this.countPlayTime(delta);
+        if (this.changingMap) return;
         //  The press that closes a script's last message must not start the event again: after a
         //  script, the action button only counts once it has been let go. (The dialogue UI also
         //  consumes the presses it handles.)
@@ -396,6 +440,24 @@ export class Overworld extends Scene implements WorldHost
         if (action && this.eventManager.playerAction()) return;
         const dir: Direction | null = input.direction();
         if (dir) void this.walkPlayer(dir);
+    }
+
+    /**
+     * @brief Count play time, adding it to the save once a second so the
+     *        save's listeners are not woken every frame.
+     * @param delta Milliseconds since the last frame.
+     */
+    private countPlayTime(delta: number): void
+    {
+        this.unsavedPlayTime += delta;
+        if (this.unsavedPlayTime >= PLAY_TIME_STEP_MS) this.flushPlayTime();
+    }
+
+    /** @brief Add the play time counted so far to the save. */
+    private flushPlayTime(): void
+    {
+        if (this.unsavedPlayTime > 0) this.state?.addPlayTime(this.unsavedPlayTime);
+        this.unsavedPlayTime = 0;
     }
 
     /** @brief Take one step with the player and tell the events. */
@@ -597,6 +659,123 @@ export class Overworld extends Scene implements WorldHost
             }
             this.tweens.add({ targets: layer, fillAlpha: alpha, duration: ms, onComplete: () => resolve() });
         });
+    }
+
+    // ---------------------------------------------------------- Pictures
+
+    async showPicture(request: PictureRequest): Promise<void>
+    {
+        const key = `pic:${request.name}`;
+        if (!(await this.loadFile('image', key, `${PICTURE_DIR}/${request.name}.png`)))
+        {
+            console.warn(`[overworld] picture "${request.name}" not found (${PICTURE_DIR}/${request.name}.png)`);
+            return;
+        }
+        if (!this.scene.isActive()) return;
+        this.removePicture(request.id);
+        const image = this.add.image(0, 0, key)
+                          .setOrigin(0, 0)
+                          .setScrollFactor(0)
+                          .setDepth(PICTURE_DEPTH + request.id)
+                          .setFlipX(request.mirror);
+        //  Centred pictures are anchored on a whole pixel, so they never sit half a pixel off.
+        const centred = request.origin === 'center';
+        const picture: ShownPicture = {
+            image,
+            anchorX: centred ? Math.floor(image.width / 2) : 0,
+            anchorY: centred ? Math.floor(image.height / 2) : 0,
+            x: request.x,
+            y: request.y,
+            opacity: request.ms > 0 ? 0 : request.opacity,
+            tween: null,
+            finish: null,
+        };
+        this.pictures.set(request.id, picture);
+        this.placePicture(picture);
+        if (request.ms > 0) await this.animatePicture(picture, { opacity: request.opacity }, request.ms, 'linear');
+    }
+
+    movePicture(id: number, to: PictureMove, ms: number, ease: PictureEase): Promise<void>
+    {
+        const picture = this.pictures.get(id);
+        if (!picture) return Promise.resolve();
+        return this.animatePicture(picture, to, ms, ease);
+    }
+
+    async erasePicture(id: number|'all', ms: number): Promise<void>
+    {
+        const ids = id === 'all' ? [...this.pictures.keys()] : [id];
+        await Promise.all(ids.map(async (pictureId) => {
+            const picture = this.pictures.get(pictureId);
+            if (!picture) return;
+            if (ms > 0) await this.animatePicture(picture, { opacity: 0 }, ms, 'linear');
+            //  Only remove it if it was not replaced while fading out.
+            if (this.pictures.get(pictureId) === picture) this.removePicture(pictureId);
+        }));
+    }
+
+    /** @brief Draw a picture at its position and opacity, on whole pixels. */
+    private placePicture(picture: ShownPicture): void
+    {
+        picture.image.setPosition(Math.round(picture.x) - picture.anchorX, Math.round(picture.y) - picture.anchorY);
+        picture.image.setAlpha(picture.opacity);
+    }
+
+    /**
+     * @brief Move or fade a picture, replacing any move in progress.
+     * @return Resolves when the move ends, or when the picture is removed or moved again.
+     */
+    private animatePicture(picture: ShownPicture, to: PictureMove, ms: number, ease: PictureEase): Promise<void>
+    {
+        this.stopPicture(picture);
+        const target = { x: to.x ?? picture.x, y: to.y ?? picture.y, opacity: to.opacity ?? picture.opacity };
+        if (ms <= 0)
+        {
+            Object.assign(picture, target);
+            this.placePicture(picture);
+            return Promise.resolve();
+        }
+        return new Promise((resolve) => {
+            const values = { x: picture.x, y: picture.y, opacity: picture.opacity };
+            picture.finish = () => {
+                picture.finish = null;
+                resolve();
+            };
+            picture.tween = this.tweens.add({
+                targets: values,
+                ...target,
+                duration: ms,
+                ease: PICTURE_EASE[ease],
+                onUpdate: () => {
+                    Object.assign(picture, values);
+                    this.placePicture(picture);
+                },
+                onComplete: () => {
+                    picture.tween = null;
+                    Object.assign(picture, target);
+                    this.placePicture(picture);
+                    picture.finish?.();
+                },
+            });
+        });
+    }
+
+    /** @brief Stop a picture's move where it is, and let its script go on. */
+    private stopPicture(picture: ShownPicture): void
+    {
+        picture.tween?.stop();
+        picture.tween = null;
+        picture.finish?.();
+    }
+
+    /** @brief Remove a picture at once. */
+    private removePicture(id: number): void
+    {
+        const picture = this.pictures.get(id);
+        if (!picture) return;
+        this.stopPicture(picture);
+        picture.image.destroy();
+        this.pictures.delete(id);
     }
 
     flash (color: string, ms: number): Promise<void>

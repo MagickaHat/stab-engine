@@ -26,3 +26,5 @@ events.sample.healed,Your Pokémon are fully healed.,
 events.sample.first_badge,You earned your first Gym Badge!,
 system.nickname_prompt,Give a nickname to {pokemon}?,Name entry for a Pokémon (nickname command).
 system.cannot_nickname,"{pokemon} came from another Trainer, so its name can't be changed.",Nicknames are only for Pokémon the player caught or received as their own.
+events.intro.professor,PROFESSOR,Speaker of the opening speech (placeholder).,
+events.intro.placeholder,Welcome to the world of POKéMON! (The professor's speech goes here: edit the intro script in content/events/intro.json.),Placeholder for the opening speech; replaced when the speech is written.,

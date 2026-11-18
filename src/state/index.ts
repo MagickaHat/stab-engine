@@ -14,6 +14,7 @@ export {
 export type {
     Migration, SaveErrorCode, SaveFile, SaveManagerOptions, SaveStorage, SaveSummary, SlotInfo,
 } from './SaveManager.ts';
+export {getSaveManager, setSaveManager} from './saves.ts';
 export {
     getGameState, requireGameState, setGameState, subscribeGameState, blockSaving, isSavingBlocked, savingBlockers,
 } from './session.ts';

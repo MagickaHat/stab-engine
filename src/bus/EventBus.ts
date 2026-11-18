@@ -28,6 +28,7 @@
 import type { Scene } from 'phaser';
 import type { BattleBridge } from '../battle';
 import type { BattleResultData } from '../game/scenes/Battle';
+import type {LoadMenuRequest, MovieRequest} from '../game/title/requests';
 import type { InputDevice } from '../input/buttons';
 import type { PendingEvolution } from '../state/evolution';
 import type {
@@ -126,6 +127,16 @@ export const GameEvents = {
      * (src/world/dialogue.ts). Call its `pick(locale)`.
      */
     DIALOGUE_LANGUAGE: 'dialogue-language',
+    /**
+     * Phaser → React. Play the opening movie over the game. Argument:
+     * `MovieRequest` (src/game/title/requests.ts). Call its `done()` when it ends.
+     */
+    TITLE_MOVIE: 'title-movie',
+    /**
+     * Phaser → React. Show the New Game / Continue menu. Argument:
+     * `LoadMenuRequest` (src/game/title/requests.ts). Call its `pick(choice)`.
+     */
+    TITLE_LOAD_MENU: 'title-load-menu',
 } as const;
 
 /** @brief Any event name in `GameEvents`. */
@@ -220,6 +231,8 @@ export interface GameEventMap
     [GameEvents.LOCALE_CHANGED]: LocaleInfo;
     [GameEvents.DIALOGUE_POKEDEX_ENTRY]: PokedexEntryRequest;
     [GameEvents.DIALOGUE_LANGUAGE]: LanguageRequest;
+    [GameEvents.TITLE_MOVIE]: MovieRequest;
+    [GameEvents.TITLE_LOAD_MENU]: LoadMenuRequest;
 }
 
 /** @brief Arguments `emit()` takes after the event name: none for `void` events, else the payload. */

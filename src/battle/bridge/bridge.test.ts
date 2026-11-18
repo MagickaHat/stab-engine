@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
 import { importTeam, SAMPLE_TEAM_P1, SAMPLE_TEAM_P2 } from '../teams.ts';
-import { cryPath, spritePath } from './assets.ts';
+import {cryPath, splitSpeciesId, spritePath} from './assets.ts';
 import type { AssetManifest } from './assets.ts';
 import { BattleBridge } from './BattleBridge.ts';
 import type { BattleBridgeOptions } from './BattleBridge.ts';
@@ -342,4 +342,19 @@ test('assets: the sample teams have sprites and cries in the real manifest', () 
         const cry = cryPath(manifest, pokemon);
         assert.ok(cry && fs.existsSync(new URL(`../../../public/assets/${cry}`, import.meta.url)), `${id} cry`);
     }
+});
+
+test('assets: icons come from the species folder, and save species IDs split into species and forme', () => {
+    const manifest =
+        JSON.parse(fs.readFileSync(new URL('../../../public/assets/manifest.json', import.meta.url), 'utf8')) as
+        AssetManifest;
+    assert.deepEqual(splitSpeciesId(manifest, 'cyndaquil'), { baseSpeciesId: 'cyndaquil', formeId: '' });
+    assert.deepEqual(splitSpeciesId(manifest, 'absolmega'), { baseSpeciesId: 'absol', formeId: 'mega' });
+    assert.deepEqual(splitSpeciesId(manifest, 'missingno'), { baseSpeciesId: 'missingno', formeId: '' });
+    assert.equal(
+        spritePath(manifest, { baseSpeciesId: 'cyndaquil', formeId: '' }, 'icon'), 'img/pokemon/cyndaquil/icon.png');
+    assert.equal(
+        spritePath(manifest, { baseSpeciesId: 'cyndaquil', formeId: '', shiny: true }, 'icon'),
+        'img/pokemon/cyndaquil/icon_shiny.png');
+    assert.equal(spritePath(manifest, { baseSpeciesId: 'missingno', formeId: '' }, 'icon'), null);
 });

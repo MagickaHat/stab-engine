@@ -22,3 +22,12 @@ ui.battle.command.rock,PIEDRA,,,776d7fb4
 ui.battle.command.bait,CEBO,,,fe325511
 ui.battle.command.cancel,SALIR,,,52fabbdb
 ui.trainer_card.title,FICHA ENTRENADOR,,,b064b734
+ui.title.press_start,PULSA START,,,019999d0
+ui.load.continue,CONTINUAR,,,71395504
+ui.load.new_game,NUEVA PARTIDA,,,c81d14d1
+ui.load.player,JUGADOR,,,bd490d80
+ui.load.badges,MEDALLAS,,,83265091
+ui.load.pokedex,POKéDEX,,,dfa761d1
+ui.load.time,TIEMPO,,,22befb24
+ui.load.corrupt,Esta partida guardada está dañada y no se puede cargar.,,,22f31a47
+ui.load.newer,Esta partida guardada es de una versión más reciente del juego.,,,0fc10ce8

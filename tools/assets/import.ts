@@ -4,7 +4,9 @@
  *        resource pack into `public/assets`, renamed to Showdown IDs and
  *        resized to the engine's 1× pixel scale. With `--format graphics`
  *        it imports the rest of `Graphics/` (tilesets, UI, characters…) into
- *        `img/` instead (see `packs/graphics.ts`).
+ *        `img/` instead (see `packs/graphics.ts`). Tileset images go to the
+ *        Tiled project, `src/tiled/tilesets/`, where maps use them
+ *        (`OUTPUT_REDIRECTS` in `config.ts`).
  *
  * @code
  * npm run assets:import -- --pack ~/packs/Generation_9_Pack            # import everything
@@ -35,7 +37,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { ASSETS_DIR, CACHE_DIR, DEFAULT_FORMAT, PACKS, PBS_DIR, PIPELINE_VERSION, ROOT } from './config.ts';
+import {ASSETS_DIR, CACHE_DIR, DEFAULT_FORMAT, OUTPUT_REDIRECTS, PACKS, PBS_DIR, PIPELINE_VERSION, ROOT} from './config.ts';
+import {outputPath, outputRoot} from './destinations.ts';
 import type { Job } from './convert.ts';
 import { readFormNames } from './essentials.ts';
 import type { ImageNote } from './image.ts';
@@ -89,7 +92,8 @@ if (args.help || (!args.pack?.length && !args['manifest-only']))
         '                     (gen9) or Graphics folders such as tilesets,ui,characters (graphics).',
         '  --exclude <path>   Leave out a folder or file, from the pack root (graphics). Repeatable;',
         '                     e.g. --exclude "Graphics/UI/Mining". `*` matches part of a name.',
-        '  --out <dir>        Output folder (default public/assets).',
+        '  --out <dir>        Output folder (default public/assets; tileset images then go to',
+        '                     src/tiled/tilesets). With --out, everything stays inside <dir>.',
         '  --dry-run          Show what would happen; write nothing.',
         '  --force            Convert files again even if unchanged.',
         '  --manifest-only    Only rebuild manifest.json from the output folder.',
@@ -101,6 +105,8 @@ if (args.help || (!args.pack?.length && !args['manifest-only']))
 
 const started = Date.now();
 const outDir = path.resolve(args.out!);
+// Tileset images go to the Tiled project (src/tiled/tilesets), not public/assets, unless --out is given.
+const redirects = outDir === ASSETS_DIR ? OUTPUT_REDIRECTS : [];
 const shown = (file: string) => path.relative(process.cwd(), file) || '.';
 
 if (args['manifest-only'])
@@ -199,7 +205,7 @@ for (const kind of fixedKinds ? [] : only ?? [])
 const jobs: (Job & { key: string; packDir: string; sig: string })[] = [];
 for (const [dest, file] of planned)
 {
-    const target = path.join(outDir, dest);
+    const target = outputPath(outDir, dest, redirects);
     const upToDate = !args.force && state[stateKey(file.packDir)]?.[dest]?.sig === file.sig && fs.existsSync(target);
     if (!upToDate) jobs.push({ src: file.src, dest: target, image: file.image, key: dest, packDir: file.packDir, sig: file.sig });
 }
@@ -252,10 +258,11 @@ if (!args['dry-run'])
 
     for (const dest of stale)
     {
-        const target = path.join(outDir, dest);
+        const target = outputPath(outDir, dest, redirects);
+        const root = outputRoot(outDir, dest, redirects);
         fs.rmSync(target, { force: true });
         // Remove the forme/species folder if that left it empty.
-        for (let dir = path.dirname(target); dir.startsWith(outDir + path.sep); dir = path.dirname(dir))
+        for (let dir = path.dirname(target); dir.startsWith(root + path.sep); dir = path.dirname(dir))
         {
             if (!fs.existsSync(dir) || fs.readdirSync(dir).length) break;
             fs.rmdirSync(dir);

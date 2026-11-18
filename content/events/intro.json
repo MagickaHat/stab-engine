@@ -1,0 +1,108 @@
+{
+    "$schema": "./schema.json",
+    "$comment": "The opening speech. New games start on the intro map (src/tiled/maps/intro.tmj, NEW_GAME in src/game/title/titleConfig.ts), whose Event object runs intro_professor as soon as the map loads. Replace the placeholder message with the professor's speech: nameInput + setPlayerName for the player's name, choices for the look, and a warp to the first real map at the end. See docs/TITLE_SCREEN.md.",
+    "scripts": {
+        "intro_professor": {
+            "tags": [
+                "intro"
+            ],
+            "pages": [
+                {
+                    "trigger": "autorun",
+                    "conditions": {
+                        "story": "intro",
+                        "op": "before"
+                    },
+                    "commands": [
+                        {
+                            "cmd": "comment",
+                            "text": "Black screen, hide the player and set the stage with pictures (public/assets/img/pictures)."
+                        },
+                        {
+                            "cmd": "fade",
+                            "dir": "out",
+                            "ms": 0
+                        },
+                        {
+                            "cmd": "hide",
+                            "target": "player"
+                        },
+                        {
+                            "cmd": "showPicture",
+                            "id": 1,
+                            "name": "introbg"
+                        },
+                        {
+                            "cmd": "showPicture",
+                            "id": 2,
+                            "name": "introbase",
+                            "x": 128,
+                            "y": 124,
+                            "origin": "center"
+                        },
+                        {
+                            "cmd": "fade",
+                            "dir": "in",
+                            "ms": 600
+                        },
+                        {
+                            "cmd": "showPicture",
+                            "id": 3,
+                            "name": "introoak",
+                            "x": 128,
+                            "y": 85,
+                            "origin": "center",
+                            "ms": 400
+                        },
+                        {
+                            "cmd": "comment",
+                            "text": "TODO: the professor's speech goes here."
+                        },
+                        {
+                            "cmd": "message",
+                            "key": "events.intro.placeholder",
+                            "speaker": "events.intro.professor"
+                        },
+                        {
+                            "cmd": "movePicture",
+                            "id": 3,
+                            "x": 64,
+                            "ms": 500,
+                            "ease": "out",
+                            "wait": false
+                        },
+                        {
+                            "cmd": "movePicture",
+                            "id": 2,
+                            "x": 64,
+                            "ms": 500,
+                            "ease": "out"
+                        },
+                        {
+                            "cmd": "fade",
+                            "dir": "out",
+                            "ms": 600
+                        },
+                        {
+                            "cmd": "erasePicture",
+                            "id": "all"
+                        },
+                        {
+                            "cmd": "setStory",
+                            "milestone": "intro"
+                        },
+                        {
+                            "cmd": "show",
+                            "target": "player"
+                        },
+                        {
+                            "cmd": "fade",
+                            "dir": "in",
+                            "ms": 600
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
