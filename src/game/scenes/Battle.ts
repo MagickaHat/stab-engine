@@ -46,13 +46,15 @@
  */
 import { Scene } from 'phaser';
 import type { GameObjects } from 'phaser';
-import { BattleBridge, cryPath, setActiveBattle, spritePath } from '../../battle';
+import { BattleBridge, createBattleNarrator, cryPath, setActiveBattle, spritePath } from '../../battle';
 import type {
     AssetManifest, BattleBridgeOptions, BattleSnapshot, BattleStep, PokemonView, StepPokemon,
 } from '../../battle';
 import { loadPbs } from '../../data';
 import type { PbsData } from '../../data';
-import { isFainted, partyBattle, requireGameState } from '../../state';
+import { toID } from '../../data/integrity';
+import { getGameState, isFainted, partyBattle, requireGameState } from '../../state';
+import { getLocalizer } from '../../world/text';
 import type { PartyBattle } from '../../state';
 import { announceScene } from '../announceScene';
 import { EventBus, GameEvents } from '../EventBus';
@@ -77,6 +79,11 @@ export interface BattleSceneData
      * (a battle facility, a link battle). Default: `true`.
      */
     exp?: boolean;
+    /**
+     * `true` for a wild battle: battle text says "the wild Pidgey" instead of
+     * "the opposing Pidgey". Default: `false`.
+     */
+    wild?: boolean;
     /**
      * Called after each step has been shown, and awaited before the next one.
      * The event system passes its battle hooks here (see src/events/runtime/battleHooks.ts).
@@ -142,6 +149,8 @@ export class Battle extends Scene
     private usePlayerParty: boolean;
     private givesExp: boolean;
     private onStep: BattleSceneData['onStep'];
+    /** A wild battle (see `BattleSceneData.wild`). */
+    private wild = false;
     private manifest: AssetManifest;
     /** Pokémon on the field, by side and position (`"p1:0"`). */
     private readonly battlers = new Map<string, Battler>();
@@ -165,6 +174,7 @@ export class Battle extends Scene
         this.usePlayerParty = data.usePlayerParty ?? false;
         this.givesExp = data.exp ?? true;
         this.onStep = data.onStep;
+        this.wild = data.wild ?? false;
     }
 
     preload ()
@@ -208,9 +218,14 @@ export class Battle extends Scene
      */
     private begin (party: PartyBattle | null): void
     {
-        const bridge = new BattleBridge(this.options);
+        //  Battle text in the game's language, unless the caller brought its own narrator.
+        const text = getLocalizer();
+        const narrate = this.options.narrate ?? (text ? createBattleNarrator(text, { perspective: this.options.perspective === 'p2' ? 'p2' : 'p1', wild: this.wild }) : undefined);
+        const bridge = new BattleBridge({ ...this.options, narrate });
         bridge.setPresenter(async (step, snapshot) =>
         {
+            //  Every Pokémon that appears counts as seen in the Pokédex.
+            if (step.kind === 'switch') getGameState()?.markSeen(toID(step.details.split(',')[0]));
             await this.present(step, snapshot);
             await this.onStep?.(step, snapshot);
         });

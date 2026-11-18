@@ -118,6 +118,7 @@ class FakeHost implements WorldHost
         return this.answers.shift() ?? 0;
     }
     async nameInput (): Promise<string> { return 'Blue'; }
+    pokedexEntry?: (species: string, languages: string[]) => Promise<void>;
     async ink (): Promise<void> {}
     async wait (): Promise<void> { await new Promise((resolve) => setTimeout(resolve, 0)); }
     async camera (): Promise<void> {}
@@ -768,4 +769,49 @@ test('parallel branches and common events', async () =>
     manager.runCommon('greet');
     await settle(manager);
     assert.equal(state.getVar('n'), 3);
+});
+
+test('nickname: the Pokémon\'s language sets the rules; only its original trainer may rename it', async () =>
+{
+    const state = GameState.create({ name: 'Red', trainerId: 1, language: 'de' });
+    state.addToParty(createPokemon({ species: 'pikachu', level: 5, ability: 'static', moves: ['thundershock'] }));
+    state.addToParty(createPokemon({
+        species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'], language: 'ja', ot: { name: 'サトシ', id: 99 },
+    }));
+    const { host } = await runCommands([{ cmd: 'nickname', slot: 0 }, { cmd: 'nickname', slot: 1 }], state);
+    const [pikachu, eevee] = state.getSnapshot().party;
+    assert.equal(pikachu.language, 'de', 'the player\'s own Pokémon takes the game\'s language');
+    assert.equal(pikachu.nickname, 'Blue');
+    assert.equal(eevee.language, 'ja', 'a traded Pokémon keeps its language');
+    assert.equal(eevee.nickname, undefined);
+    assert.deepEqual(host.messages, ['system.cannot_nickname'], 'the prompt goes to the name entry, the refusal to the message box');
+});
+
+test('nickname: names longer than the language allows are cut', async () =>
+{
+    const state = GameState.create({ name: 'Red', trainerId: 1 });
+    state.addToParty(createPokemon({ species: 'pikachu', level: 5, ability: 'static', moves: ['thundershock'], language: 'ja' }));
+    //  No original trainer: it becomes the player's own, in the game's language.
+    assert.equal(state.getSnapshot().party[0].language, 'en');
+    state.updatePokemon(state.getSnapshot().party[0].uid, { language: 'ja' });
+    const bundle = bundleOf(talk([{ cmd: 'nickname' }]));
+    const w = world(bundle, [defOf(bundle, 'npc', 1, 0, 1)], state);
+    w.host.nameInput = async () => 'ABCDEFGHIJ';
+    w.manager.playerAction();
+    await settle(w.manager);
+    assert.equal(state.getSnapshot().party[0].nickname, 'ABCDEF', 'Japanese nicknames have 6 characters');
+});
+
+test('pokedexEntry passes the unlocked languages, the game\'s first', async () =>
+{
+    const state = GameState.create({ name: 'Red', trainerId: 1, language: 'fr' });
+    state.addToParty(createPokemon({ species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'] }));
+    state.addToParty(createPokemon({ species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'], language: 'ko', ot: { name: 'X', id: 5 } }));
+    const bundle = bundleOf(talk([{ cmd: 'pokedexEntry', species: 'eevee' }]));
+    const w = world(bundle, [defOf(bundle, 'npc', 1, 0, 1)], state);
+    const shown: [string, string[]][] = [];
+    w.host.pokedexEntry = async (species: string, languages: string[]) => { shown.push([species, languages]); };
+    w.manager.playerAction();
+    await settle(w.manager);
+    assert.deepEqual(shown, [['eevee', ['fr', 'ko']]]);
 });

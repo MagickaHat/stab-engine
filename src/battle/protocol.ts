@@ -11,6 +11,7 @@
  * https://github.com/smogon/pokemon-showdown/blob/master/sim/SIM-PROTOCOL.md
  */
 import { Protocol } from '@pkmn/protocol';
+import { englishMessage } from './text.ts';
 import type {
     BattleRequest, MoveRequest, SideID, SwitchRequest, TeamPreviewRequest, WaitRequest
 } from './types.ts';
@@ -155,7 +156,7 @@ export function describeLine (line: string | ProtocolLine): string | null
         case 'player': return args[1] ? `${args[1]} joined as ${args[0]}.` : null;
         case 'turn': return `--- Turn ${args[0]} ---`;
         //  Text written by the game itself, such as experience and learned moves (src/state/battle.ts).
-        case '-message': return args[0] ?? null;
+        case '-message': return args[0] === undefined ? null : englishMessage(args[0]);
         case 'switch':
         case 'drag': return `${who(args[0])} was sent out! (${args[1].split(',')[0]})`;
         case 'move': return `${who(args[0])} used ${args[1]}!`;

@@ -18,16 +18,18 @@
  * | `natures.adamant.name`, `types.fire.name`        |                         |
  *
  * The importer writes PokeAPI's translations to
- * `content/pbs/generated/locales/<locale>/<category>.json`. A future
- * localization system should load those first, then the hand-written files in
- * `content/locales/<category>/<locale>.csv` on top, so translators can
- * override anything.
+ * `content/pbs/generated/locales/<locale>/<category>.json`. The localization
+ * system (src/i18n, src/world/text.ts) loads those first, then the
+ * hand-written files in `content/locales/<category>/<locale>.csv` on top, so
+ * translators can override anything.
  */
+import { UI_LOCALES } from '../i18n/languages.ts';
+import type { UiLocale } from '../i18n/languages.ts';
 import type { LocaleCategory } from './tables.ts';
 
-/** @brief Locales the project ships (folder names in `content/locales`). */
-export const LOCALES = ['en', 'de', 'fr', 'es-es', 'es-mx', 'pt-br', 'pt-pt'] as const;
-export type Locale = (typeof LOCALES)[number];
+/** @brief Locales the project ships (folder names in `content/locales`). Same as `UI_LOCALES` in src/i18n. */
+export const LOCALES = UI_LOCALES;
+export type Locale = UiLocale;
 
 /** @brief Fields a text key can have. */
 export type TextField = 'name' | 'desc' | 'flavor' | 'genus' | 'form';

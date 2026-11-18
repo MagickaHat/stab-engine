@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "虫",
+    "types.dark.name": "恶",
+    "types.dragon.name": "龙",
+    "types.electric.name": "电",
+    "types.fairy.name": "妖精",
+    "types.fighting.name": "格斗",
+    "types.fire.name": "火",
+    "types.flying.name": "飞行",
+    "types.ghost.name": "幽灵",
+    "types.grass.name": "草",
+    "types.ground.name": "地面",
+    "types.ice.name": "冰",
+    "types.normal.name": "一般",
+    "types.poison.name": "毒",
+    "types.psychic.name": "超能力",
+    "types.rock.name": "岩石",
+    "types.steel.name": "钢",
+    "types.water.name": "水"
+}

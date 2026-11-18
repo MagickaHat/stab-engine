@@ -1,0 +1,9 @@
+key,text,notes,tags,hash
+ink.sample.professor.1,"Bienvenue au labo, {ink:player_name} !",,,532f7192
+ink.sample.professor.2,"Avant de partir, prends quelque chose pour la route.",,,cfbac1eb
+ink.sample.professor.3,"Des Potions, s'il vous plaît.",,,27270a9d
+ink.sample.professor.4,"Voici {ink:potions, plural, one {# Potion} many {# de Potions} other {# Potions}}.",,,bbed6a3d
+ink.sample.professor.5,"Ça ira, merci.",,,e97545cd
+ink.sample.professor.6,Courageux ! Reviens si tu changes d'avis.,,,0d030724
+ink.sample.professor.farewell.1,Bonne chance !,,,e6a0b81a
+ink.speaker.professor,Professeur,,,16f1bcba

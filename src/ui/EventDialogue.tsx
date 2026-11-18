@@ -2,10 +2,11 @@
  * @file EventDialogue.tsx
  * @brief Connects the event system's dialogue requests to the dialogue windows.
  *
- * Listens for `GameEvents.DIALOGUE_MESSAGE`, `DIALOGUE_CHOICE` and
- * `DIALOGUE_NAME_INPUT` (see src/world/dialogue.ts) and shows
- * `<MessageBox>`, `<ChoiceWindow>` and `<NameEntry>` (src/ui/dialogue/),
- * answering each request when the player is done. While any of them is up
+ * Listens for `GameEvents.DIALOGUE_MESSAGE`, `DIALOGUE_CHOICE`,
+ * `DIALOGUE_NAME_INPUT`, `DIALOGUE_LANGUAGE` and `DIALOGUE_POKEDEX_ENTRY`
+ * (see src/world/dialogue.ts) and shows `<MessageBox>`, `<ChoiceWindow>`,
+ * `<NameEntryKeyboard>` (src/ui/dialogue/), `<LanguageSelect>` and
+ * `<PokedexEntry>` (src/ui/menus/), answering each request when the player is done. While any of them is up
  * the UI is marked modal (`UI_MODAL_CHANGED`), so the player does not walk.
  *
  * Text comes already translated. Restyle the windows through the skin
@@ -13,10 +14,12 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { EventBus, GameEvents } from '../bus/EventBus';
-import type { ChoiceRequest, DialogueRequest, NameInputRequest } from '../world/dialogue';
+import type { ChoiceRequest, DialogueRequest, LanguageRequest, NameInputRequest, PokedexEntryRequest } from '../world/dialogue';
 import { ChoiceWindow } from './dialogue/ChoiceWindow';
 import { MessageBox } from './dialogue/MessageBox';
-import { NameEntry } from './dialogue/NameEntry';
+import { NameEntryKeyboard } from './dialogue/NameEntryKeyboard';
+import { LanguageSelect } from './menus/LanguageSelect';
+import { PokedexEntry } from './menus/PokedexEntry';
 import { useModal } from './store/uiStore';
 
 /** @brief A request and a number that changes for every new one (used as a React key). */
@@ -37,6 +40,8 @@ export function EventDialogue ()
     const [message, setMessage] = useState<Pending<DialogueRequest> | null>(null);
     const [choice, setChoice] = useState<Pending<ChoiceRequest> | null>(null);
     const [nameInput, setNameInput] = useState<Pending<NameInputRequest> | null>(null);
+    const [language, setLanguage] = useState<Pending<LanguageRequest> | null>(null);
+    const [dex, setDex] = useState<Pending<PokedexEntryRequest> | null>(null);
     const [promptTyped, setPromptTyped] = useState(false);
 
     useEffect(() =>
@@ -48,18 +53,24 @@ export function EventDialogue ()
             setChoice({ id: nextId++, request });
         };
         const onName = (request: NameInputRequest) => setNameInput({ id: nextId++, request });
+        const onLanguage = (request: LanguageRequest) => setLanguage({ id: nextId++, request });
+        const onDex = (request: PokedexEntryRequest) => setDex({ id: nextId++, request });
         EventBus.on(GameEvents.DIALOGUE_MESSAGE, onMessage);
         EventBus.on(GameEvents.DIALOGUE_CHOICE, onChoice);
         EventBus.on(GameEvents.DIALOGUE_NAME_INPUT, onName);
+        EventBus.on(GameEvents.DIALOGUE_LANGUAGE, onLanguage);
+        EventBus.on(GameEvents.DIALOGUE_POKEDEX_ENTRY, onDex);
         return () =>
         {
             EventBus.off(GameEvents.DIALOGUE_MESSAGE, onMessage);
             EventBus.off(GameEvents.DIALOGUE_CHOICE, onChoice);
             EventBus.off(GameEvents.DIALOGUE_NAME_INPUT, onName);
+            EventBus.off(GameEvents.DIALOGUE_LANGUAGE, onLanguage);
+            EventBus.off(GameEvents.DIALOGUE_POKEDEX_ENTRY, onDex);
         };
     }, []);
 
-    useModal(!!(message || choice || nameInput));
+    useModal(!!(message || choice || nameInput || language || dex));
 
     const closeMessage = useCallback(() =>
     {
@@ -77,12 +88,43 @@ export function EventDialogue ()
 
     const onPromptTyped = useCallback(() => setPromptTyped(true), []);
 
+    if (language)
+    {
+        const { request } = language;
+        return (
+            <LanguageSelect
+                key={language.id} initial={request.initial}
+                onPick={(locale) =>
+                {
+                    setLanguage(null);
+                    request.pick(locale);
+                }}
+            />
+        );
+    }
+
+    if (dex)
+    {
+        const { request } = dex;
+        return (
+            <PokedexEntry
+                key={dex.id} species={request.species} languages={request.languages}
+                onClose={() =>
+                {
+                    setDex(null);
+                    request.done();
+                }}
+            />
+        );
+    }
+
     if (nameInput)
     {
         const { request } = nameInput;
         return (
-            <NameEntry
+            <NameEntryKeyboard
                 key={nameInput.id} prompt={request.prompt} initial={request.current} max={request.max}
+                language={request.language} pokemon={!!request.species}
                 onSubmit={(name) =>
                 {
                     setNameInput(null);

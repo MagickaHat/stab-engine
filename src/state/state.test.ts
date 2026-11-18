@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import { BattleBridge } from '../battle/bridge/BattleBridge.ts';
 import type { BattleSnapshot } from '../battle/bridge/snapshot.ts';
 import { importTeam, SAMPLE_TEAM_P2 } from '../battle/teams.ts';
+import { englishMessage } from '../battle/text.ts';
 import { partyBattle } from './battle.ts';
 import type { ExpSpecies } from './battle.ts';
 import { evolvedAbility, evolvePokemon, findEvolution } from './evolution.ts';
@@ -612,8 +613,9 @@ test('partyBattle: experience, effort values, level-ups and new moves apply duri
     assert.deepEqual(simBench.moveSlots.map((slot) => [slot.id, slot.pp]), [['tackle', 35], ['growth', 20], ['leechseed', 10]]);
     assert.equal(simLead.baseMoveSlots.length, 4);
 
-    //  The battle text.
-    const messages = lines.filter((line) => line.startsWith('|-message|')).map((line) => line.slice('|-message|'.length));
+    //  The battle text: the protocol carries text keys, shown in English without a localizer.
+    assert.ok(lines.some((line) => line.startsWith('|-message|@battle.exp.gained ')));
+    const messages = lines.filter((line) => line.startsWith('|-message|')).map((line) => englishMessage(line.slice('|-message|'.length)));
     assert.ok(messages.some((text) => /^Sparky gained \d+ Exp\. Points!$/.test(text)));
     assert.ok(messages.includes('Bulbasaur grew to Lv. 11!'));
     assert.ok(messages.includes('Bulbasaur learned Growth!'));
@@ -807,4 +809,37 @@ test('partyBattle: needs a Pokémon that can fight', () =>
     state.addToParty(pikachu(0));
     state.updatePokemon('pika0', { hp: 0 });
     assert.throws(() => partyBattle(state), /no Pokémon that can fight/);
+});
+
+test('language: chosen at the start, saved, and never changed', () =>
+{
+    const state = GameState.create({ name: 'Rojo', language: 'es-mx' });
+    assert.equal(state.language, 'es-mx');
+    assert.equal(Object.getOwnPropertyDescriptor(GameState.prototype, 'language')?.set, undefined, 'there is no setter');
+    const copy = GameState.fromJSON(JSON.parse(JSON.stringify(state.toJSON())));
+    assert.equal(copy.language, 'es-mx');
+    assert.throws(() => GameState.fromJSON({ ...state.toJSON(), language: 'ja' }), /language/, 'Japanese is a Pokémon language, not a game language');
+    assert.throws(() => GameState.fromJSON({ ...state.toJSON(), language: undefined }), /language/);
+});
+
+test('Pokémon languages: own catches take the game\'s, traded ones keep theirs; the Pokédex unlocks each', () =>
+{
+    const state = GameState.create({ name: 'Red', trainerId: 1, language: 'de' });
+    state.addToParty(createPokemon({ species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'] }));
+    state.addToParty(createPokemon({ species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'], language: 'ja', ot: { name: 'Satoshi', id: 2 } }));
+    state.addToParty(createPokemon({ species: 'eevee', level: 5, ability: 'runaway', moves: ['tackle'], language: 'ja', ot: { name: 'Satoshi', id: 2 } }));
+    assert.deepEqual(state.getSnapshot().party.map((p) => p.language), ['de', 'ja', 'ja']);
+    assert.deepEqual(state.getPokedexEntry('eevee'), { seen: true, owned: true, languages: ['de', 'ja'] });
+    assert.deepEqual(state.pokedexLanguages('eevee'), ['de', 'ja']);
+
+    state.markSeen('pidgey');
+    assert.deepEqual(state.getPokedexEntry('pidgey'), { seen: true, owned: false, languages: [] });
+    assert.deepEqual(state.pokedexLanguages('pidgey'), ['de'], 'a seen species shows the game\'s language');
+    assert.deepEqual(state.pokedexLanguages('mew'), []);
+
+    //  Evolving registers the new species in the Pokémon's language.
+    const traded = state.getSnapshot().party[1];
+    state.updatePokemon(traded.uid, { species: 'vaporeon' });
+    assert.deepEqual(state.pokedexLanguages('vaporeon'), ['de', 'ja']);
+    assert.deepEqual(GameState.fromJSON(state.toJSON()).getPokedexEntry('vaporeon').languages, ['ja']);
 });

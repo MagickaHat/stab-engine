@@ -10,6 +10,7 @@
  */
 import type { CompiledPage, EventBundle, Instruction } from '../../src/events/compile.ts';
 import { YES_NO_KEYS } from '../../src/events/compile.ts';
+import { fallbackChain } from '../../src/i18n/languages.ts';
 import { isKnownFlag } from '../../src/events/registry/flags.ts';
 import { findMilestone } from '../../src/events/registry/story.ts';
 import { SYSTEM_TEXT_KEYS, WORLD_ONLY_COMMANDS } from '../../src/events/runtime/Interpreter.ts';
@@ -180,6 +181,8 @@ class Checker
             case 'setFlag': this.flag(at, command.flag); break;
             case 'setVar': this.variable(at, command.var); this.value(at, command.value); break;
             case 'nameInput': this.variable(at, command.var); if (command.key) this.text(at, command.key); break;
+            case 'nickname': if (command.key) this.text(at, command.key); break;
+            case 'pokedexEntry': this.known(at, 'Species', command.species, 'species'); break;
             case 'native':
                 this.known(at, 'Native', command.name, 'native function');
                 if (command.resultVar) this.variable(at, command.resultVar);
@@ -203,6 +206,7 @@ class Checker
             case 'cry': this.known(at, 'Species', command.species, 'species'); break;
             case 'warp': this.warp(at, command.map, command.spawn, command.x, command.y); break;
             case 'givePokemon':
+                if (command.language && !command.ot) this.warn(at, `"language" without "ot": the Pokémon becomes the player's and takes the game's language`);
                 this.known(at, 'Species', command.species, 'species');
                 this.value(at, command.level);
                 for (const move of command.moves ?? []) this.known(at, 'Move', move, 'move');
@@ -302,6 +306,23 @@ function changedBy (code: readonly Instruction[]): Set<string>
  */
 export function checkContent (input: CheckInput): Finding[]
 {
+    return runChecks(input).findings;
+}
+
+/**
+ * @brief Every text key that event files, trainers, maps and the engine use
+ *        (for the unused-key report of `npm run locales:validate`).
+ * @param input Bundle, registries, locales and maps.
+ * @return The keys.
+ */
+export function usedTextKeys (input: CheckInput): Set<string>
+{
+    return runChecks(input).usedKeys;
+}
+
+/** @brief Run every check; returns the findings (errors first) and the keys used. */
+function runChecks (input: CheckInput): { findings: Finding[]; usedKeys: Set<string> }
+{
     const check = new Checker(input);
     const { bundle } = input;
 
@@ -361,13 +382,18 @@ export function checkContent (input: CheckInput): Finding[]
     for (const [locale, table] of Object.entries(input.locales))
     {
         if (locale === 'en' || !Object.keys(table).length) continue;
-        const missing = [...check.usedKeys].filter((key) => table[key] === undefined && input.locales.en?.[key] !== undefined);
+        //  A key a sister locale has (es-mx → es-es) is shown in that language, not English.
+        const chain = fallbackChain(locale).filter((name) => name !== 'en');
+        const missing = [...check.usedKeys].filter((key) => chain.every((name) => input.locales[name]?.[key] === undefined) && input.locales.en?.[key] !== undefined);
         if (missing.length)
         {
             check.warn(`locale ${locale}`, `${missing.length} text key(s) not translated (English is shown): ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`);
         }
     }
-    return [...check.findings.filter((f) => f.level === 'error'), ...check.findings.filter((f) => f.level === 'warning')];
+    return {
+        findings: [...check.findings.filter((f) => f.level === 'error'), ...check.findings.filter((f) => f.level === 'warning')],
+        usedKeys: check.usedKeys,
+    };
 }
 
 /** @brief Check one map's objects. */

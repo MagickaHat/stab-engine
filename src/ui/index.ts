@@ -76,3 +76,14 @@ export { TEXT_SPEED_CPS, useTicker, useTypewriter } from './dialogue/textSpeed';
 export type { Typewriter } from './dialogue/textSpeed';
 export { choiceBox, messageBox, nameBox, CHOICE_GAP, CHOICE_MARGIN_RIGHT, MESSAGE_HEIGHT, MESSAGE_LINES, NAME_BOX_INDENT } from './dialogue/layout';
 export type { Box } from './dialogue/layout';
+
+// Localization: hooks, text over graphics and the language-aware menus (docs/LOCALIZATION.md).
+export { renderOverlay, useLocalizer, useText } from './i18n';
+export { LocalizedGraphic } from './components/LocalizedGraphic';
+export type { LocalizedGraphicProps } from './components/LocalizedGraphic';
+export { NameEntryKeyboard } from './dialogue/NameEntryKeyboard';
+export type { NameEntryKeyboardProps } from './dialogue/NameEntryKeyboard';
+export { LanguageSelect } from './menus/LanguageSelect';
+export type { LanguageSelectProps } from './menus/LanguageSelect';
+export { PokedexEntry } from './menus/PokedexEntry';
+export type { PokedexEntryProps } from './menus/PokedexEntry';

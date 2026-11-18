@@ -30,18 +30,26 @@ export const POKEAPI_CSV_PATH = 'data/v2/csv';
 export const DEFAULT_REF = 'master';
 
 /**
- * @brief PokeAPI language identifier → engine locale (folder names in `content/locales`).
+ * @brief PokeAPI language identifier → engine language (src/i18n/languages.ts).
  *
- * PokeAPI has no European Portuguese, so `pt-pt` is left for translators.
- * Add e.g. `'ja': 'ja'` or `'it': 'it'` here to import more languages.
+ * Every UI locale PokeAPI has, plus the Pokémon-only languages (Japanese,
+ * Korean, Chinese), whose names and Pokédex entries are shown as foreign
+ * Pokédex entries. Japanese uses the kanji text (`ja`), not the kana-only one
+ * (`ja-hrkt`). PokeAPI has no European Portuguese, so `pt-pt` falls back to
+ * `pt-br` and is left for translators.
  */
 export const LANGUAGES: Record<string, string> = {
     'en': 'en',
     'de': 'de',
     'fr': 'fr',
+    'it': 'it',
     'es': 'es-es',
     'es-419': 'es-mx',
     'pt-br': 'pt-br',
+    'ja': 'ja',
+    'ko': 'ko',
+    'zh-hans': 'zh-hans',
+    'zh-hant': 'zh-hant',
 };
 
 /** @brief Language used for Showdown `name` fields and as the fallback text. */

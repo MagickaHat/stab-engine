@@ -226,3 +226,28 @@
     font-size: 6px;
     line-height: 1;
 }
+
+/* --- Name entry keyboard (dialogue/NameEntryKeyboard.tsx). --- */
+
+.name-entry-slot {
+    position: absolute;
+    height: 1px;
+    background: #a0a098;
+}
+
+.name-key {
+    position: absolute;
+}
+
+.name-key-cursor {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid #e05038;
+    pointer-events: none;
+}
+
+/* --- Pokédex entry (menus/PokedexEntry.tsx). --- */
+
+.pokedex-entry img {
+    image-rendering: pixelated;
+}

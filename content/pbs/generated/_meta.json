@@ -2,7 +2,7 @@
     "$comment": "Written by `npm run pokeapi:import`. Do not edit files in this folder; put changes in content/pbs/custom.",
     "source": {
         "repository": "PokeAPI/pokeapi",
-        "ref": "master",
+        "ref": "8a92bfa7dab2f12b84b5d151562f9857c133ff30",
         "commit": "8a92bfa7dab2f12b84b5d151562f9857c133ff30",
         "csvDir": null
     },
@@ -18,7 +18,19 @@
         "speciesInfo": 1351,
         "itemInfo": 2221
     },
-    "localeStrings": { "fr": 11899, "de": 9793, "es-es": 9156, "en": 12141, "es-mx": 8602, "pt-br": 12 },
+    "localeStrings": {
+        "ko": 9243,
+        "zh-hant": 9167,
+        "fr": 11899,
+        "de": 9793,
+        "es-es": 9156,
+        "it": 9168,
+        "en": 12141,
+        "ja": 9317,
+        "zh-hans": 9167,
+        "es-mx": 8602,
+        "pt-br": 12
+    },
     "warnings": [
         "abilities: \"embody-aspect\" is not in Showdown; named \"Embody Aspect\"",
         "moves: \"protect\" ailment \"protect\" has no Showdown field; behaviour comes from the sim",

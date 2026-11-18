@@ -36,6 +36,8 @@
  * written out as TypeScript types first and the schemas are typed with them.
  */
 import { z } from 'zod';
+import { POKEMON_LANGUAGE_IDS } from '../i18n/languages.ts';
+import type { PokemonLanguage } from '../i18n/languages.ts';
 
 // ---------------------------------------------------------------- Basics
 
@@ -279,6 +281,8 @@ export type Command =
     | { cmd: 'yesNo'; key: string; params?: TextParams; yes?: Command[]; no?: Command[] }
     | { cmd: 'ink'; story: string; knot?: string }
     | { cmd: 'nameInput'; var: string; key?: string; max?: number }
+    | { cmd: 'nickname'; slot?: number; key?: string }
+    | { cmd: 'pokedexEntry'; species: string }
     // Cutscene
     | { cmd: 'move'; target: Target; route: RouteStep[]; wait?: boolean; skipBlocked?: boolean }
     | { cmd: 'moveMany'; moves: { target: Target; route: RouteStep[] }[]; wait?: boolean; skipBlocked?: boolean }
@@ -306,6 +310,7 @@ export type Command =
     | {
         cmd: 'givePokemon'; species: string; level: ValueRef; ability?: string; moves?: string[]; nickname?: string;
         shiny?: boolean; item?: string; nature?: string; gender?: 'M' | 'F' | 'N'; silent?: boolean;
+        language?: PokemonLanguage; ot?: { name: string; id: number };
     }
     | { cmd: 'removePokemon'; species: string }
     | { cmd: 'heal' }
@@ -383,6 +388,8 @@ export const Command: z.ZodType<Command> = z.lazy(() => z.discriminatedUnion('cm
     }),
     z.strictObject({ cmd: z.literal('ink'), story: Name, knot: z.string().min(1).optional() }),
     z.strictObject({ cmd: z.literal('nameInput'), var: Name, key: Name.optional(), max: z.number().int().min(1).optional() }),
+    z.strictObject({ cmd: z.literal('nickname'), slot: z.number().int().min(0).max(5).optional(), key: Name.optional() }),
+    z.strictObject({ cmd: z.literal('pokedexEntry'), species: Id }),
     // Cutscene
     z.strictObject({
         cmd: z.literal('move'), target: Target, route: z.array(RouteStep), wait: z.boolean().optional(),
@@ -436,6 +443,8 @@ export const Command: z.ZodType<Command> = z.lazy(() => z.discriminatedUnion('cm
         cmd: z.literal('givePokemon'), species: Id, level: ValueRef, ability: Id.optional(), moves: z.array(Id).max(4).optional(),
         nickname: z.string().min(1).optional(), shiny: z.boolean().optional(), item: Id.optional(), nature: Id.optional(),
         gender: z.enum(['M', 'F', 'N']).optional(), silent: z.boolean().optional(),
+        language: z.enum(POKEMON_LANGUAGE_IDS).optional(),
+        ot: z.strictObject({ name: z.string().min(1), id: z.number().int().min(0).max(999999) }).optional(),
     }),
     z.strictObject({ cmd: z.literal('removePokemon'), species: Id }),
     z.strictObject({ cmd: z.literal('heal') }),

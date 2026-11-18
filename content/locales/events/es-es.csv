@@ -1,0 +1,11 @@
+key,text,notes,tags,hash
+system.yes,Sí,,,b3a43630
+system.no,No,,,61e6be1a
+system.obtained_item,"¡{player} ha obtenido {quantity, plural, =1 {{item}} other {# × {item}}}!",,,71b92a5c
+system.bag_full,La Mochila está llena. {player} no puede llevar nada más.,,,5a77fc9d
+system.obtained_pokemon,¡{player} ha obtenido a {species}!,,,7eb22e99
+system.no_room_pokemon,No hay sitio para {species}.,,,b4456bf0
+system.prize_money,"¡{player} ha recibido {amount, number} por ganar!",,,c496b63e
+system.learned_move,¡{pokemon} ha aprendido {move}!,,,d0f70a1f
+system.nickname_prompt,¿Quieres ponerle un mote a {pokemon}?,,,0782b7a4
+system.cannot_nickname,"{pokemon} viene de otro Entrenador, así que no se le puede cambiar el nombre.",,,9ddb2cf5

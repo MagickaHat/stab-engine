@@ -4,7 +4,7 @@
  */
 import { STAT_IDS } from '../data/schemas/common.ts';
 import { SavedPokemon } from './schema.ts';
-import type { EVSpread, Gender, IVSpread } from './schema.ts';
+import type { EVSpread, Gender, IVSpread, PokemonLanguage } from './schema.ts';
 
 /** @brief IDs of the 25 standard natures, used to pick one at random. */
 export const NATURE_IDS = [
@@ -53,6 +53,11 @@ export interface NewPokemon
      * `GameState.addToParty()` replaces with the player.
      */
     ot?: { name: string; id: number };
+    /**
+     * Language it comes from. Default: `"en"`. `GameState.addToParty()` gives a
+     * Pokémon without an original trainer (the player's own) the save's language.
+     */
+    language?: PokemonLanguage;
     /** Map it was obtained on. Default: `""`. */
     metMap?: string;
     /** When it was obtained. Default: now. */
@@ -114,6 +119,7 @@ export function createPokemon (options: NewPokemon, random: () => number = Math.
         friendship: options.friendship ?? 70,
         ball: options.ball ?? 'pokeball',
         ot: options.ot ? { ...options.ot } : { name: '', id: 0 },
+        language: options.language ?? 'en',
         met: {
             map: options.metMap ?? '',
             level: options.level,

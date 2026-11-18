@@ -1,0 +1,9 @@
+key,text,notes,tags,hash
+ink.sample.professor.1,"Willkommen im Labor, {ink:player_name}!",,,532f7192
+ink.sample.professor.2,"Bevor du aufbrichst, nimm etwas für unterwegs mit.",,,cfbac1eb
+ink.sample.professor.3,"Tränke, bitte.",,,27270a9d
+ink.sample.professor.4,"Hier {ink:potions, plural, one {ist # Trank} other {sind # Tränke}}.",,,bbed6a3d
+ink.sample.professor.5,"Danke, ich brauche nichts.",,,e97545cd
+ink.sample.professor.6,Mutig! Komm wieder,,,0d030724
+ink.sample.professor.farewell.1,Viel Glück da draußen!,,,e6a0b81a
+ink.speaker.professor,Professor,,,16f1bcba

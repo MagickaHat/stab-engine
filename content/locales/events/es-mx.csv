@@ -1,0 +1,6 @@
+key,text,notes,tags,hash
+system.obtained_item,"¡{player} obtuvo {quantity, plural, =1 {{item}} other {# × {item}}}!",,,71b92a5c
+system.no_room_pokemon,No hay lugar para {species}.,,,b4456bf0
+system.prize_money,"¡{player} recibió {amount, number} por ganar!",,,c496b63e
+system.learned_move,¡{pokemon} aprendió {move}!,,,d0f70a1f
+system.nickname_prompt,¿Quieres ponerle un apodo a {pokemon}?,,,0782b7a4

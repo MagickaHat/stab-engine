@@ -447,6 +447,14 @@ Remember to add the scene to the `scene` list in `src/game/main.ts`.
 
 ---
 
+## 13b. Translating stories
+
+Stories are written in English. `npm run locales:ink-ids` gives every line and choice a
+stable `#id:` tag and writes their English text to `content/locales/ink/en.csv`;
+translators fill `content/locales/ink/<locale>.csv`, using `{ink:variable}` for ink
+variables. When the game runs a story from an event, each line shows the translation of
+its ID in the game's language, or ink's own English line. See `docs/LOCALIZATION.md` §8.
+
 ## 14. Troubleshooting
 
 | Problem | Likely cause / fix |

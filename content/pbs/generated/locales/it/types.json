@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "Coleottero",
+    "types.dark.name": "Buio",
+    "types.dragon.name": "Drago",
+    "types.electric.name": "Elettro",
+    "types.fairy.name": "Folletto",
+    "types.fighting.name": "Lotta",
+    "types.fire.name": "Fuoco",
+    "types.flying.name": "Volante",
+    "types.ghost.name": "Spettro",
+    "types.grass.name": "Erba",
+    "types.ground.name": "Terra",
+    "types.ice.name": "Ghiaccio",
+    "types.normal.name": "Normale",
+    "types.poison.name": "Veleno",
+    "types.psychic.name": "Psico",
+    "types.rock.name": "Roccia",
+    "types.steel.name": "Acciaio",
+    "types.water.name": "Acqua"
+}

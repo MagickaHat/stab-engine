@@ -14,6 +14,10 @@ export {
     describeLine, isMoveRequest, isSwitchRequest, isTeamPreviewRequest, isWaitRequest,
     parseHP, parseIdent, parseLine, parseTyped,
 } from './protocol.ts';
+export {
+    createBattleNarrator, decodeTextMessage, encodeTextMessage, englishMessage, narrateLine, ENGLISH_BATTLE_MESSAGES,
+} from './text.ts';
+export type { BattleNarrator, NarratorOptions } from './text.ts';
 export { Protocol } from '@pkmn/protocol';
 export type { Handler } from '@pkmn/protocol';
 export type { HPStatus, PokemonIdent, ProtocolLine } from './protocol.ts';

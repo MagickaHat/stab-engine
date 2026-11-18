@@ -96,6 +96,7 @@ setGameState(saves.load(0));
 
 ```
 SaveData
+├─ language   "de"                                    the game's language; set once, never changed
 ├─ player     { name, trainerId, money, playTimeMs,
 │               position { map, x, y, facing } }
 ├─ party      SavedPokemon[]                          0 to 6
@@ -106,8 +107,18 @@ SaveData
 ├─ dialogue   { sample: "…" }                         ink story states
 ├─ selfSwitches { "route1:12:A": true, … }            event self switches that are on
 ├─ hiddenEvents { "route1:7": true, … }               events hidden with the `hide` command
-└─ story      { main: "got_starter", … }              last milestone of each story track
+├─ story      { main: "got_starter", … }              last milestone of each story track
+└─ pokedex    { eevee: { seen, owned, languages: ["de", "ja"] }, … }
 ```
+
+`language` is chosen on the New Game language menu (`GameState.create({ language })`,
+`startNewGame()` in `src/world/newGame.ts`) and has no setter. Every `SavedPokemon` has a
+`language` too: the save's for the player's own Pokémon, its own for traded ones. The
+Pokédex records seen and owned species and the languages owned, which unlock foreign
+Pokédex entries (`getPokedexEntry()`, `markSeen()`, `registerOwned()`,
+`pokedexLanguages()`). See `docs/LOCALIZATION.md` §6 and §9. These fields are part of
+save version 1: the engine is unreleased, so `SAVE_VERSION` is raised only with the first
+published major version.
 
 The last three belong to the event system (see `docs/EVENT_SYSTEM.md`). They were added
 without changing `SAVE_VERSION`: older files that lack them load with empty values.
@@ -390,10 +401,11 @@ Sparky learned Electro Ball! It was stored in its move bank.
 Bulbasaur learned Growth!
 ```
 
-The bridge turns each into a step whose `text` is the message, like every other line of
-battle text, so a message box that prints `snapshot.step.text` shows them with no extra
-code. The wording is in `partyBattle()` in `src/state/battle.ts`; `messages: false`
-leaves the lines out.
+The lines carry text keys (`battle.exp.gained`, `battle.exp.level`, `battle.move.learned`,
+`battle.move.banked`) and their values, made by `encodeTextMessage()`. The battle's
+narrator shows them in the game's language, like every other line of battle text, so a
+message box that prints `snapshot.step.text` shows them with no extra code; without a
+narrator they are shown in English (above). `messages: false` leaves the lines out.
 
 ### Evolution after the battle
 

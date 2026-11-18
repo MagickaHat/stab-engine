@@ -1,0 +1,77 @@
+key,text,notes,tags,hash
+battle.turn,Turno {turn},,,2811f863
+battle.switch.own,"Vai, {pokemon}!",,,2db50e02
+battle.switch.foe,{trainer} enviou {pokemon}!,,,e84b36d8
+battle.switch.wild,Um {pokemon} selvagem apareceu!,,,d6341e46
+battle.drag,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi arrastado para a batalha!",,,6c036f58
+battle.move,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} usou {move}!",,,3f6cac6d
+battle.damage.from,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi ferido por {effect}!",,,3bb1c3ab
+battle.heal,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} recuperou PS.",,,b6540997
+battle.heal.from,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} recuperou PS com {effect}!",,,c2673308
+battle.supereffective,É supereficaz!,,,c18b3773
+battle.resisted,Não é muito eficaz…,,,92e7f1ae
+battle.immune,"Não afeta {side, select, foe {o {pokemon} adversário} wild {o {pokemon} selvagem} other {{pokemon}}}…",,,81a3a0e0
+battle.crit,Um golpe crítico!,,,7caa5983
+battle.miss,"O ataque de {side, select, foe {o {pokemon} adversário} wild {o {pokemon} selvagem} other {{pokemon}}} errou!",,,6206b108
+battle.fail,Mas falhou!,,,35b52cf5
+battle.status,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi afetado por {status}!",,,cce9064a
+battle.status.brn,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi queimado!",,,0f8614b8
+battle.status.par,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} está paralisado! Talvez não consiga se mover!",,,3b1ecae4
+battle.status.slp,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} adormeceu!",,,d5f6165a
+battle.status.frz,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi congelado!",,,68643fdb
+battle.status.psn,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi envenenado!",,,2b2cff5b
+battle.status.tox,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi gravemente envenenado!",,,ad796af3
+battle.curestatus,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} foi curado!",,,cff1b2d9
+battle.curestatus.slp,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} acordou!",,,87afa724
+battle.curestatus.frz,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} descongelou!",,,36bfec8e
+battle.curestatus.par,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} não está mais paralisado!",,,b80c4c62
+battle.boost,"{stat@gender, select, f {A} other {O}} {stat} de {side, select, foe {o {pokemon} adversário} wild {o {pokemon} selvagem} other {{pokemon}}} {amount, plural, =0 {não pode aumentar mais!} =1 {aumentou!} =2 {aumentou muito!} other {aumentou drasticamente!}}",,,ab3fe75c
+battle.unboost,"{stat@gender, select, f {A} other {O}} {stat} de {side, select, foe {o {pokemon} adversário} wild {o {pokemon} selvagem} other {{pokemon}}} {amount, plural, =0 {não pode diminuir mais!} =1 {diminuiu!} =2 {diminuiu muito!} other {diminuiu drasticamente!}}",,,0e00b621
+battle.terastallize,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} se terastalizou no tipo {type}!",,,c9d89964
+battle.ability,"({ability} de {side, select, foe {o {pokemon} adversário} wild {o {pokemon} selvagem} other {{pokemon}}})",,,a1c9f3d9
+battle.cant,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} não consegue se mover!",,,9b49770f
+battle.cant.slp,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} está dormindo profundamente.",,,1a817a84
+battle.cant.par,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} está paralisado! Não consegue se mover!",,,df13c057
+battle.cant.frz,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} está congelado!",,,f4a9bd76
+battle.cant.flinch,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} recuou e não conseguiu se mover!",,,8149f2ca
+battle.cant.recharge,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} precisa recarregar!",,,9e49187b
+battle.faint,"{side, select, foe {O {pokemon} adversário} wild {O {pokemon} selvagem} other {{pokemon}}} desmaiou!",,,20111bdc
+battle.weather.raindance.start,Começou a chover!,,,5b0a5267
+battle.weather.raindance.upkeep,Continua chovendo.,,,bc4b51f3
+battle.weather.raindance.end,A chuva parou.,,,9e739917
+battle.weather.sunnyday.start,A luz do sol ficou intensa!,,,01630a03
+battle.weather.sunnyday.upkeep,A luz do sol está forte.,,,a6ce49a9
+battle.weather.sunnyday.end,A luz do sol voltou ao normal.,,,c5539db2
+battle.weather.sandstorm.start,Começou uma tempestade de areia!,,,c9b1b94a
+battle.weather.sandstorm.upkeep,A tempestade de areia continua.,,,aafac1ad
+battle.weather.sandstorm.end,A tempestade de areia diminuiu.,,,000fcda8
+battle.weather.snow.start,Começou a nevar!,,,04a45c78
+battle.weather.snow.upkeep,Continua nevando.,,,360c7620
+battle.weather.snow.end,A neve parou.,,,eb116470
+battle.weather.hail.start,Começou a chover granizo!,,,9fbb5447
+battle.weather.hail.upkeep,O granizo continua.,,,cbe59c3f
+battle.weather.hail.end,O granizo parou.,,,e1482847
+battle.weather.end,O tempo voltou ao normal.,,,c622306b
+battle.win,{trainer} venceu a batalha!,,,195bb524
+battle.win.own,Você venceu!,,,3ed8cd4a
+battle.tie,A batalha terminou empatada!,,,3062f973
+battle.exp.gained,{pokemon} ganhou {exp} pontos de experiência!,,,76e6c5f8
+battle.exp.level,{pokemon} subiu para o Nv. {level}!,,,1f5121ef
+battle.move.learned,{pokemon} aprendeu {move}!,,,d0f70a1f
+battle.move.banked,{pokemon} aprendeu {move}! O golpe foi guardado na reserva.,,,07265296
+battle.stat.atk,Ataque,,gender=m,8ba9331d
+battle.stat.def,Defesa,,gender=f,fcbb60f3
+battle.stat.spa,Ataque Especial,,gender=m,e1b06662
+battle.stat.spd,Defesa Especial,,gender=f,fc3da79f
+battle.stat.spe,Velocidade,,gender=f,0a6b8020
+battle.stat.accuracy,Precisão,,gender=f,709aafa4
+battle.stat.evasion,Evasão,,gender=f,6079a40f
+battle.effect.psn,veneno,,,cee323b1
+battle.effect.tox,veneno,,,cee323b1
+battle.effect.brn,sua queimadura,,,fd332dd2
+battle.effect.recoil,o recuo,,,fe397862
+battle.effect.stealthrock,pedras pontiagudas,,,27f128ba
+battle.effect.spikes,os espinhos,,,f40b258b
+battle.effect.sandstorm,a tempestade de areia,,,421eac1f
+battle.effect.hail,o granizo,,,c431edfa
+battle.effect.confusion,sua confusão,,,415d9be9

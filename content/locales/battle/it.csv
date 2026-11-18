@@ -1,0 +1,77 @@
+key,text,notes,tags,hash
+battle.turn,Turno {turn},,,2811f863
+battle.switch.own,"Vai, {pokemon}!",,,2db50e02
+battle.switch.foe,{trainer} manda in campo {pokemon}!,,,e84b36d8
+battle.switch.wild,Appare un {pokemon} selvatico!,,,d6341e46
+battle.drag,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è stato trascinato in campo!",,,6c036f58
+battle.move,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} usa {move}!",,,3f6cac6d
+battle.damage.from,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è ferito da {effect}!",,,3bb1c3ab
+battle.heal,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} recupera PS.",,,b6540997
+battle.heal.from,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} recupera PS grazie a {effect}!",,,c2673308
+battle.supereffective,È superefficace!,,,c18b3773
+battle.resisted,Non è molto efficace…,,,92e7f1ae
+battle.immune,"Non ha effetto su {side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}}…",,,81a3a0e0
+battle.crit,Brutto colpo!,,,7caa5983
+battle.miss,"L'attacco di {side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} non va a segno!",,,6206b108
+battle.fail,Ma non ha effetto!,,,35b52cf5
+battle.status,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è colpito da {status}!",,,cce9064a
+battle.status.brn,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è stato scottato!",,,0f8614b8
+battle.status.par,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è paralizzato! Potrebbe non riuscire a muoversi!",,,3b1ecae4
+battle.status.slp,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} si è addormentato!",,,d5f6165a
+battle.status.frz,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è stato congelato!",,,68643fdb
+battle.status.psn,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è stato avvelenato!",,,2b2cff5b
+battle.status.tox,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è stato gravemente avvelenato!",,,ad796af3
+battle.curestatus,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è guarito!",,,cff1b2d9
+battle.curestatus.slp,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} si è svegliato!",,,87afa724
+battle.curestatus.frz,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} si è scongelato!",,,36bfec8e
+battle.curestatus.par,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} non è più paralizzato!",,,b80c4c62
+battle.boost,"{stat@article, select, elided {L'{stat}} f {La {stat}} other {Il {stat}}} di {side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} {amount, plural, =0 {non può aumentare ancora!} =1 {aumenta!} =2 {aumenta molto!} other {aumenta tantissimo!}}",,,ab3fe75c
+battle.unboost,"{stat@article, select, elided {L'{stat}} f {La {stat}} other {Il {stat}}} di {side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} {amount, plural, =0 {non può diminuire ancora!} =1 {diminuisce!} =2 {diminuisce molto!} other {diminuisce tantissimo!}}",,,0e00b621
+battle.terastallize,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} si è teracristallizzato nel tipo {type}!",,,c9d89964
+battle.ability,"({ability} di {side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}})",,,a1c9f3d9
+battle.cant,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} non può muoversi!",,,9b49770f
+battle.cant.slp,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} dorme profondamente.",,,1a817a84
+battle.cant.par,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è paralizzato! Non può muoversi!",,,df13c057
+battle.cant.frz,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è congelato!",,,f4a9bd76
+battle.cant.flinch,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} tentenna e non riesce a muoversi!",,,8149f2ca
+battle.cant.recharge,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} deve ricaricarsi!",,,9e49187b
+battle.faint,"{side, select, foe {{pokemon} nemico} wild {{pokemon} selvatico} other {{pokemon}}} è esausto!",,,20111bdc
+battle.weather.raindance.start,Ha iniziato a piovere!,,,5b0a5267
+battle.weather.raindance.upkeep,Continua a piovere.,,,bc4b51f3
+battle.weather.raindance.end,Ha smesso di piovere.,,,9e739917
+battle.weather.sunnyday.start,La luce solare è intensa!,,,01630a03
+battle.weather.sunnyday.upkeep,La luce solare è forte.,,,a6ce49a9
+battle.weather.sunnyday.end,La luce solare è tornata normale.,,,c5539db2
+battle.weather.sandstorm.start,Si è scatenata una tempesta di sabbia!,,,c9b1b94a
+battle.weather.sandstorm.upkeep,La tempesta di sabbia infuria.,,,aafac1ad
+battle.weather.sandstorm.end,La tempesta di sabbia si è placata.,,,000fcda8
+battle.weather.snow.start,Ha iniziato a nevicare!,,,04a45c78
+battle.weather.snow.upkeep,Continua a nevicare.,,,360c7620
+battle.weather.snow.end,Ha smesso di nevicare.,,,eb116470
+battle.weather.hail.start,Ha iniziato a grandinare!,,,9fbb5447
+battle.weather.hail.upkeep,Continua a grandinare.,,,cbe59c3f
+battle.weather.hail.end,Ha smesso di grandinare.,,,e1482847
+battle.weather.end,Il tempo è tornato normale.,,,c622306b
+battle.win,{trainer} ha vinto la lotta!,,,195bb524
+battle.win.own,Hai vinto!,,,3ed8cd4a
+battle.tie,La lotta è finita in parità!,,,3062f973
+battle.exp.gained,{pokemon} ha guadagnato {exp} Punti Esperienza!,,,76e6c5f8
+battle.exp.level,{pokemon} è salito al Lv. {level}!,,,1f5121ef
+battle.move.learned,{pokemon} ha imparato {move}!,,,d0f70a1f
+battle.move.banked,{pokemon} ha imparato {move}! La mossa è stata messa da parte.,,,07265296
+battle.stat.atk,Attacco,,article=elided,8ba9331d
+battle.stat.def,Difesa,,article=f,fcbb60f3
+battle.stat.spa,Attacco Speciale,,article=elided,e1b06662
+battle.stat.spd,Difesa Speciale,,article=f,fc3da79f
+battle.stat.spe,Velocità,,article=f,0a6b8020
+battle.stat.accuracy,Precisione,,article=f,709aafa4
+battle.stat.evasion,Elusione,,article=elided,6079a40f
+battle.effect.psn,l'avvelenamento,,,cee323b1
+battle.effect.tox,l'avvelenamento,,,cee323b1
+battle.effect.brn,la scottatura,,,fd332dd2
+battle.effect.recoil,il contraccolpo,,,fe397862
+battle.effect.stealthrock,pietre aguzze,,,27f128ba
+battle.effect.spikes,le punte,,,f40b258b
+battle.effect.sandstorm,la tempesta di sabbia,,,421eac1f
+battle.effect.hail,la grandine,,,c431edfa
+battle.effect.confusion,la confusione,,,415d9be9

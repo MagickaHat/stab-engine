@@ -1,0 +1,5 @@
+key,text,notes,tags,hash
+system.bag_full,A Mochila está cheia. {player} não consegue levar mais nada.,,,5a77fc9d
+system.prize_money,"{player} recebeu {amount, number} pela vitória!",,,c496b63e
+system.nickname_prompt,Dar uma alcunha a {pokemon}?,,,0782b7a4
+system.cannot_nickname,"{pokemon} veio de outro Treinador, por isso o seu nome não pode ser alterado.",,,9ddb2cf5

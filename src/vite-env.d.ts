@@ -17,3 +17,13 @@ declare module 'virtual:stab-events' {
     const bundle: import('./events/compile.ts').EventBundle;
     export default bundle;
 }
+
+/**
+ * @brief Translated graphics found at build time by vite/plugins/locales.mjs:
+ *        paths under `public/assets/img/locales/`, without `.png`
+ *        (`de/ui/battle/cursor_command`). See src/i18n/graphics.ts.
+ */
+declare module 'virtual:stab-locale-graphics' {
+    const files: string[];
+    export default files;
+}

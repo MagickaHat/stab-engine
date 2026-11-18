@@ -389,9 +389,21 @@ sized to the widest option, right-aligned a few pixels above the message box (`C
 cursor. Up/down move (wrapping, `cursor` sound), A picks (`select`), B picks `cancel` if
 allowed (`cancel` sound), a tap picks an option.
 
-**`<NameEntry>`** — the prompt in the message box and the typed name in a window above it.
-The name is drawn with `<PixelText>`; an invisible text field takes the keys (and brings up
-the phone keyboard). Enter confirms. A full letter grid can replace it later.
+**`<NameEntryKeyboard>`** — the naming screen `<EventDialogue>` uses for every name: an
+on-screen letter grid (`ui/naming` graphics) in the language of the name being typed, with
+that language's length and characters (a Japanese Pokémon gets kana pages and 6 characters).
+D-pad moves, A types, B deletes, L/R or Select change page, Start confirms; clicking the name
+switches to a physical or phone keyboard. The simpler **`<NameEntry>`** (prompt plus a field)
+is still exported.
+
+**`<LanguageSelect>`** — the New Game language menu: every UI language by its own name, then a
+confirmation, since a save's language never changes. **`<PokedexEntry>`** — a species' entry,
+switchable with L/R between the languages the player has unlocked.
+
+**`<LocalizedGraphic graphic x y cell?>`** — a UI graphic in the game's language: the
+translated file chosen at build time, with translated text drawn over painted-in words. Use
+`useText()` / `useLocalizer()` (`src/ui/i18n/`) for translated text in any component; they
+re-render when CSVs are hot-reloaded. See `docs/LOCALIZATION.md`.
 
 All of them call `useModal()`, so the player cannot walk while they are up, and take every
 button press while they wait for one.

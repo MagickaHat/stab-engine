@@ -1,0 +1,24 @@
+key,text,notes,tags,hash
+ui.language.title,Choisissez votre langue,,,4545ebf7
+ui.language.confirm,Jouer en {language} ? La langue de cette sauvegarde ne pourra plus être modifiée.,,,43489714
+ui.keyboard.upper,MAJ.,,,ad4113e7
+ui.keyboard.lower,min.,,,b51d04ba
+ui.keyboard.others,Autres,,,69bad712
+ui.keyboard.space,Espace,,,c1c43225
+ui.keyboard.back,Effacer,,,c2954bc2
+ui.keyboard.ok,OK,,,85e4b82f
+ui.pokedex.number,N° {number},,,a52a46ff
+ui.pokedex.switch,L/R : langue,,,8350cdca
+ui.pokedex.height,"TAI. {height, number} m",,,a2c4e972
+ui.pokedex.weight,"POIDS {weight, number} kg",,,64396b69
+ui.pokedex.no_entry,Aucune donnée sur ce Pokémon dans cette langue.,,,1cecc39f
+ui.battle.command.fight,ATTAQUE,,,8fc60c69
+ui.battle.command.pokemon,POKéMON,,,f3fe757a
+ui.battle.command.bag,SAC,,,a86e0e91
+ui.battle.command.run,FUITE,,,ada7caaa
+ui.battle.command.call,APPEL,,,b14354e9
+ui.battle.command.ball,BALL,,,e02559e4
+ui.battle.command.rock,CAILLOU,,,776d7fb4
+ui.battle.command.bait,APPÂT,,,fe325511
+ui.battle.command.cancel,RETOUR,,,52fabbdb
+ui.trainer_card.title,CARTE DRESSEUR,,,b064b734

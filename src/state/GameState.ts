@@ -31,11 +31,15 @@ import {
     DEFAULT_BOX_COUNT, DEFAULT_BOX_SIZE, MAX_ITEM_QUANTITY, MAX_MONEY, MAX_MOVES, PARTY_SIZE, SaveData,
 } from './schema.ts';
 import { eventKey, selfSwitchKey } from './schema.ts';
-import type { Bag, PcBox, PcLocation, Position, SavedPokemon, SelfSwitch, VariableValue } from './schema.ts';
+import type {
+    Bag, PcBox, PcLocation, PokedexEntry, Position, SaveLanguage, SavedPokemon, SelfSwitch, VariableValue,
+} from './schema.ts';
 
 /** @brief Settings for a new game. */
 export interface NewGameOptions
 {
+    /** The language the game is played in. It can never change afterwards. Default: `"en"`. */
+    language?: SaveLanguage;
     /** Player name. Default: `"Player"`. */
     name?: string;
     /** Trainer ID. Default: a random number from 0 to 65535. */
@@ -95,6 +99,7 @@ export class GameState
         for (const pocket of ItemPocket.options) bag[pocket] = [];
 
         return GameState.fromJSON({
+            language: options.language ?? 'en',
             player: {
                 name: options.name ?? 'Player',
                 trainerId: options.trainerId ?? Math.floor(Math.random() * 65536),
@@ -111,6 +116,7 @@ export class GameState
             selfSwitches: {},
             hiddenEvents: {},
             story: {},
+            pokedex: {},
         });
     }
 
@@ -153,14 +159,27 @@ export class GameState
      */
     getSnapshot = (): SaveData => this.data;
 
+    /**
+     * @brief The language this game is played in.
+     *
+     * Set by `create()` and kept in the save. There is deliberately no setter:
+     * a game's language never changes.
+     */
+    get language (): SaveLanguage
+    {
+        return this.data.language;
+    }
+
     // ---------------------------------------------------------------- Party
 
     /**
      * @brief Give the player a Pokémon. It goes to the PC if the party is full.
      *
      * A Pokémon without an original trainer (`ot.name` is empty, the default
-     * of `createPokemon()`) becomes the player's own. One that already has
-     * another trainer keeps it and counts as traded (see `isTraded()`).
+     * of `createPokemon()`) becomes the player's own and gets the save's
+     * language. One that already has another trainer keeps it and its
+     * language, and counts as traded (see `isTraded()`). Either way the
+     * Pokédex records the species as owned, in the Pokémon's language.
      *
      * @param pokemon The Pokémon (see `createPokemon()`).
      * @return Where it went, or `null` if the party and every box are full.
@@ -172,16 +191,18 @@ export class GameState
         if (!pokemon.ot.name)
         {
             const { name, trainerId } = this.data.player;
-            pokemon = { ...pokemon, ot: { name, id: trainerId } };
+            pokemon = { ...pokemon, ot: { name, id: trainerId }, language: this.data.language };
         }
         if (this.data.party.length < PARTY_SIZE)
         {
             this.set({ party: [...this.data.party, pokemon] });
+            this.registerOwned(pokemon);
             return { where: 'party', index: this.data.party.length - 1 };
         }
         const free = this.findFreeSlot(this.data.pc.current);
         if (!free) return null;
         this.putInBox(free, pokemon);
+        this.registerOwned(pokemon);
         return { where: 'pc', ...free };
     }
 
@@ -259,6 +280,8 @@ export class GameState
         if (!found) return false;
         const next = typeof change === 'function' ? change(found.pokemon) : { ...found.pokemon, ...change };
         const updated = { ...next, uid };
+        //  Evolving registers the new species as owned.
+        if (updated.species !== found.pokemon.species) this.registerOwned(updated);
         if (found.location.where === 'party')
         {
             const party = [...this.data.party];
@@ -679,6 +702,59 @@ export class GameState
     {
         if (!(ms > 0) || !Number.isFinite(ms)) return;
         this.set({ player: { ...this.data.player, playTimeMs: this.data.player.playTimeMs + ms } });
+    }
+
+    // -------------------------------------------------------------- Pokédex
+
+    /**
+     * @brief What the Pokédex knows about a species.
+     * @param species Species ID.
+     * @return The entry; unseen and unowned if the species was never registered.
+     */
+    getPokedexEntry (species: string): PokedexEntry
+    {
+        return this.data.pokedex[species] ?? { seen: false, owned: false, languages: [] };
+    }
+
+    /**
+     * @brief Record that the player saw a species (in battle, in a cutscene).
+     * @param species Species ID.
+     */
+    markSeen (species: string): void
+    {
+        const entry = this.getPokedexEntry(species);
+        if (entry.seen) return;
+        this.set({ pokedex: { ...this.data.pokedex, [species]: { ...entry, seen: true } } });
+    }
+
+    /**
+     * @brief Record that the player owns a Pokémon: its species is seen and
+     *        owned, and its language's Pokédex entry is unlocked.
+     *
+     * `addToParty()` and evolution (`updatePokemon()` with a new species) call it.
+     * @param pokemon The Pokémon.
+     */
+    registerOwned (pokemon: Pick<SavedPokemon, 'species' | 'language'>): void
+    {
+        const entry = this.getPokedexEntry(pokemon.species);
+        if (entry.seen && entry.owned && entry.languages.includes(pokemon.language)) return;
+        const languages = entry.languages.includes(pokemon.language) ? entry.languages : [...entry.languages, pokemon.language];
+        this.set({ pokedex: { ...this.data.pokedex, [pokemon.species]: { seen: true, owned: true, languages } } });
+    }
+
+    /**
+     * @brief The languages whose Pokédex entry of a species the player has unlocked.
+     *
+     * The save's own language is always unlocked once the species is seen;
+     * every other one needs an owned Pokémon of that language.
+     * @param species Species ID.
+     * @return Language IDs, the save's first.
+     */
+    pokedexLanguages (species: string): string[]
+    {
+        const entry = this.getPokedexEntry(species);
+        if (!entry.seen) return [];
+        return [this.data.language, ...entry.languages.filter((language) => language !== this.data.language)];
     }
 
     // ------------------------------------------------------------- Dialogue

@@ -50,6 +50,7 @@
  */
 import { Teams } from '@pkmn/sim';
 import type { Battle, ID, Pokemon, PokemonSet } from '@pkmn/sim';
+import { encodeTextMessage } from '../battle/text.ts';
 import type { EvolutionMethod } from '../data/schemas/engine.ts';
 import { findEvolution } from './evolution.ts';
 import type { EvolutionContext, PendingEvolution } from './evolution.ts';
@@ -373,12 +374,12 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
                 entry.ready.push(move);
                 entry.learned.push(move);
                 addBattleMove(battle, pokemon, move);
-                say(battle, `${pokemon.name} learned ${name}!`);
+                say(battle, encodeTextMessage('battle.move.learned', { pokemon: pokemon.name, move: name }));
             }
             else
             {
                 entry.banked.push(move);
-                say(battle, `${pokemon.name} learned ${name}! It was stored in its move bank.`);
+                say(battle, encodeTextMessage('battle.move.banked', { pokemon: pokemon.name, move: name }));
             }
         }
     };
@@ -418,13 +419,13 @@ export function partyBattle (state: GameState, options: PartyBattleOptions = {})
             if (gained <= 0) continue;
             entry.exp += gained;
             entry.gained += gained;
-            say(battle, `${pokemon.name} gained ${gained} Exp. Points!`);
+            say(battle, encodeTextMessage('battle.exp.gained', { pokemon: pokemon.name, exp: gained }));
 
             const before = pokemon.level;
             const level = levelForExp(entry.growth, entry.exp);
             if (level <= before) continue;
             setBattleLevel(battle, pokemon, level);
-            say(battle, `${pokemon.name} grew to Lv. ${level}!`);
+            say(battle, encodeTextMessage('battle.exp.level', { pokemon: pokemon.name, level }));
             teach(battle, pokemon, entry, before);
         }
     };

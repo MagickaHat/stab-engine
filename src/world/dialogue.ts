@@ -36,7 +36,33 @@ export interface NameInputRequest
     prompt: string | null;
     current: string;
     max: number;
+    /**
+     * Language whose keyboard and name rules apply (src/i18n/nickname.ts):
+     * the Pokémon's language for a nickname, the game's for anything else.
+     * Default: the game's language.
+     */
+    language?: string;
+    /** Species ID when naming a Pokémon (shown next to the name). */
+    species?: string;
     submit: (name: string) => void;
+}
+
+/** @brief The New Game language menu. Call `pick(locale)` with the chosen locale. */
+export interface LanguageRequest
+{
+    /** Locale the cursor starts on (the device's language). */
+    initial: string;
+    pick: (locale: string) => void;
+}
+
+/** @brief A Pokédex entry to show. Call `done()` when the player closes it. */
+export interface PokedexEntryRequest
+{
+    /** Species ID. */
+    species: string;
+    /** Languages the player can switch between, the game's first (`GameState.pokedexLanguages()`). */
+    languages: string[];
+    done: () => void;
 }
 
 /**
@@ -103,9 +129,12 @@ export function showChoice (prompt: string | null, options: string[], cancel: nu
  * @param prompt Question, or `null`.
  * @param current Name shown at first.
  * @param max Most characters.
+ * @param options Keyboard language and the species being named.
  * @return The name typed (the current one if nothing listens).
  */
-export function showNameInput (prompt: string | null, current: string, max: number): Promise<string>
+export function showNameInput (
+    prompt: string | null, current: string, max: number, options: { language?: string; species?: string } = {},
+): Promise<string>
 {
     return new Promise((resolve) =>
     {
@@ -116,7 +145,7 @@ export function showNameInput (prompt: string | null, current: string, max: numb
         }
         let answered = false;
         EventBus.emit(GameEvents.DIALOGUE_NAME_INPUT, {
-            prompt, current, max,
+            prompt, current, max, ...options,
             submit: (name: string) =>
             {
                 if (answered) return;
@@ -124,5 +153,61 @@ export function showNameInput (prompt: string | null, current: string, max: numb
                 resolve(name.slice(0, max));
             },
         } satisfies NameInputRequest);
+    });
+}
+
+/**
+ * @brief Ask the player which language to play in (New Game).
+ *
+ * Resolves with `initial` at once if no UI is listening (tests, tools).
+ * @param initial Locale the cursor starts on.
+ * @return The chosen locale.
+ */
+export function showLanguageSelect (initial: string): Promise<string>
+{
+    return new Promise((resolve) =>
+    {
+        if (EventBus.listenerCount(GameEvents.DIALOGUE_LANGUAGE) === 0)
+        {
+            resolve(initial);
+            return;
+        }
+        let answered = false;
+        EventBus.emit(GameEvents.DIALOGUE_LANGUAGE, {
+            initial,
+            pick: (locale: string) =>
+            {
+                if (answered) return;
+                answered = true;
+                resolve(locale);
+            },
+        } satisfies LanguageRequest);
+    });
+}
+
+/**
+ * @brief Show a species' Pokédex entry and wait until the player closes it.
+ * @param species Species ID.
+ * @param languages Unlocked languages, the game's first.
+ */
+export function showPokedexEntry (species: string, languages: string[]): Promise<void>
+{
+    return new Promise((resolve) =>
+    {
+        if (EventBus.listenerCount(GameEvents.DIALOGUE_POKEDEX_ENTRY) === 0)
+        {
+            resolve();
+            return;
+        }
+        let answered = false;
+        EventBus.emit(GameEvents.DIALOGUE_POKEDEX_ENTRY, {
+            species, languages,
+            done: () =>
+            {
+                if (answered) return;
+                answered = true;
+                resolve();
+            },
+        } satisfies PokedexEntryRequest);
     });
 }

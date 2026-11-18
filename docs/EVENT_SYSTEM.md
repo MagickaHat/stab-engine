@@ -217,7 +217,9 @@ Every command is an object with `cmd`. Values marked *value* accept a number or 
 | `{ "cmd": "choice", "key": "events.x.q", "options": [{ "key": "…", "then": [...] }], "cancel": 1 }` | Ask; the picked option's commands run. `cancel`: option for the cancel button (-1: cannot cancel). The index is also stored in `choice_result`. |
 | `{ "cmd": "yesNo", "key": "events.x.q", "yes": [...], "no": [...] }` | Yes/No question. |
 | `{ "cmd": "ink", "story": "sample", "knot": "professor" }` | Run an ink story (or knot) through the same message box. |
-| `{ "cmd": "nameInput", "var": "rival_name", "key": "events.x.ask", "max": 10 }` | Ask for a name. |
+| `{ "cmd": "nameInput", "var": "rival_name", "key": "events.x.ask", "max": 10 }` | Ask for a name (the game language's keyboard and length). |
+| `{ "cmd": "nickname", "slot": 0, "key": "events.x.ask" }` | Let the player nickname a party Pokémon (default: the last one) with its own language's keyboard and rules. Says `system.cannot_nickname` if the player is not its original trainer. |
+| `{ "cmd": "pokedexEntry", "species": "pikachu" }` | Show a Pokédex entry, in every language the player has unlocked. |
 
 ### Cutscenes
 
@@ -249,7 +251,7 @@ Every command is an object with `cmd`. Values marked *value* accept a number or 
 
 | Command | Does |
 |---------|------|
-| `{ "cmd": "givePokemon", "species": "eevee", "level": 5 }` | Give a Pokémon (to the PC if the party is full). Moves and ability default to the species' level-up moves and first ability. Optional `moves`, `ability`, `nickname`, `shiny`, `item`, `nature`, `gender`, `silent`. |
+| `{ "cmd": "givePokemon", "species": "eevee", "level": 5 }` | Give a Pokémon (to the PC if the party is full). Moves and ability default to the species' level-up moves and first ability. Optional `moves`, `ability`, `nickname`, `shiny`, `item`, `nature`, `gender`, `silent`; `language` with `ot` for a Pokémon from another trainer in another language (see docs/LOCALIZATION.md §9). |
 | `{ "cmd": "removePokemon", "species": "eevee" }` | Take the first party member of that species. |
 | `{ "cmd": "heal" }` | Heal the party. |
 | `{ "cmd": "giveItem", "item": "potion", "quantity": 2 }` | Give items and say so (`silent` to skip the message). |

@@ -15,6 +15,7 @@
 import { z } from 'zod';
 import { ID, StatusID } from '../data/schemas/common.ts';
 import { ItemPocket } from '../data/schemas/engine.ts';
+import { POKEMON_LANGUAGE_IDS, UI_LOCALES } from '../i18n/languages.ts';
 
 /** @brief Largest party. */
 export const PARTY_SIZE = 6;
@@ -54,6 +55,19 @@ export type IVSpread = z.infer<typeof IVSpread>;
 /** @brief Effort values, 0 to 255 per stat. */
 export const EVSpread = statSpread(255);
 export type EVSpread = z.infer<typeof EVSpread>;
+
+/**
+ * @brief The language a Pokémon comes from (src/i18n/languages.ts), e.g. `ja` or `es-mx`.
+ *
+ * Decides its nickname rules and keyboard, unlocks Pokédex entries in that
+ * language, and triggers the Masuda method when bred with another language.
+ */
+export const PokemonLanguage = z.enum(POKEMON_LANGUAGE_IDS);
+export type PokemonLanguage = z.infer<typeof PokemonLanguage>;
+
+/** @brief A language the game can be played in. Chosen once per save. */
+export const SaveLanguage = z.enum(UI_LOCALES);
+export type SaveLanguage = z.infer<typeof SaveLanguage>;
 
 /** @brief `"M"`, `"F"`, or `"N"` for genderless. */
 export const Gender = z.enum(['M', 'F', 'N']);
@@ -117,6 +131,8 @@ export const SavedPokemon = z.object({
     teraType: z.string().min(1).optional(),
     /** Original trainer. */
     ot: z.object({ name: z.string(), id: z.number().int().min(0) }),
+    /** The language it comes from. A Pokémon the player obtains has the save's language. */
+    language: PokemonLanguage,
     /** Where and when it was obtained. `date` is an ISO 8601 string. */
     met: z.object({ map: z.string(), level: z.number().int().min(1), date: z.string() }),
 });
@@ -185,8 +201,27 @@ export type Bag = z.infer<typeof Bag>;
 export const VariableValue = z.union([z.number(), z.string()]);
 export type VariableValue = z.infer<typeof VariableValue>;
 
+/** @brief What the Pokédex knows about one species. */
+export const PokedexEntry = z.object({
+    /** The player has seen it. */
+    seen: z.boolean(),
+    /** The player has owned it. */
+    owned: z.boolean(),
+    /**
+     * Languages of the Pokémon of this species the player has owned. Each
+     * unlocks the Pokédex entry in that language (foreign Pokédex entries).
+     */
+    languages: z.array(PokemonLanguage),
+});
+export type PokedexEntry = z.infer<typeof PokedexEntry>;
+
 /** @brief Everything a save file remembers about a game. */
 export const SaveData = z.object({
+    /**
+     * The language this game is played in. Chosen on the New Game screen and
+     * never changed: no method of `GameState` sets it.
+     */
+    language: SaveLanguage,
     player: PlayerData,
     /** The party, first Pokémon first. At most `PARTY_SIZE`. */
     party: z.array(SavedPokemon).max(PARTY_SIZE),
@@ -212,6 +247,8 @@ export const SaveData = z.object({
      * `src/events/registry/story.ts`.
      */
     story: z.record(z.string(), z.string()).default({}),
+    /** The Pokédex: species ID → what is known about it. A missing species is unseen. */
+    pokedex: z.record(z.string(), PokedexEntry).default({}),
 });
 export type SaveData = z.infer<typeof SaveData>;
 
