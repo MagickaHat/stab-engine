@@ -37,7 +37,7 @@ Maps are made in [Tiled](https://www.mapeditor.org/) (`src/tiled/stab.tiled-proj
 
 ## UI
 
-The UI is built with [React](https://react.dev) and drawn as HTML on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. Components go inside `<UiLayer>`, are laid out in game pixels (the game runs at 256×192) and follow the canvas when the screen or the game resolution changes. React and the scenes talk through an event bus. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
+The UI is built with [React](https://react.dev) on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. React and Phaser never touch each other: scenes publish plain data on a typed event bus (`src/bus/EventBus.ts`) and React reads it from small stores (`useUiStore()`, `useGameState()`, `useBattle()`). The game and the UI are scaled by whole device pixels only, so everything stays pixel perfect. Windows are drawn from the imported Essentials windowskins as tiled nine-slices (any size, no stretched pixels) and all text uses the FRLG pixel font, drawn into canvases so it cannot be selected or copied. The FRLG-style message box (typewriter, two-line pages, pause arrow, speaker name box), choice window and name entry are ready, with UI sound cues. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
 
 ## Input
 
@@ -100,12 +100,13 @@ We have provided a default project structure to get you started:
 | `public/style.css`           | Global layout styles.                                      |
 | `src/main.tsx`               | Application bootstrap: mounts the React app.               |
 | `src/App.tsx`                | Root React component: the game plus the UI layer.          |
-| `src/PhaserGame.tsx`         | React component that creates the Phaser game.              |
-| `src/ui`                     | React UI layer. See `docs/UI_SYSTEM.md`.                   |
+| `src/PhaserGame.tsx`         | React component that creates and destroys the Phaser game. |
+| `src/ui`                     | React UI layer: stores, windowskins, pixel text, dialogue windows. See `docs/UI_SYSTEM.md`. |
+| `src/bus`                    | Typed event bus shared by Phaser and React.                |
 | `src/game`                   | Folder containing the game code.                           |
 | `src/game/main.ts`           | Game entry point: configures and starts the game.          |
 | `src/game/config.ts`         | Game resolution (256×192).                                 |
-| `src/game/EventBus.ts`       | Events between React and Phaser.                           |
+| `src/game/EventBus.ts`       | Re-export of the event bus (`src/bus`) for game code.      |
 | `src/game/scenes`            | Folder with all Phaser game scenes.                        |
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |

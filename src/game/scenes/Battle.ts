@@ -54,6 +54,7 @@ import { loadPbs } from '../../data';
 import type { PbsData } from '../../data';
 import { isFainted, partyBattle, requireGameState } from '../../state';
 import type { PartyBattle } from '../../state';
+import { announceScene } from '../announceScene';
 import { EventBus, GameEvents } from '../EventBus';
 
 /** @brief Key of the battle scene, for `this.scene.start()`. */
@@ -242,7 +243,7 @@ export class Battle extends Scene
 
         setActiveBattle(bridge);
         EventBus.emit(GameEvents.BATTLE_START, bridge);
-        EventBus.emit(GameEvents.SCENE_READY, this);
+        announceScene(this);
 
         bridge.start();
     }

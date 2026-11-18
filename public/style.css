@@ -3,9 +3,14 @@ body {
     margin: 0;
     padding: 0;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #0f0f0f;
+    /* The border around the game (it is scaled by whole pixels only, see src/game/viewport.ts). */
+    background-color: #000000;
     /* Stop pull-to-refresh and rubber-band scrolling in mobile browsers and WebViews. */
     overscroll-behavior: none;
+    /* Nothing on the page can be selected, long-pressed or dragged (see src/ui/noCopy.ts). */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 #app,
@@ -17,4 +22,4 @@ body {
     overflow: hidden;
 }
 
-/* No centering here: Phaser centers the canvas itself (Scale.CENTER_BOTH). */
+/* No centering here: src/game/viewport.ts centres the canvas on a whole device pixel. */

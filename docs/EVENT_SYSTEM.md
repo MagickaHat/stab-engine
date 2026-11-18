@@ -74,7 +74,7 @@ working in Android WebViews and stores that forbid dynamic code.
 | `src/events/registry/` | Code registries: flags, variables, story milestones, emotes, natives. |
 | `src/world/` | Overworld helpers: `Character`, map/tileset loading, dialogue requests, ink runner. |
 | `src/game/scenes/Overworld.ts` | The overworld scene (the `WorldHost`). |
-| `src/ui/EventDialogue.tsx` | Message box, choices and name entry (React). |
+| `src/ui/EventDialogue.tsx` | Shows messages, choices and name entry with the dialogue windows in `src/ui/dialogue/` (React, see `docs/UI_SYSTEM.md`). |
 | `vite/plugins/events.mjs` | Compiles the event files into `virtual:stab-events`. |
 | `content/events/` | Event files (scripts, common events, listeners, hooks). `schema.json` is generated. |
 | `content/trainers/` | Trainer files (same format, usually only `trainers`). |

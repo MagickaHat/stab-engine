@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { announceScene } from '../announceScene';
 import { EventBus, GameEvents } from '../EventBus';
 import { OVERWORLD_SCENE_KEY } from './Overworld';
 import type { OverworldData } from './Overworld';
@@ -48,8 +49,8 @@ export class Game extends Scene
         EventBus.on(GameEvents.UI_SHAKE, this.shake, this);
         this.events.once('shutdown', () => EventBus.off(GameEvents.UI_SHAKE, this.shake, this));
 
-        // Phaser → React: tell the UI which scene is now active.
-        EventBus.emit(GameEvents.SCENE_READY, this);
+        // Phaser → React: tell the UI which scene is now active (as plain data).
+        announceScene(this);
     }
 
     /**
