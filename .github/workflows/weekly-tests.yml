@@ -107,6 +107,7 @@ jobs:
 
       - name: Smoke test in Chrome on Android
         uses: reactivecircus/android-emulator-runner@v2.33.0
+        timeout-minutes: 20
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis

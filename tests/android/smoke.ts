@@ -15,6 +15,7 @@ import {spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {_android} from '@playwright/test';
+import type {AndroidDevice, BrowserContext, Page} from '@playwright/test';
 
 /** @brief Port the build is served on, on this machine and on the device. */
 const PORT = 4173;
@@ -22,6 +23,8 @@ const PORT = 4173;
 const FIRST_SCENE = 'Game';
 /** @brief Chrome's package name. */
 const CHROME = 'com.android.chrome';
+/** @brief The whole test fails after this long (ms), rather than hang the CI job. */
+const WATCHDOG_MS = 5 * 60_000;
 /** @brief Where the screenshot goes. */
 const SCREENSHOT = path.join('test-results', 'android-smoke.png');
 
@@ -37,6 +40,59 @@ function adb(...args: string[]): string
     if (result.error) throw result.error;
     if (result.status !== 0) throw new Error(`adb ${args.join(' ')} failed:\n${result.stderr}`);
     return result.stdout;
+}
+
+/**
+ * @brief Start Chrome and get a tab, trying twice.
+ *
+ * Chrome opens with a tab of its own; using it avoids `newPage()`, which
+ * sometimes fails on Android while Chrome is still starting.
+ *
+ * @param device The device.
+ * @return The browser and its tab.
+ */
+async function openPage(device: AndroidDevice): Promise<{ context: BrowserContext; page: Page }>
+{
+    for (let attempt = 1;; attempt++)
+    {
+        await device.shell(`am force-stop ${CHROME}`);
+        const context = await device.launchBrowser();
+        try
+        {
+            const page = context.pages()[0] ?? await context.waitForEvent('page', { timeout: 15_000 });
+            return { context, page };
+        }
+        catch (error)
+        {
+            await context.close().catch(() => {});
+            if (attempt >= 2) throw error;
+            console.log(`Could not get a Chrome tab (${String(error)}); trying again.`);
+        }
+    }
+}
+
+/**
+ * @brief Load the game, wait for the first scene and tap it.
+ * @param page Chrome's tab.
+ * @return Why the test failed, or null.
+ */
+async function playGame(page: Page): Promise<string|null>
+{
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => console.log(`[console.${message.type()}] ${message.text()}`));
+
+    console.log(`Browser: ${await page.evaluate(() => navigator.userAgent)}`);
+    await page.goto(`http://localhost:${PORT}/`);
+    await page.waitForSelector(`canvas[data-scene="${FIRST_SCENE}"]`, { state: 'visible', timeout: 90_000 });
+    //  A real touch in the middle of the screen (the A button). Playwright's
+    //  page.tap() needs touch emulation, which Chrome on Android does not take.
+    const [width, height] = adb('shell', 'wm', 'size').match(/(\d+)x(\d+)/)!.slice(1).map(Number);
+    const x = Math.round(Math.max(width!, height!) / 2);
+    const y = Math.round(Math.min(width!, height!) / 2);
+    adb('shell', 'input', 'tap', String(x), String(y));
+    await page.waitForTimeout(1000);
+    return errors.length > 0 ? `Page errors:\n${errors.join('\n')}` : null;
 }
 
 /**
@@ -60,27 +116,14 @@ async function main(): Promise<number>
     const [device] = await _android.devices();
     if (!device) throw new Error('No Android device found.');
     console.log(`Device: ${device.model()} (${device.serial()})`);
-    await device.shell(`am force-stop ${CHROME}`);
-
-    const context = await device.launchBrowser();
-    const page = await context.newPage();
-    const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
-    page.on('console', (message) => console.log(`[console.${message.type()}] ${message.text()}`));
 
     let failure: string|null = null;
+    let context: BrowserContext|undefined;
     try
     {
-        console.log(`Browser: ${await page.evaluate(() => navigator.userAgent)}`);
-        await page.goto(`http://localhost:${PORT}/`);
-        await page.waitForSelector(`canvas[data-scene="${FIRST_SCENE}"]`, { state: 'visible', timeout: 90_000 });
-        //  A real touch in the middle of the screen (the A button). Playwright's
-        //  page.tap() needs touch emulation, which Chrome on Android does not take.
-        const [width, height] = adb('shell', 'wm', 'size').match(/(\d+)x(\d+)/)!.slice(1).map(Number);
-        await device.input.tap(
-            { x: Math.round(Math.max(width!, height!) / 2), y: Math.round(Math.min(width!, height!) / 2) });
-        await page.waitForTimeout(1000);
-        if (errors.length > 0) failure = `Page errors:\n${errors.join('\n')}`;
+        const opened = await openPage(device);
+        context = opened.context;
+        failure = await playGame(opened.page);
     }
     catch (error)
     {
@@ -88,10 +131,17 @@ async function main(): Promise<number>
     }
     finally
     {
-        fs.mkdirSync(path.dirname(SCREENSHOT), { recursive: true });
-        fs.writeFileSync(SCREENSHOT, await device.screenshot());
-        await context.close();
-        await device.close();
+        try
+        {
+            fs.mkdirSync(path.dirname(SCREENSHOT), { recursive: true });
+            fs.writeFileSync(SCREENSHOT, await device.screenshot());
+        }
+        catch (error)
+        {
+            console.error(`No screenshot: ${String(error)}`);
+        }
+        await context?.close().catch(() => {});
+        await device.close().catch(() => {});
     }
 
     if (failure)
@@ -103,12 +153,19 @@ async function main(): Promise<number>
     return 0;
 }
 
+const watchdog = setTimeout(() => {
+    console.error(`Android smoke test failed: no result after ${WATCHDOG_MS / 1000} s.`);
+    process.exit(1);
+}, WATCHDOG_MS);
+
+//  Exit explicitly: a lost adb connection can keep Node running.
 main().then(
     (code) => {
-        process.exitCode = code;
+        clearTimeout(watchdog);
+        process.exit(code);
     },
     (error) => {
         console.error(error);
-        process.exitCode = 1;
+        process.exit(1);
     },
 );
