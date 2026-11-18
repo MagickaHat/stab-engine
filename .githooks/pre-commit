@@ -1,5 +1,5 @@
 #!/bin/sh
-# Formats the staged JSON, JavaScript, TypeScript and Java lines with
+# Formats the staged JSON, JavaScript, and TypeScript with
 # clang-format before each commit (see tools/format/README.md).
 # Installed by `npm install` (git config core.hooksPath .githooks).
 # Skip it once with `git commit --no-verify`.

@@ -40,16 +40,6 @@ JavaScriptWrapImports: false
 SortIncludes: Never
 ReflowComments: false
 ---
-Language: Java
-BasedOnStyle: Google
-IndentWidth: 4
-ContinuationIndentWidth: 8
-TabWidth: 4
-UseTab: Never
-ColumnLimit: 120
-BreakBeforeBraces: Allman
-SortIncludes: Never
----
 Language: Json
 BasedOnStyle: LLVM
 IndentWidth: 4
