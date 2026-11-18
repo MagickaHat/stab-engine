@@ -74,5 +74,5 @@ export { NameEntry } from './dialogue/NameEntry';
 export type { NameEntryProps } from './dialogue/NameEntry';
 export { TEXT_SPEED_CPS, useTicker, useTypewriter } from './dialogue/textSpeed';
 export type { Typewriter } from './dialogue/textSpeed';
-export { choiceBox, messageBox, nameBox, CHOICE_MARGIN_RIGHT, MESSAGE_HEIGHT, MESSAGE_LINES, NAME_BOX_INDENT } from './dialogue/layout';
+export { choiceBox, messageBox, nameBox, CHOICE_GAP, CHOICE_MARGIN_RIGHT, MESSAGE_HEIGHT, MESSAGE_LINES, NAME_BOX_INDENT } from './dialogue/layout';
 export type { Box } from './dialogue/layout';

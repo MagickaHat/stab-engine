@@ -375,7 +375,7 @@ shows the windows in `src/ui/dialogue/`. They can also be used on their own.
   second, or `instant`; `TEXT_SPEED_CPS` in `src/ui/dialogue/textSpeed.ts`). Change it
   with `setTextSpeed('fast')` (sends `TEXT_SPEED_CHANGED`);
 - A or B while typing shows the page at once; when the page is done the **pause arrow**
-  (`pause_arrow.png`, four 10×14 frames) bounces after the text, and A, B or a tap plays
+  (`pause_arrow.png`, four 10×14 frames) bounces in the bottom-right corner of the box, and A, B or a tap plays
   the `select` blip and goes on;
 - with `waitForInput={false}` the last page stays up without an arrow and `onTyped` fires
   when it is typed — used for a question followed by a choice.
@@ -385,7 +385,7 @@ the same skin, sized to the name, sitting slightly above the left-hand side of t
 box (`nameBox()` and `NAME_BOX_INDENT` in `src/ui/dialogue/layout.ts`).
 
 **`<ChoiceWindow options onPick cancel? initial? x? y? skin?>`** — a `choice_1` window
-sized to the widest option, right-aligned on top of the message box, with the `sel_arrow`
+sized to the widest option, right-aligned a few pixels above the message box (`CHOICE_GAP`), with the `sel_arrow`
 cursor. Up/down move (wrapping, `cursor` sound), A picks (`select`), B picks `cancel` if
 allowed (`cancel` sound), a tap picks an option.
 

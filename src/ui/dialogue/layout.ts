@@ -15,6 +15,9 @@ export const MESSAGE_LINES = 2;
 /** @brief Gap between the right edge of the screen and the choice window. */
 export const CHOICE_MARGIN_RIGHT = 4;
 
+/** @brief Gap between the choice window and the top of the message box, in game pixels. */
+export const CHOICE_GAP = 4;
+
 /** @brief How far the speaker name box sits in from the message box's left edge. */
 export const NAME_BOX_INDENT = 4;
 
@@ -56,7 +59,7 @@ export function nameBox (message: Box, width: number, height: number): Box
 }
 
 /**
- * @brief The choice window: right-aligned, sitting on top of the message box.
+ * @brief The choice window: right-aligned, `CHOICE_GAP` pixels above the message box.
  * @param message The message box.
  * @param gameWidth Game width.
  * @param width Width of the choice window.
@@ -65,5 +68,5 @@ export function nameBox (message: Box, width: number, height: number): Box
  */
 export function choiceBox (message: Box, gameWidth: number, width: number, height: number): Box
 {
-    return { x: gameWidth - CHOICE_MARGIN_RIGHT - width, y: message.y + 4 - height, width, height };
+    return { x: gameWidth - CHOICE_MARGIN_RIGHT - width, y: message.y + 4 - height - CHOICE_GAP, width, height };
 }

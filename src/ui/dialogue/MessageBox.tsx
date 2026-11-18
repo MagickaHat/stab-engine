@@ -11,7 +11,7 @@ import { useInputPress } from '../useInput';
 import { DEFAULT_SKINS, getSkin } from '../skins/skins';
 import { playUiSound } from '../sounds';
 import { useGameSize, useUiStore } from '../store/uiStore';
-import { pageLength, textWidth } from '../text/layout';
+import { pageLength } from '../text/layout';
 import { usePixelFont, useTextPages } from '../text/usePixelText';
 import { messageBox, MESSAGE_LINES } from './layout';
 import { NameBox } from './NameBox';
@@ -63,10 +63,10 @@ export function MessageBox ({ text, speaker, waitForInput = true, onDone, onType
 {
     const { width: gameWidth, height: gameHeight } = useGameSize();
     const speed = useUiStore((ui) => ui.textSpeed);
-    const { font, advance, ready } = usePixelFont(fontId);
+    const { ready } = usePixelFont(fontId);
     const frame = getSkin(skin);
     const box = messageBox(gameWidth, gameHeight);
-    //  Lines leave room for the pause arrow after them, as on the GBA.
+    //  Lines stop short of the pause arrow's column, so text never runs under it.
     const innerWidth = box.width - frame.padding.left - frame.padding.right - PAUSE_ARROW.width - 2;
     const pages = useTextPages(text, innerWidth, MESSAGE_LINES, fontId);
 
@@ -108,10 +108,9 @@ export function MessageBox ({ text, speaker, waitForInput = true, onDone, onType
         return true;
     }, takesInput);
 
-    //  Pause arrow: just after the end of the page's last line.
-    const lastLine = lines.length - 1;
-    const arrowX = frame.padding.left + (ready && lastLine >= 0 ? textWidth(lines[lastLine], advance) : 0) + 2;
-    const arrowY = frame.padding.top + Math.max(0, lastLine) * font.lineHeight + 1;
+    //  Pause arrow: always in the bottom-right corner of the box, inside the skin's padding.
+    const arrowX = box.width - frame.padding.right - PAUSE_ARROW.width;
+    const arrowY = box.height - frame.padding.bottom - PAUSE_ARROW.height - 1;
 
     return (
         <>
