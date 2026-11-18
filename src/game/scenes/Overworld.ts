@@ -49,7 +49,10 @@ import { showChoice, showMessage, showNameInput } from '../../world/dialogue';
 import { runInk } from '../../world/ink';
 import { loadMapAssets } from '../../world/maps';
 import { loadText } from '../../world/text';
+import { announceScene } from '../announceScene';
 import { EventBus, GameEvents } from '../EventBus';
+import type { UiModalInfo } from '../EventBus';
+import { isUiModalOpen } from '../uiModal';
 import { BATTLE_SCENE_KEY } from './Battle';
 import type { BattleResultData, BattleSceneData } from './Battle';
 
@@ -109,6 +112,8 @@ export class Overworld extends Scene implements WorldHost
     private readonly nextMove = new Map<number, number>();
     private readonly onRoute = new Set<number>();
     private playerControl = true;
+    /** @brief A menu or message of the React UI has the player's input (`GameEvents.UI_MODAL_CHANGED`). */
+    private uiModalOpen = false;
     private changingMap = false;
     private cameraFollows = true;
     private actionLocked = false;
@@ -138,9 +143,13 @@ export class Overworld extends Scene implements WorldHost
         this.cameras.main.setRoundPixels(true);
 
         let left = false;
+        const onModal = ({ open }: UiModalInfo) => { this.uiModalOpen = open; };
+        this.uiModalOpen = isUiModalOpen();
+        EventBus.on(GameEvents.UI_MODAL_CHANGED, onModal);
         this.events.once('shutdown', () =>
         {
             left = true;
+            EventBus.off(GameEvents.UI_MODAL_CHANGED, onModal);
             this.eventManager?.dispose();
             this.bgm?.sound.stop();
         });
@@ -148,7 +157,7 @@ export class Overworld extends Scene implements WorldHost
         {
             if (left) return;
             this.ready = true;
-            EventBus.emit(GameEvents.SCENE_READY, this);
+            announceScene(this);
         }).catch((error) => console.error('[overworld] could not start:', error));
     }
 
@@ -375,13 +384,13 @@ export class Overworld extends Scene implements WorldHost
         //  script, the action button only counts once it has been let go. (The dialogue UI also
         //  consumes the presses it handles.)
         let action = input.justPressed('a');
-        if (this.eventManager.busy) this.actionLocked = true;
+        if (this.eventManager.busy || this.uiModalOpen) this.actionLocked = true;
         else if (!input.isDown('a')) this.actionLocked = false;
         if (this.actionLocked) action = false;
         this.eventManager.update();
         this.moveEvents(delta);
         this.followPlayer();
-        if (this.eventManager.busy || !this.playerControl || this.hero.moving) return;
+        if (this.eventManager.busy || this.uiModalOpen || !this.playerControl || this.hero.moving) return;
 
         if (action && this.eventManager.playerAction()) return;
         const dir: Direction | null = input.direction();

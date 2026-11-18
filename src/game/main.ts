@@ -2,6 +2,8 @@ import { Battle } from './scenes/Battle';
 import { Game as MainGame } from './scenes/Game';
 import { Overworld } from './scenes/Overworld';
 import { AUTO, Core, Game, Scale, Types } from 'phaser';
+import { attachUiSounds } from './uiSounds';
+import { attachPixelScale } from './viewport';
 import { GAME_HEIGHT, GAME_WIDTH } from './config';
 import { EventBus, GameEvents } from './EventBus';
 import { input } from '../input';
@@ -21,9 +23,10 @@ const config: Types.Core.GameConfig = {
         keyboard: false,
         gamepad: false,
     },
+    //  Scaled by whole device pixels only, so pixels stay square and sharp (see src/game/viewport.ts).
     scale: {
-        mode: Scale.FIT,
-        autoCenter: Scale.CENTER_BOTH
+        mode: Scale.NONE,
+        autoCenter: Scale.NO_CENTER
     },
     //  The first scene starts by itself. `Battle` is started with a team (see scenes/Battle.ts),
     //  `Overworld` with a map (see scenes/Overworld.ts).
@@ -33,38 +36,6 @@ const config: Types.Core.GameConfig = {
         Battle
     ]
 };
-
-/**
- * @brief Makes the game re-fit its container after the screen changes.
- *
- * Phaser 4.0.0 can keep the old canvas size after a phone is rotated: its
- * orientation handler refreshes before the page has its new size, and the
- * later check then sees nothing left to do. Asking for one more refresh on
- * the next frame fixes it. The listeners are removed when the game is destroyed.
- *
- * @param game The running game.
- */
-function keepFitted (game: Game): void
-{
-    let frame = 0;
-    const refit = () =>
-    {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => game.scale?.refresh());
-    };
-
-    window.addEventListener('resize', refit);
-    window.addEventListener('orientationchange', refit);
-    screen.orientation?.addEventListener('change', refit);
-
-    game.events.once(Core.Events.DESTROY, () =>
-    {
-        cancelAnimationFrame(frame);
-        window.removeEventListener('resize', refit);
-        window.removeEventListener('orientationchange', refit);
-        screen.orientation?.removeEventListener('change', refit);
-    });
-}
 
 /**
  * @brief Connects the input system (src/input) to the game.
@@ -99,9 +70,10 @@ function connectInput (game: Game, container: HTMLElement): void
  */
 const StartGame = (parent: string | HTMLElement) => {
     const game = new Game({ ...config, parent });
-    keepFitted(game);
-    const container = typeof parent === 'string' ? document.getElementById(parent) : parent;
-    connectInput(game, container ?? document.body);
+    const container = (typeof parent === 'string' ? document.getElementById(parent) : parent) ?? document.body;
+    attachPixelScale(game, container);
+    attachUiSounds(game);
+    connectInput(game, container);
     return game;
 }
 

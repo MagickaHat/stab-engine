@@ -3,34 +3,36 @@
  * @brief Root React component: the game with the UI layer on top.
  */
 import { useEffect } from 'react';
-import { PhaserGame, useCurrentScene } from './PhaserGame';
-import { EventBus, GameEvents } from './game/EventBus';
-import { EventDialogue, lockLandscape, RotateDevicePrompt, UiLayer, VirtualPad } from './ui';
+import { PhaserGame } from './PhaserGame';
+import { EventBus, GameEvents } from './bus/EventBus';
+import { EventDialogue, lockLandscape, PixelText, RotateDevicePrompt, UiAssetGate, UiLayer, useUiStore, VirtualPad, Window } from './ui';
 
 /**
  * @brief Sample HUD showing both directions of React ↔ Phaser communication.
  *
- * The label shows the active scene (Phaser → React) and the button asks the
- * scene to shake the camera (React → Phaser). Replace it with real UI.
+ * Only shown by `npm run dev`. The label shows the active scene, published by
+ * the scene as plain data (Phaser → bus → UI store → React), and the button
+ * asks the scene to shake the camera (React → bus → Phaser). Replace it with real UI.
  *
  * @return The HUD elements.
  */
 function SampleHud ()
 {
-    const scene = useCurrentScene();
+    const sceneKey = useUiStore((ui) => ui.sceneKey);
+    const busy = useUiStore((ui) => ui.modalCount > 0);
+    if (busy) return null;
 
     return (
         <>
-            <div className="sample-hud-label">
-                Scene: {scene ? scene.scene.key : '...'}
-            </div>
-            <button
-                type="button"
-                className="sample-hud-button ui-interactive"
-                onClick={() => EventBus.emit(GameEvents.UI_SHAKE)}
+            <Window skin="choice_1" x={2} y={2} width={80} height={30}>
+                <PixelText text={sceneKey ?? '...'} skin="choice_1" x={-6} />
+            </Window>
+            <Window
+                skin="choice_1" x={196} y={160} width={58} height={30} interactive
+                onPointerDown={(event) => { if (event.button === 0) EventBus.emit(GameEvents.UI_SHAKE); }}
             >
-                Shake
-            </button>
+                <PixelText text="SHAKE" skin="choice_1" x={-6} />
+            </Window>
         </>
     );
 }
@@ -47,8 +49,10 @@ export default function App ()
     return (
         <PhaserGame>
             <UiLayer>
-                <SampleHud />
-                <EventDialogue />
+                <UiAssetGate>
+                    {import.meta.env.DEV && <SampleHud />}
+                    <EventDialogue />
+                </UiAssetGate>
                 <VirtualPad />
             </UiLayer>
             <RotateDevicePrompt />

@@ -4,7 +4,7 @@
  *
  * This is the only place the resolution is written down. Scenes should read
  * the current size from `this.scale.width` / `this.scale.height`, and the
- * React UI reads it from the Scale Manager (see src/ui/useGameViewport.ts),
+ * React UI gets it from `GameEvents.VIEWPORT_CHANGED` (see src/game/viewport.ts),
  * so changing these two numbers is enough to change the resolution.
  */
 
