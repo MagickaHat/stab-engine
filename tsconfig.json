@@ -36,5 +36,9 @@
         "tools",
         "tests",
         "playwright.config.ts"
+    ],
+    /* Tiled tilesets saved as XML use .tsx too; they are not TypeScript. */
+    "exclude": [
+        "src/tiled/**/*.tsx"
     ]
 }

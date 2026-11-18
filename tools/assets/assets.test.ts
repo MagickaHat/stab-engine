@@ -395,7 +395,10 @@ test('plan: graphics copies Graphics/ into img/ with engine names, minus exclude
             'img/windowskins/choice_1.png',
         ]);
         assert.deepEqual(plan.report.skipped, ['Graphics/Titles/notes.txt']);
-        assert.equal(plan.report.duplicates.length, 1, 'Title.png and title.png share a name');
+        //  On a case-insensitive file system (Windows, macOS) Title.png replaced title.png, so there is no duplicate.
+        const caseSensitive = fs.readdirSync(path.join(packDir, 'Graphics/Titles')).includes('Title.png')
+            && fs.readdirSync(path.join(packDir, 'Graphics/Titles')).includes('title.png');
+        assert.equal(plan.report.duplicates.length, caseSensitive ? 1 : 0, 'Title.png and title.png share a name');
         assert.ok(plan.report.excluded.includes('Graphics/Tilesets (1 file)'));
         assert.deepEqual(plan.files.find((f) => f.dest === 'img/battle_animations/ring.png')?.image, { divide: 2, filter: 'auto' });
         assert.ok(plan.kinds.has('ui') && plan.kinds.has('characters') && !plan.kinds.has('tilesets'), 'excluded folders are not offered as kinds');

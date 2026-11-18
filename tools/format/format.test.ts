@@ -47,7 +47,7 @@ test('isFormattable checks extensions and ignore globs', () => {
     assert.equal(isFormattable('src/game/main.ts', ignore), true);
     assert.equal(isFormattable('vite/plugins/ink.mjs', ignore), true);
     assert.equal(isFormattable('content/events/sample.json', ignore), true);
-    assert.equal(isFormattable('android/app/src/Main.java', ignore), true);
+    assert.equal(isFormattable('android/app/src/Main.java', ignore), false);
     assert.equal(isFormattable('src/App.tsx', ignore), false);
     assert.equal(isFormattable('README.md', ignore), false);
     assert.equal(isFormattable('content/animations/moves/tackle.json', ignore), false);

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 import { patternRect } from '../../src/battle/animation/format.ts';
 import { convertCel, convertFrame, formatAnimation, placeAnimation } from './convert.ts';
 import type { NameResolver } from './convert.ts';
@@ -17,7 +18,7 @@ import { convertFile, packResolver } from './import.ts';
 import type { Report } from './import.ts';
 import { RubyObject, readMarshal, rgssColor } from './marshal.ts';
 
-const SAMPLE = path.join(path.dirname(new URL(import.meta.url).pathname), 'fixtures/sample.rxdata');
+const SAMPLE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures/sample.rxdata');
 
 /** @brief Resolver that knows every name and lower-cases it. */
 const names: NameResolver = {

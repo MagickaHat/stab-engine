@@ -1,6 +1,6 @@
 /**
  * @file clang-format.ts
- * @brief Runs clang-format on JSON, JavaScript, TypeScript and Java files.
+ * @brief Runs clang-format on JSON, JavaScript and TypeScript files.
  *
  * Usage:
  * - `node tools/format/clang-format.ts --staged`: what the pre-commit hook
@@ -46,7 +46,6 @@ const EXTENSIONS: Readonly<Record<string, { lines: boolean }>> = {
     '.ts': { lines: true },
     '.mts': { lines: true },
     '.cts': { lines: true },
-    '.java': { lines: true },
     //  clang-format always lays out a whole JSON document, whatever `--lines` says.
     '.json': { lines: false },
 };

@@ -1,6 +1,6 @@
 # clang-format
 
-JSON, JavaScript, TypeScript and Java files are formatted with
+JSON, JavaScript and TypeScript files are formatted with
 [clang-format](https://clang.llvm.org/docs/ClangFormat.html) when they are
 committed. Settings are in `.clang-format`; `.clang-format-ignore` lists
 files left alone (files written by tools, build output).
@@ -16,7 +16,7 @@ Before each commit, `.githooks/pre-commit` runs
 `node tools/format/clang-format.ts --staged`, which:
 
 - formats only the **lines the commit changes** in `.js`, `.mjs`, `.cjs`,
-  `.ts`, `.mts`, `.cts` and `.java` files, so untouched code keeps its layout;
+  `.ts`, `.mts` and `.cts` files, so untouched code keeps its layout;
 - formats **whole** `.json` files (clang-format always lays out a whole JSON
   document);
 - stages the result. In a file that also has unstaged changes, those are

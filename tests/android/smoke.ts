@@ -74,8 +74,11 @@ async function main(): Promise<number>
         console.log(`Browser: ${await page.evaluate(() => navigator.userAgent)}`);
         await page.goto(`http://localhost:${PORT}/`);
         await page.waitForSelector(`canvas[data-scene="${FIRST_SCENE}"]`, { state: 'visible', timeout: 90_000 });
-        //  A tap is the A button.
-        await page.locator('canvas').first().tap();
+        //  A real touch in the middle of the screen (the A button). Playwright's
+        //  page.tap() needs touch emulation, which Chrome on Android does not take.
+        const [width, height] = adb('shell', 'wm', 'size').match(/(\d+)x(\d+)/)!.slice(1).map(Number);
+        await device.input.tap(
+            { x: Math.round(Math.max(width!, height!) / 2), y: Math.round(Math.min(width!, height!) / 2) });
         await page.waitForTimeout(1000);
         if (errors.length > 0) failure = `Page errors:\n${errors.join('\n')}`;
     }
