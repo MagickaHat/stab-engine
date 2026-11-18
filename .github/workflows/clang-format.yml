@@ -1,9 +1,15 @@
 name: Code Formatting
 
+# Checks that the lines changed by a push or pull request are formatted with
+# clang-format (see tools/format/README.md). Existing code is not checked.
+
 on:
   push:
     branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   clang-format:
@@ -11,15 +17,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # The whole history, so the lines changed since the base can be found.
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # The tools in tools/ are TypeScript run directly by Node, which needs Node 22.
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Check formatting
+        env:
+          # Pull requests: the target branch. Pushes: the commit before the push.
+          FORMAT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
         run: npm run format:check

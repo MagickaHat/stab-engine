@@ -1,2 +1,18 @@
+# Files clang-format (and the pre-commit hook) leave alone.
+# One glob per line, relative to the repository root. A pattern without a
+# slash (or with only a trailing one) matches at any depth; a trailing slash
+# matches a whole folder.
+
+# Dependencies, caches and build output.
 node_modules/
 .cache/
+dist/
+
+# Written by tools; rerun the tool instead of formatting them.
+package.json
+package-lock.json
+public/assets/manifest.json
+content/animations/**
+content/pbs/generated/**
+content/pbs/schemas/**
+content/events/schema.json

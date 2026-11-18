@@ -1,0 +1,128 @@
+# Weekly tests on desktop (Windows, macOS, Linux browsers) and Android
+# (Chrome on an Android emulator). Also runs on demand from the Actions tab
+# ("Run workflow"). See tests/README.md.
+name: Weekly tests
+
+on:
+  schedule:
+    # Mondays at 06:17 UTC.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Validate game data, events and locales
+        run: |
+          npm run pbs:validate
+          npm run events:validate
+          npm run locales:validate
+
+      - name: Production build
+        run: npm run build-nolog
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Smoke test in Chromium, Firefox and WebKit
+        run: npm run test:desktop
+
+      - name: Upload the test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-report-${{ matrix.os }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  android:
+    name: Android (emulator, API ${{ matrix.api-level }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [34]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build-nolog
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Serve the build
+        run: |
+          nohup npx vite preview --config vite/config.prod.mjs --port 4173 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log
+          exit 1
+
+      - name: Smoke test in Chrome on Android
+        uses: reactivecircus/android-emulator-runner@v2.33.0
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: npm run test:android
+
+      - name: Upload the screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-api-${{ matrix.api-level }}
+          path: |
+            test-results/
+            preview.log
+          retention-days: 14
+          if-no-files-found: ignore

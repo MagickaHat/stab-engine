@@ -76,6 +76,10 @@ The rest of an Essentials project's graphics (tilesets, characters, UI…) come 
 | `npm run events:schema` | Regenerate `content/events/schema.json` for editor autocompletion |
 | `npm run events:new -- <id> [file]` | Add an empty event script to `content/events/<file>.json` |
 | `npm test` | Run the unit tests (tools, battle bridge, game state, events, input) |
+| `npm run test:desktop` | Smoke test the production build in Chromium, Firefox and WebKit (see `tests/README.md`) |
+| `npm run test:android` | Smoke test the production build in Chrome on an Android device or emulator (see `tests/README.md`) |
+| `npm run format -- <files>` | Format files with clang-format (commits are formatted automatically, see `tools/format/README.md`) |
+| `npm run format:check` | List files whose changed lines are not formatted with clang-format |
 
 ## Writing Code
 
@@ -84,6 +88,10 @@ After cloning the repo, run `npm install` from your project directory. Then, you
 The local development server runs on `http://localhost:8080` by default. Please see the Vite documentation if you wish to change this, or add SSL support.
 
 Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
+
+`npm install` also installs a Git pre-commit hook that formats the JSON, JavaScript, TypeScript and Java lines you commit with clang-format (`.clang-format`). See **[tools/format/README.md](tools/format/README.md)**.
+
+Tests run every week on Windows, macOS and Linux browsers and on an Android emulator (`.github/workflows/weekly-tests.yml`). See **[tests/README.md](tests/README.md)**.
 
 ## Template Project Structure
 

@@ -26,11 +26,15 @@
         /* @pkmn/mods subpaths (e.g. '@pkmn/mods/gen7letsgo') ship typings that
            its package.json "exports" doesn't point to, so map them here. */
         "paths": {
-            "@pkmn/mods/*": ["./node_modules/@pkmn/mods/build/*"]
+            "@pkmn/mods/*": [
+                "./node_modules/@pkmn/mods/build/*"
+            ]
         }
     },
     "include": [
         "src",
-        "tools"
+        "tools",
+        "tests",
+        "playwright.config.ts"
     ]
 }

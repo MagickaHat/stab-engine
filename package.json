@@ -37,13 +37,20 @@
     "locales:import": "node tools/locales/import.ts",
     "locales:ink-ids": "node tools/locales/inkIds.ts",
     "locales:graphics": "node tools/locales/graphics.ts",
-    "test": "node --test \"tools/**/*.test.ts\" \"src/**/*.test.ts\""
+    "test": "node --test \"tools/**/*.test.ts\" \"src/**/*.test.ts\"",
+    "test:desktop": "playwright test",
+    "test:android": "node tests/android/smoke.ts",
+    "format": "node tools/format/clang-format.ts",
+    "format:check": "node tools/format/clang-format.ts --check --changed",
+    "prepare": "node tools/format/install-hook.ts"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "clang-format-node": "4.0.4",
     "typescript": "~5.7.2",
     "vite": "^6.3.1"
   },

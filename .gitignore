@@ -37,3 +37,6 @@ dist/
 
 # Tiled
 *.tiled-session
+# Playwright (tests/e2e, tests/android)
+test-results/
+playwright-report/

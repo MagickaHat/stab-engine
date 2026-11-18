@@ -4,6 +4,9 @@
 # Code files
 *.js text eol=lf
 *.ts text eol=lf
+*.tsx text eol=lf
+*.mjs text eol=lf
+*.java text eol=lf
 *.ink text eol=lf
 *.json text eol=lf
 *.csv text eol=lf
