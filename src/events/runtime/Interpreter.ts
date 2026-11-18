@@ -6,6 +6,7 @@
  * run code of its own. Commands that take time (messages, movement, fades,
  * battles) are awaited, so a script reads top to bottom like a cutscene.
  */
+import { canNickname, languageInfo, nicknameRules, sanitizeName } from '../../i18n/index.ts';
 import { createPokemon } from '../../state/pokemon.ts';
 import { levelUpMoves } from '../../state/experience.ts';
 import type { Instruction, PlainCommand } from '../compile.ts';
@@ -41,7 +42,7 @@ export interface Frame
 export const WORLD_ONLY_COMMANDS: ReadonlySet<CommandName> = new Set<CommandName>([
     'move', 'moveMany', 'waitMoves', 'pathTo', 'face', 'camera', 'shake', 'emote', 'fade', 'tint', 'flash', 'show', 'hide',
     'erase', 'setPosition', 'setGraphic', 'warp', 'playerControl', 'lock', 'unlock', 'trainerBattle', 'wildBattle', 'ink',
-    'nameInput',
+    'nameInput', 'nickname', 'pokedexEntry',
 ]);
 
 /**
@@ -49,11 +50,11 @@ export const WORLD_ONLY_COMMANDS: ReadonlySet<CommandName> = new Set<CommandName
  *
  * Placeholders: `obtained_item`: `{item}`, `{quantity}`; `obtained_pokemon`
  * and `no_room_pokemon`: `{species}`; `prize_money`: `{amount}`;
- * `learned_move`: `{pokemon}`, `{move}`.
+ * `learned_move`: `{pokemon}`, `{move}`; `nickname_prompt` and `cannot_nickname`: `{pokemon}`.
  */
 export const SYSTEM_TEXT_KEYS = [
     'system.yes', 'system.no', 'system.obtained_item', 'system.bag_full', 'system.obtained_pokemon',
-    'system.no_room_pokemon', 'system.prize_money', 'system.learned_move',
+    'system.no_room_pokemon', 'system.prize_money', 'system.learned_move', 'system.nickname_prompt', 'system.cannot_nickname',
 ] as const;
 
 /** @brief After this many instructions without waiting, a script yields one frame so the game never freezes. */
@@ -349,9 +350,13 @@ export class Interpreter
             case 'nameInput':
             {
                 const current = String(state.getVar(command.var) ?? '');
-                return host.nameInput(command.key ? this.text(command.key) : null, current, command.max ?? 12)
+                return host.nameInput(command.key ? this.text(command.key) : null, current, command.max ?? languageInfo(state.language).playerNameMax)
                     .then((name) => state.setVar(command.var, name));
             }
+            case 'nickname':
+                return this.nickname(command.slot, command.key);
+            case 'pokedexEntry':
+                return host.pokedexEntry?.(command.species, state.pokedexLanguages(command.species));
 
             // --------------------------------------------------- Cutscene
             case 'move':
@@ -548,6 +553,33 @@ export class Interpreter
     }
 
     /** @brief Give the player a Pokémon, filling in left-out fields from game data. */
+    /**
+     * @brief Let the player nickname a party Pokémon, with the rules and keyboard of its language.
+     * @param slot Party position; default: the last Pokémon (the one just received).
+     * @param key Prompt text key; default: `system.nickname_prompt`.
+     */
+    private async nickname (slot: number | undefined, key: string | undefined): Promise<void>
+    {
+        const { state, host, text } = this.manager;
+        const data = state.getSnapshot();
+        const pokemon = data.party[slot ?? data.party.length - 1];
+        if (!pokemon) return;
+        const name = text.pokemonName(pokemon);
+        if (!canNickname(pokemon, data.player))
+        {
+            await host.message(this.text('system.cannot_nickname', { pokemon: name.text }));
+            return;
+        }
+        const rules = nicknameRules(pokemon.language);
+        const typed = await host.nameInput(
+            this.text(key ?? 'system.nickname_prompt', { pokemon: name.text }), pokemon.nickname ?? '', rules.max,
+            { language: pokemon.language, species: pokemon.species },
+        );
+        const nickname = sanitizeName(typed, rules);
+        const species = text.dataName('pokemon', pokemon.species);
+        state.updatePokemon(pokemon.uid, ({ nickname: _old, ...rest }) => (nickname && nickname !== species ? { ...rest, nickname } : rest));
+    }
+
     private async givePokemon (command: Extract<PlainCommand, { cmd: 'givePokemon' }>, ctx: EvalContext): Promise<void>
     {
         const { manager } = this;
@@ -561,6 +593,7 @@ export class Interpreter
         const pokemon = createPokemon({
             species: command.species, level, ability, moves, nickname: command.nickname, shiny: command.shiny,
             item: command.item, nature: command.nature, gender: command.gender, metMap: this.frame.map,
+            language: command.language, ot: command.ot,
         }, manager.random);
         const where = state.addToParty(pokemon);
         if (command.silent) return;

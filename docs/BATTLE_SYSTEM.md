@@ -591,7 +591,11 @@ bridge.setPresenter(async (step, snapshot) =>
 | `other` | everything else | none |
 
 Every step also has `line` (the parsed protocol line: `cmd`, `args`, `kwArgs`, `raw`) and
-`text` (the sentence from `describeLine()`, or `null`). So a presenter can react to any
+`text` (a sentence, or `null`). With the bridge option `narrate: createBattleNarrator(localizer)`
+the sentence is in the game's language, from the `battle.*` keys of
+`content/locales/battle/<locale>.csv`; without it, it is the English of `describeLine()`.
+The battle scene passes a narrator whenever the game has a localizer. See
+`docs/LOCALIZATION.md` §7. So a presenter can react to any
 command through an `other` step, for example `step.line.cmd === '-sidestart'`.
 
 The `Battle` scene is the presenter today. It handles `switch` (sprite appears, cry plays),

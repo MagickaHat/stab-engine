@@ -1,0 +1,9 @@
+key,text,notes,tags,hash
+ink.sample.professor.1,"¡Bienvenido al laboratorio, {ink:player_name}!",,,532f7192
+ink.sample.professor.2,"Antes de irte, llévate algo para el camino.",,,cfbac1eb
+ink.sample.professor.3,"Pociones, por favor.",,,27270a9d
+ink.sample.professor.4,"Aquí {ink:potions, plural, one {tienes # Poción} many {tienes # de Pociones} other {tienes # Pociones}}.",,,bbed6a3d
+ink.sample.professor.5,"Estoy bien, gracias.",,,e97545cd
+ink.sample.professor.6,¡Qué valiente! Vuelve si cambias de opinión.,,,0d030724
+ink.sample.professor.farewell.1,¡Buena suerte!,,,e6a0b81a
+ink.speaker.professor,Profesor,,,16f1bcba

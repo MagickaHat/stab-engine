@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "벌레",
+    "types.dark.name": "악",
+    "types.dragon.name": "드래곤",
+    "types.electric.name": "전기",
+    "types.fairy.name": "페어리",
+    "types.fighting.name": "격투",
+    "types.fire.name": "불꽃",
+    "types.flying.name": "비행",
+    "types.ghost.name": "고스트",
+    "types.grass.name": "풀",
+    "types.ground.name": "땅",
+    "types.ice.name": "얼음",
+    "types.normal.name": "노말",
+    "types.poison.name": "독",
+    "types.psychic.name": "에스퍼",
+    "types.rock.name": "바위",
+    "types.steel.name": "강철",
+    "types.water.name": "물"
+}

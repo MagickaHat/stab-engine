@@ -1,0 +1,32 @@
+{
+    "$comment": "On-screen keyboard for names (src/i18n/nickname.ts, src/ui/dialogue/NameEntryKeyboard.tsx). Each character of a row is a key; a space is an empty key (the keyboard has its own space button). Page labels are text keys.",
+    "pages": [
+        {
+            "label": "ui.keyboard.upper",
+            "rows": [
+                "ABCDEFGHIJ",
+                "KLMNOPQRST",
+                "UVWXYZÀÈÉÌ",
+                "ÒÙ"
+            ]
+        },
+        {
+            "label": "ui.keyboard.lower",
+            "rows": [
+                "abcdefghij",
+                "klmnopqrst",
+                "uvwxyzàèéì",
+                "òù"
+            ]
+        },
+        {
+            "label": "ui.keyboard.others",
+            "rows": [
+                "0123456789",
+                "!?.,-:;'\"/",
+                "()&+=%×÷<>",
+                "♂♀…“«»“”★♪"
+            ]
+        }
+    ]
+}

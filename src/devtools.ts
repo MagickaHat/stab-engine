@@ -15,7 +15,9 @@
  */
 import type { TextSpeed } from './bus/EventBus';
 import { setTextSpeed } from './ui/store/uiStore';
-import { showChoice, showMessage, showNameInput } from './world/dialogue';
+import { showChoice, showLanguageSelect, showMessage, showNameInput, showPokedexEntry } from './world/dialogue';
+import { deviceLocale } from './world/newGame';
+import { getLocalizer } from './world/text';
 
 /** @brief What `window.stab` holds. */
 export interface StabDevtools
@@ -30,6 +32,14 @@ export interface StabDevtools
     textSpeed: (speed: TextSpeed) => void;
     /** Runs a short conversation that shows every dialogue window. */
     demo: () => Promise<void>;
+    /** Opens the New Game language menu; resolves with the locale picked (nothing changes). */
+    language: () => Promise<string>;
+    /** Opens a Pokédex entry with these languages unlocked, e.g. `stab.dex('pikachu', ['en', 'ja', 'fr'])`. */
+    dex: (species: string, languages?: string[]) => Promise<void>;
+    /** Opens the naming keyboard for a Pokémon of a language, e.g. `stab.nickname('pikachu', 'ja')`. */
+    nickname: (species: string, language?: string) => Promise<string>;
+    /** The game's locale, or `null` before text is loaded. */
+    locale: () => string | null;
 }
 
 declare global
@@ -68,6 +78,10 @@ export function installDevtools (): void
         name: (prompt, current = '', max = 10) => showNameInput(prompt, current, max),
         textSpeed: setTextSpeed,
         demo,
+        language: () => showLanguageSelect(deviceLocale()),
+        dex: (species, languages) => showPokedexEntry(species, languages ?? [getLocalizer()?.locale ?? 'en']),
+        nickname: (species, language) => showNameInput(null, '', 12, { language: language ?? getLocalizer()?.locale, species }),
+        locale: () => getLocalizer()?.locale ?? null,
     };
-    console.info('[stab] dev helpers ready: stab.demo(), stab.say(text, speaker), stab.ask(prompt, options), stab.name(prompt).');
+    console.info('[stab] dev helpers ready: stab.demo(), stab.say(text, speaker), stab.ask(prompt, options), stab.name(prompt), stab.language(), stab.dex(species, languages), stab.nickname(species, language).');
 }

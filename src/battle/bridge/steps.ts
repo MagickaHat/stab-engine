@@ -28,7 +28,11 @@ interface StepBase
 {
     /** The parsed protocol line this step was made from. */
     line: ProtocolLine;
-    /** A short English sentence for the line (`describeLine()`), or `null` if it has none. */
+    /**
+     * A sentence for the line, or `null` if it has none: in the game's
+     * language when the bridge has a narrator (src/battle/text.ts), else the
+     * short English sentence of `describeLine()`.
+     */
     text: string | null;
 }
 
@@ -177,17 +181,19 @@ function pokemonOf (ident: string): StepPokemon
  * @brief Convert one protocol line into a step.
  *
  * @param raw A protocol line, e.g. `|-damage|p2a: Gengar|120/261`.
+ * @param describe Makes the step's `text`. Default: `describeLine()` (English).
+ *                 Pass a narrator (`createBattleNarrator()`) for the game's language.
  * @return The step, or `null` for lines with nothing to show (empty lines,
  *         timestamps, `|upkeep|`, `|request|`...).
  */
-export function toStep (raw: string): BattleStep | null
+export function toStep (raw: string, describe: (line: ProtocolLine) => string | null = describeLine): BattleStep | null
 {
     if (!raw.startsWith('|')) return null;
     const line = parseLine(raw);
     const { cmd, args, kwArgs } = line;
     if (SILENT.has(cmd)) return null;
 
-    const base = { line, text: describeLine(line) };
+    const base = { line, text: describe(line) };
     switch (cmd)
     {
         case 'switch':

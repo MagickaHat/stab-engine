@@ -1,0 +1,9 @@
+{
+    "$comment": "Grammar tags each language may put in the tags column of its CSV files, and the values allowed (an empty list allows any value). Keys are locales or language families (es, pt). Text reads a tag with {name@tag, select, ...}. See docs/LOCALIZATION.md.",
+    "en": {},
+    "de": { "gender": ["m", "f", "n"] },
+    "fr": { "gender": ["m", "f"], "article": ["elided", "m", "f"] },
+    "it": { "gender": ["m", "f"], "article": ["elided", "m", "f"] },
+    "es": { "gender": ["m", "f"] },
+    "pt": { "gender": ["m", "f"] }
+}

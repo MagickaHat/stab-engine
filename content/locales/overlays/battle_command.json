@@ -1,0 +1,16 @@
+{
+    "$comment": "The battle command buttons have English labels painted in. Each button row is repainted with its own gradient and the translated label written over it; column 0 is the normal button, column 1 the selected one.",
+    "graphic": "ui/battle/cursor_command",
+    "cells": { "width": 65, "height": 23, "cols": 2, "rows": 10 },
+    "erase": [{ "x": 6, "y": 5, "width": 54, "height": 13, "fill": "row", "sampleX": 5 }],
+    "text": [{
+        "keys": [
+            "ui.battle.command.fight", "ui.battle.command.pokemon", "ui.battle.command.bag", "ui.battle.command.run",
+            "ui.battle.command.call", "ui.battle.command.ball", "ui.battle.command.rock", "ui.battle.command.bait",
+            "ui.battle.command.ball", "ui.battle.command.cancel"
+        ],
+        "by": "row",
+        "x": 6, "y": 3, "width": 53, "align": "center",
+        "color": "#f8f0e0", "shadow": "#404040"
+    }]
+}

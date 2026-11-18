@@ -116,8 +116,14 @@ export interface WorldHost
      * @return Index of the option picked.
      */
     choose (prompt: string | null, options: string[], cancel: number): Promise<number>;
-    /** Ask the player to type a name. */
-    nameInput (prompt: string | null, current: string, max: number): Promise<string>;
+    /**
+     * Ask the player to type a name.
+     * @param options `language`: whose keyboard and name rules to use (a Pokémon's
+     *                language for nicknames); `species`: the Pokémon being named.
+     */
+    nameInput (prompt: string | null, current: string, max: number, options?: { language?: string; species?: string }): Promise<string>;
+    /** Show a species' Pokédex entry with its unlocked languages, and wait until it is closed. */
+    pokedexEntry? (species: string, languages: string[]): Promise<void>;
     /** Run an ink story (or one knot of it) as a conversation. */
     ink (story: string, knot?: string): Promise<void>;
     /** Wait. Must keep working while the overworld is asleep (battle hooks). */

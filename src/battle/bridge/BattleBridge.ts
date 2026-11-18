@@ -46,6 +46,7 @@ import { buildSnapshot, viewChoice } from './snapshot.ts';
 import type { BattlePhase, BattleSnapshot, ChoiceView } from './snapshot.ts';
 import { toStep } from './steps.ts';
 import type { BattleStep } from './steps.ts';
+import type { BattleNarrator } from '../text.ts';
 
 /**
  * @brief Shows one step.
@@ -61,7 +62,13 @@ export type BattlePresenter = (step: BattleStep, snapshot: BattleSnapshot) => vo
  * The same options as `BattleEngine`. `perspective` selects the local player
  * (`'p1'` by default, or `'p2'`); spectator views are not supported here.
  */
-export type BattleBridgeOptions = BattleEngineOptions;
+export type BattleBridgeOptions = BattleEngineOptions & {
+    /**
+     * Makes the text of each step. Default: `describeLine()` (English). Pass
+     * `createBattleNarrator(localizer)` (src/battle/text.ts) for translated text.
+     */
+    narrate?: BattleNarrator;
+};
 
 /**
  * @brief Runs a battle and presents it step by step.
@@ -88,6 +95,7 @@ export class BattleBridge
 
     /** The battle as far as it has been presented (the engine's own state runs ahead). */
     private readonly state: BattleState;
+    private readonly narrate: BattleNarrator | undefined;
     private readonly queue: string[] = [];
     private readonly listeners = new Set<() => void>();
     private presenter: BattlePresenter | null = null;
@@ -124,6 +132,7 @@ export class BattleBridge
             throw new Error(`BattleBridge: ${perspective} is the local player, so it cannot be controlled by an AI.`);
         }
         this.player = perspective;
+        this.narrate = options.narrate;
         this.engine = new BattleEngine(options);
         this.state = new BattleState(perspective);
         this.snapshot = this.makeSnapshot();
@@ -290,7 +299,7 @@ export class BattleBridge
                 //  The model could not follow this line; keep presenting the battle anyway.
                 console.error(`BattleBridge: could not apply "${line}"`, error);
             }
-            const step = toStep(line);
+            const step = this.narrate ? toStep(line, this.narrate) : toStep(line);
             if (!step) continue;
 
             if (this.choice)

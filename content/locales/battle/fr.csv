@@ -1,0 +1,77 @@
+key,text,notes,tags,hash
+battle.turn,Tour {turn},,,2811f863
+battle.switch.own,Go ! {pokemon} !,,,2db50e02
+battle.switch.foe,{trainer} envoie {pokemon} !,,,e84b36d8
+battle.switch.wild,Un {pokemon} sauvage apparaît !,,,d6341e46
+battle.drag,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est traîné au combat !",,,6c036f58
+battle.move,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} utilise {move} !",,,3f6cac6d
+battle.damage.from,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} souffre de {effect} !",,,3bb1c3ab
+battle.heal,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} récupère des PV.",,,b6540997
+battle.heal.from,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} récupère des PV grâce à {effect} !",,,c2673308
+battle.supereffective,C'est super efficace !,,,c18b3773
+battle.resisted,Ce n'est pas très efficace…,,,92e7f1ae
+battle.immune,"Ça n'affecte pas {side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}}…",,,81a3a0e0
+battle.crit,Coup critique !,,,7caa5983
+battle.miss,"L'attaque de {side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} échoue !",,,6206b108
+battle.fail,Mais cela échoue !,,,35b52cf5
+battle.status,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est affecté par {status} !",,,cce9064a
+battle.status.brn,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est brûlé !",,,0f8614b8
+battle.status.par,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est paralysé ! Il aura du mal à attaquer !",,,3b1ecae4
+battle.status.slp,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} s'endort !",,,d5f6165a
+battle.status.frz,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est gelé !",,,68643fdb
+battle.status.psn,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est empoisonné !",,,2b2cff5b
+battle.status.tox,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est gravement empoisonné !",,,ad796af3
+battle.curestatus,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est soigné !",,,cff1b2d9
+battle.curestatus.slp,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} se réveille !",,,87afa724
+battle.curestatus.frz,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} dégèle !",,,36bfec8e
+battle.curestatus.par,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} n'est plus paralysé !",,,b80c4c62
+battle.boost,"{stat@article, select, elided {L'{stat}} f {La {stat}} other {Le {stat}}} de {side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} {amount, plural, =0 {ne peut plus augmenter !} =1 {augmente !} =2 {augmente beaucoup !} other {augmente énormément !}}",,,ab3fe75c
+battle.unboost,"{stat@article, select, elided {L'{stat}} f {La {stat}} other {Le {stat}}} de {side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} {amount, plural, =0 {ne peut plus baisser !} =1 {baisse !} =2 {baisse beaucoup !} other {baisse énormément !}}",,,0e00b621
+battle.terastallize,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} se téracristallise en type {type} !",,,c9d89964
+battle.ability,"({ability} de {side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}})",,,a1c9f3d9
+battle.cant,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} ne peut pas bouger !",,,9b49770f
+battle.cant.slp,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} dort profondément.",,,1a817a84
+battle.cant.par,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est paralysé ! Il ne peut pas attaquer !",,,df13c057
+battle.cant.frz,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est gelé !",,,f4a9bd76
+battle.cant.flinch,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} a la trouille ! Il ne peut pas attaquer !",,,8149f2ca
+battle.cant.recharge,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} doit se reposer !",,,9e49187b
+battle.faint,"{side, select, foe {{pokemon} ennemi} wild {{pokemon} sauvage} other {{pokemon}}} est K.O. !",,,20111bdc
+battle.weather.raindance.start,Il commence à pleuvoir !,,,5b0a5267
+battle.weather.raindance.upkeep,Il continue à pleuvoir.,,,bc4b51f3
+battle.weather.raindance.end,La pluie s'arrête.,,,9e739917
+battle.weather.sunnyday.start,Le soleil brille fort !,,,01630a03
+battle.weather.sunnyday.upkeep,Le soleil brille toujours.,,,a6ce49a9
+battle.weather.sunnyday.end,Le soleil ne brille plus.,,,c5539db2
+battle.weather.sandstorm.start,Une tempête de sable se prépare !,,,c9b1b94a
+battle.weather.sandstorm.upkeep,La tempête de sable fait rage.,,,aafac1ad
+battle.weather.sandstorm.end,La tempête de sable se calme.,,,000fcda8
+battle.weather.snow.start,Il commence à neiger !,,,04a45c78
+battle.weather.snow.upkeep,Il continue à neiger.,,,360c7620
+battle.weather.snow.end,La neige s'arrête.,,,eb116470
+battle.weather.hail.start,Il commence à grêler !,,,9fbb5447
+battle.weather.hail.upkeep,Il continue à grêler.,,,cbe59c3f
+battle.weather.hail.end,La grêle s'arrête.,,,e1482847
+battle.weather.end,La météo redevient normale.,,,c622306b
+battle.win,{trainer} remporte le combat !,,,195bb524
+battle.win.own,Vous avez gagné !,,,3ed8cd4a
+battle.tie,Le combat se termine par une égalité !,,,3062f973
+battle.exp.gained,{pokemon} gagne {exp} points Exp. !,,,76e6c5f8
+battle.exp.level,{pokemon} monte au N. {level} !,,,1f5121ef
+battle.move.learned,{pokemon} apprend {move} !,,,d0f70a1f
+battle.move.banked,{pokemon} apprend {move} ! La capacité a été rangée dans sa réserve.,,,07265296
+battle.stat.atk,Attaque,,article=elided,8ba9331d
+battle.stat.def,Défense,,article=f,fcbb60f3
+battle.stat.spa,Attaque Spéciale,,article=elided,e1b06662
+battle.stat.spd,Défense Spéciale,,article=f,fc3da79f
+battle.stat.spe,Vitesse,,article=f,0a6b8020
+battle.stat.accuracy,Précision,,article=f,709aafa4
+battle.stat.evasion,Esquive,,article=elided,6079a40f
+battle.effect.psn,l'empoisonnement,,,cee323b1
+battle.effect.tox,l'empoisonnement,,,cee323b1
+battle.effect.brn,sa brûlure,,,fd332dd2
+battle.effect.recoil,le contrecoup,,,fe397862
+battle.effect.stealthrock,des pierres pointues,,,27f128ba
+battle.effect.spikes,les picots,,,f40b258b
+battle.effect.sandstorm,la tempête de sable,,,421eac1f
+battle.effect.hail,la grêle,,,c431edfa
+battle.effect.confusion,sa confusion,,,415d9be9

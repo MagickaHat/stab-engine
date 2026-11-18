@@ -1,0 +1,7 @@
+key,text,notes,tags,hash
+battle.switch.foe,¡{trainer} envió a {pokemon}!,,,e84b36d8
+battle.switch.wild,¡Apareció un {pokemon} salvaje!,,,d6341e46
+battle.win.own,¡Ganaste!,,,3ed8cd4a
+battle.exp.gained,¡{pokemon} ganó {exp} puntos de experiencia!,,,76e6c5f8
+battle.exp.level,¡{pokemon} subió al nivel {level}!,,,1f5121ef
+battle.move.learned,¡{pokemon} aprendió {move}!,,,d0f70a1f

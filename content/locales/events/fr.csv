@@ -1,0 +1,11 @@
+key,text,notes,tags,hash
+system.yes,Oui,,,b3a43630
+system.no,Non,,,61e6be1a
+system.obtained_item,"{player} obtient {quantity, plural, =1 {{item}} other {# × {item}}} !",,,71b92a5c
+system.bag_full,Le Sac est plein. {player} ne peut plus rien porter.,,,5a77fc9d
+system.obtained_pokemon,{player} obtient {species} !,,,7eb22e99
+system.no_room_pokemon,Il n'y a pas de place pour {species}.,,,b4456bf0
+system.prize_money,"{player} remporte {amount, number} pour sa victoire !",,,c496b63e
+system.learned_move,{pokemon} apprend {move} !,,,d0f70a1f
+system.nickname_prompt,Donner un surnom à {pokemon} ?,,,0782b7a4
+system.cannot_nickname,{pokemon} vient d'un autre Dresseur. Son nom ne peut pas être changé.,,,9ddb2cf5

@@ -41,14 +41,16 @@ import type {
     Actor, BattleRequest, BattleResult, Direction, RuntimeData, SpawnPoint, WarpRequest, WorldHost,
 } from '../../events';
 import { input } from '../../input';
-import { GameState, getGameState, setGameState } from '../../state';
+import { getGameState } from '../../state';
+import type { GameState } from '../../state';
 import { CHARACTER_DIR, Character } from '../../world/Character';
 import type { CharacterWorld } from '../../world/Character';
 import { loadRuntimeData } from '../../world/data';
-import { showChoice, showMessage, showNameInput } from '../../world/dialogue';
+import { showChoice, showMessage, showNameInput, showPokedexEntry } from '../../world/dialogue';
 import { runInk } from '../../world/ink';
 import { loadMapAssets } from '../../world/maps';
-import { loadText } from '../../world/text';
+import { startNewGame } from '../../world/newGame';
+import { loadText, setLocalizer } from '../../world/text';
 import { announceScene } from '../announceScene';
 import { EventBus, GameEvents } from '../EventBus';
 import type { UiModalInfo } from '../EventBus';
@@ -164,14 +166,13 @@ export class Overworld extends Scene implements WorldHost
     /** @brief Load text, data and the first map. */
     private async setup (): Promise<void>
     {
-        let state = getGameState();
-        if (!state)
-        {
-            state = GameState.create();
-            setGameState(state);
-        }
+        //  No game loaded: start a new one, which asks for its language first.
+        const state = getGameState() ?? await startNewGame();
         this.state = state;
-        const [text, data] = await Promise.all([loadText(), loadRuntimeData(), this.loadEmotes()]);
+        //  The save's language never changes: lock the localizer to it.
+        const [text, data] = await Promise.all([loadText(state.language), loadRuntimeData(), this.loadEmotes()]);
+        text.lock(state.language);
+        setLocalizer(text);
         this.runtimeData = data;
         this.hero = new Character(this.world(), 'player', 0, 0);
         this.eventManager = new EventManager({ state, bundle, text, host: this, data });
@@ -492,15 +493,21 @@ export class Overworld extends Scene implements WorldHost
         return showChoice(prompt, options, cancel);
     }
 
-    nameInput (prompt: string | null, current: string, max: number): Promise<string>
+    nameInput (prompt: string | null, current: string, max: number, options?: { language?: string; species?: string }): Promise<string>
     {
-        return showNameInput(prompt, current, max);
+        return showNameInput(prompt, current, max, { language: options?.language ?? this.state.language, species: options?.species });
+    }
+
+    pokedexEntry (species: string, languages: string[]): Promise<void>
+    {
+        return showPokedexEntry(species, languages);
     }
 
     ink (story: string, knot?: string): Promise<void>
     {
         return runInk(story, knot, {
             state: this.state,
+            text: this.eventManager.text,
             message: (text, speaker) => this.message(text, speaker),
             choose: (prompt, options, cancel) => this.choose(prompt, options, cancel),
             giveItem: (item, quantity) =>
@@ -685,6 +692,7 @@ export class Overworld extends Scene implements WorldHost
         {
             const data: BattleSceneData = {
                 usePlayerParty: true,
+                wild: request.kind === 'wild',
                 onStep: request.onStep,
                 options: {
                     formatid: request.format === 'doubles' ? 'gen9doublescustomgame' : 'gen9customgame',

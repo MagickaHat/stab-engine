@@ -30,7 +30,9 @@ import type { BattleBridge } from '../battle';
 import type { BattleResultData } from '../game/scenes/Battle';
 import type { InputDevice } from '../input/buttons';
 import type { PendingEvolution } from '../state/evolution';
-import type { ChoiceRequest, DialogueRequest, NameInputRequest } from '../world/dialogue';
+import type {
+    ChoiceRequest, DialogueRequest, LanguageRequest, NameInputRequest, PokedexEntryRequest,
+} from '../world/dialogue';
 
 /**
  * @brief Names of the events sent over the `EventBus`.
@@ -107,6 +109,23 @@ export const GameEvents = {
      * touch. Argument: `InputDevice` (src/input/buttons.ts). Useful for button prompts.
      */
     INPUT_DEVICE_CHANGED: 'input-device-changed',
+    /**
+     * Anyone → anyone. The localizer's text or locale changed: a locale CSV was
+     * edited during `npm run dev` (hot reload), or a save with another language
+     * was loaded. Argument: `LocaleInfo`. UI that caches text re-reads it.
+     */
+    LOCALE_CHANGED: 'locale-changed',
+    /**
+     * Phaser → React. The event system shows a species' Pokédex entry, with its
+     * unlocked languages. Argument: `PokedexEntryRequest` (src/world/dialogue.ts).
+     * Call its `done()` when the player closes it.
+     */
+    DIALOGUE_POKEDEX_ENTRY: 'dialogue-pokedex-entry',
+    /**
+     * Phaser → React. Show the New Game language menu. Argument: `LanguageRequest`
+     * (src/world/dialogue.ts). Call its `pick(locale)`.
+     */
+    DIALOGUE_LANGUAGE: 'dialogue-language',
 } as const;
 
 /** @brief Any event name in `GameEvents`. */
@@ -157,6 +176,15 @@ export interface UiSoundRequest
     volume: number;
 }
 
+/** @brief Payload of `GameEvents.LOCALE_CHANGED`. */
+export interface LocaleInfo
+{
+    /** The locale now shown. */
+    locale: string;
+    /** Why: `reload` for a hot-reloaded file, `locale` for a new locale. */
+    reason: 'reload' | 'locale';
+}
+
 /** @brief Text speed settings, slowest to fastest. */
 export type TextSpeed = 'slow' | 'mid' | 'fast' | 'instant';
 
@@ -189,6 +217,9 @@ export interface GameEventMap
     [GameEvents.DIALOGUE_CHOICE]: ChoiceRequest;
     [GameEvents.DIALOGUE_NAME_INPUT]: NameInputRequest;
     [GameEvents.INPUT_DEVICE_CHANGED]: InputDevice;
+    [GameEvents.LOCALE_CHANGED]: LocaleInfo;
+    [GameEvents.DIALOGUE_POKEDEX_ENTRY]: PokedexEntryRequest;
+    [GameEvents.DIALOGUE_LANGUAGE]: LanguageRequest;
 }
 
 /** @brief Arguments `emit()` takes after the event name: none for `void` events, else the payload. */

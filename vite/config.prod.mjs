@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import inkPlugin from './plugins/ink.mjs';
 import eventsPlugin from './plugins/events.mjs';
+import localesPlugin from './plugins/locales.mjs';
 
 const phasermsg = () => {
     return {
@@ -51,6 +52,7 @@ export default defineConfig({
         phasermsg(),
         react(),
         inkPlugin(),
-        eventsPlugin()
+        eventsPlugin(),
+        localesPlugin()
     ]
 });

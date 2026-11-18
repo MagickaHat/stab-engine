@@ -1,0 +1,24 @@
+key,text,notes,tags,hash
+ui.language.title,Scegli la lingua,,,4545ebf7
+ui.language.confirm,Giocare in {language}? La lingua di questo salvataggio non potrà più essere cambiata.,,,43489714
+ui.keyboard.upper,MAIUSC.,,,ad4113e7
+ui.keyboard.lower,minusc.,,,b51d04ba
+ui.keyboard.others,Altri,,,69bad712
+ui.keyboard.space,Spazio,,,c1c43225
+ui.keyboard.back,Cancella,,,c2954bc2
+ui.keyboard.ok,OK,,,85e4b82f
+ui.pokedex.number,N° {number},,,a52a46ff
+ui.pokedex.switch,L/R: lingua,,,8350cdca
+ui.pokedex.height,"ALT. {height, number} m",,,a2c4e972
+ui.pokedex.weight,"PESO {weight, number} kg",,,64396b69
+ui.pokedex.no_entry,Nessun dato su questo Pokémon in questa lingua.,,,1cecc39f
+ui.battle.command.fight,LOTTA,,,8fc60c69
+ui.battle.command.pokemon,POKéMON,,,f3fe757a
+ui.battle.command.bag,BORSA,,,a86e0e91
+ui.battle.command.run,FUGA,,,ada7caaa
+ui.battle.command.call,CHIAMA,,,b14354e9
+ui.battle.command.ball,BALL,,,e02559e4
+ui.battle.command.rock,SASSO,,,776d7fb4
+ui.battle.command.bait,ESCA,,,fe325511
+ui.battle.command.cancel,ANNULLA,,,52fabbdb
+ui.trainer_card.title,SCHEDA ALLENATORE,,,b064b734

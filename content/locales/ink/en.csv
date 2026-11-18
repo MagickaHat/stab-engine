@@ -1,0 +1,9 @@
+key,text,notes
+ink.sample.professor.1,"Welcome to the lab, {ink:player_name}!",Speaker: Professor. sample.ink
+ink.sample.professor.2,"Before you set off, take something for the road.",Speaker: Professor. sample.ink
+ink.sample.professor.3,"Potions, please.",sample.ink
+ink.sample.professor.4,"Here are {ink:potions} \{plural(""potion"", potions)\}.",Speaker: Professor. sample.ink. Uses ink logic between \{ \}: write it with {ink:…} plural/select placeholders.
+ink.sample.professor.5,"I'm fine, thanks.",sample.ink
+ink.sample.professor.6,Brave! Come back if you change your mind.,Speaker: Professor. sample.ink
+ink.sample.professor.farewell.1,Good luck out there!,Speaker: Professor. sample.ink
+ink.speaker.professor,Professor,Speaker name shown in the name box

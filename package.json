@@ -31,6 +31,12 @@
     "events:sync-tiled": "node tools/events/sync-tiled.ts",
     "events:schema": "node tools/events/schema.ts",
     "events:new": "node tools/events/new-script.ts",
+    "locales:validate": "node tools/locales/validate.ts",
+    "locales:report": "node tools/locales/report.ts",
+    "locales:export": "node tools/locales/export.ts",
+    "locales:import": "node tools/locales/import.ts",
+    "locales:ink-ids": "node tools/locales/inkIds.ts",
+    "locales:graphics": "node tools/locales/graphics.ts",
     "test": "node --test \"tools/**/*.test.ts\" \"src/**/*.test.ts\""
   },
   "devDependencies": {

@@ -1,0 +1,77 @@
+key,text,notes,tags,hash
+battle.turn,Runde {turn},,,2811f863
+battle.switch.own,"Los, {pokemon}!",,,2db50e02
+battle.switch.foe,{trainer} schickt {pokemon} in den Kampf!,,,e84b36d8
+battle.switch.wild,Ein wildes {pokemon} erscheint!,,,d6341e46
+battle.drag,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde in den Kampf gezogen!",,,6c036f58
+battle.move,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} setzt {move} ein!",,,3f6cac6d
+battle.damage.from,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde durch {effect} verletzt!",,,3bb1c3ab
+battle.heal,"Die KP von {side, select, foe {dem gegnerischen {pokemon}} wild {dem wilden {pokemon}} other {{pokemon}}} wurden aufgefüllt.",,,b6540997
+battle.heal.from,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} füllt KP mit {effect} auf!",,,c2673308
+battle.supereffective,Das ist sehr effektiv!,,,c18b3773
+battle.resisted,Das ist nicht sehr effektiv…,,,92e7f1ae
+battle.immune,"Es hat keine Wirkung auf {side, select, foe {das gegnerische {pokemon}} wild {das wilde {pokemon}} other {{pokemon}}}…",,,81a3a0e0
+battle.crit,Ein Volltreffer!,,,7caa5983
+battle.miss,"Die Attacke von {side, select, foe {dem gegnerischen {pokemon}} wild {dem wilden {pokemon}} other {{pokemon}}} ging daneben!",,,6206b108
+battle.fail,Es ist fehlgeschlagen!,,,35b52cf5
+battle.status,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist von {status} betroffen!",,,cce9064a
+battle.status.brn,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} erleidet Verbrennungen!",,,0f8614b8
+battle.status.par,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist paralysiert! Es kann eventuell nicht handeln!",,,3b1ecae4
+battle.status.slp,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist eingeschlafen!",,,d5f6165a
+battle.status.frz,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde eingefroren!",,,68643fdb
+battle.status.psn,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde vergiftet!",,,2b2cff5b
+battle.status.tox,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde schwer vergiftet!",,,ad796af3
+battle.curestatus,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde geheilt!",,,cff1b2d9
+battle.curestatus.slp,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist aufgewacht!",,,87afa724
+battle.curestatus.frz,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist wieder aufgetaut!",,,36bfec8e
+battle.curestatus.par,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist nicht mehr paralysiert!",,,b80c4c62
+battle.boost,"{stat@gender, select, f {Die} n {Das} other {Der}} {stat} von {side, select, foe {dem gegnerischen {pokemon}} wild {dem wilden {pokemon}} other {{pokemon}}} {amount, plural, =0 {kann nicht weiter steigen!} =1 {steigt!} =2 {steigt stark!} other {steigt drastisch!}}",,,ab3fe75c
+battle.unboost,"{stat@gender, select, f {Die} n {Das} other {Der}} {stat} von {side, select, foe {dem gegnerischen {pokemon}} wild {dem wilden {pokemon}} other {{pokemon}}} {amount, plural, =0 {kann nicht weiter sinken!} =1 {sinkt!} =2 {sinkt stark!} other {sinkt drastisch!}}",,,0e00b621
+battle.terastallize,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} hat sich in den Typ {type} terakristallisiert!",,,c9d89964
+battle.ability,"({ability} von {side, select, foe {dem gegnerischen {pokemon}} wild {dem wilden {pokemon}} other {{pokemon}}})",,,a1c9f3d9
+battle.cant,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} kann nicht angreifen!",,,9b49770f
+battle.cant.slp,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} schläft tief und fest.",,,1a817a84
+battle.cant.par,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist paralysiert! Es kann nicht angreifen!",,,df13c057
+battle.cant.frz,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} ist eingefroren!",,,f4a9bd76
+battle.cant.flinch,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} schreckt zurück und kann nicht angreifen!",,,8149f2ca
+battle.cant.recharge,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} muss sich erholen!",,,9e49187b
+battle.faint,"{side, select, foe {Das gegnerische {pokemon}} wild {Das wilde {pokemon}} other {{pokemon}}} wurde besiegt!",,,20111bdc
+battle.weather.raindance.start,Es beginnt zu regnen!,,,5b0a5267
+battle.weather.raindance.upkeep,Es regnet weiter.,,,bc4b51f3
+battle.weather.raindance.end,Der Regen lässt nach.,,,9e739917
+battle.weather.sunnyday.start,Das Sonnenlicht wird stärker!,,,01630a03
+battle.weather.sunnyday.upkeep,Das Sonnenlicht ist stark.,,,a6ce49a9
+battle.weather.sunnyday.end,Das Sonnenlicht wird wieder normal.,,,c5539db2
+battle.weather.sandstorm.start,Ein Sandsturm kommt auf!,,,c9b1b94a
+battle.weather.sandstorm.upkeep,Der Sandsturm tobt.,,,aafac1ad
+battle.weather.sandstorm.end,Der Sandsturm legt sich.,,,000fcda8
+battle.weather.snow.start,Es beginnt zu schneien!,,,04a45c78
+battle.weather.snow.upkeep,Es schneit weiter.,,,360c7620
+battle.weather.snow.end,Es hört auf zu schneien.,,,eb116470
+battle.weather.hail.start,Es beginnt zu hageln!,,,9fbb5447
+battle.weather.hail.upkeep,Es hagelt weiter.,,,cbe59c3f
+battle.weather.hail.end,Es hört auf zu hageln.,,,e1482847
+battle.weather.end,Das Wetter ist wieder normal.,,,c622306b
+battle.win,{trainer} hat den Kampf gewonnen!,,,195bb524
+battle.win.own,Du hast gewonnen!,,,3ed8cd4a
+battle.tie,Der Kampf endet unentschieden!,,,3062f973
+battle.exp.gained,{pokemon} erhält {exp} E.-Punkte!,,,76e6c5f8
+battle.exp.level,{pokemon} erreicht Lv. {level}!,,,1f5121ef
+battle.move.learned,{pokemon} erlernt {move}!,,,d0f70a1f
+battle.move.banked,{pokemon} erlernt {move}! Die Attacke wurde in seinem Attackenspeicher abgelegt.,,,07265296
+battle.stat.atk,Angriff,,gender=m,8ba9331d
+battle.stat.def,Verteidigung,,gender=f,fcbb60f3
+battle.stat.spa,Spezial-Angriff,,gender=m,e1b06662
+battle.stat.spd,Spezial-Verteidigung,,gender=f,fc3da79f
+battle.stat.spe,Initiative,,gender=f,0a6b8020
+battle.stat.accuracy,Genauigkeit,,gender=f,709aafa4
+battle.stat.evasion,Ausweichwert,,gender=m,6079a40f
+battle.effect.psn,Gift,,,cee323b1
+battle.effect.tox,Gift,,,cee323b1
+battle.effect.brn,die Verbrennung,,,fd332dd2
+battle.effect.recoil,den Rückstoß,,,fe397862
+battle.effect.stealthrock,spitze Steine,,,27f128ba
+battle.effect.spikes,die Stachler,,,f40b258b
+battle.effect.sandstorm,den Sandsturm,,,421eac1f
+battle.effect.hail,den Hagel,,,c431edfa
+battle.effect.confusion,die Verwirrung,,,415d9be9

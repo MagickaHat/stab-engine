@@ -1,0 +1,10 @@
+{
+    "$comment": "The Trainer Card header has TRAINER CARD painted in between two round icons.",
+    "graphic": "ui/trainer_card/card",
+    "erase": [{ "x": 29, "y": 15, "width": 89, "height": 13, "fill": "#5090e0" }],
+    "text": [{
+        "key": "ui.trainer_card.title",
+        "x": 29, "y": 13, "width": 89, "align": "center",
+        "color": "#f8f8f8", "shadow": "#2860a8"
+    }]
+}

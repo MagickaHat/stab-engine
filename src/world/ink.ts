@@ -18,9 +18,19 @@
  * | `set_var(name, value)`   | Set a variable.                        |
  * | `give_item(item, n)`     | Give items; returns whether they fit.  |
  * | `player_name()`          | The player's name.                     |
+ *
+ * **Translation.** Stories are written in English. `npm run locales:ink-ids`
+ * gives every line and choice an `#id:` tag; when the game's locale has text
+ * for `ink.<id>` (`content/locales/ink/<locale>.csv`), that text is shown
+ * instead of ink's English line. It can read ink variables as `{ink:name}`
+ * (with plurals: `{ink:potions, plural, one {…} other {…}}`). A line that
+ * glue or a divert joined from several tagged lines shows their translations
+ * one after the other. Speakers are translated through `ink.speaker.<id>`.
  */
 import { DialogueEngine } from '../dialogue';
+import type { Localizer } from '../i18n';
 import type { GameState } from '../state';
+import { translateInk, translateSpeaker } from './inkText.ts';
 
 const STORIES = import.meta.glob<Record<string, unknown>>('../../content/dialogue/*.ink', { import: 'default' });
 
@@ -31,6 +41,8 @@ export interface InkDependencies
     message: (text: string, speaker?: string) => Promise<void>;
     choose: (prompt: string | null, options: string[], cancel: number) => Promise<number>;
     giveItem: (item: string, quantity: number) => boolean;
+    /** The game's localizer, for translated lines. Without it, ink's own (English) text is shown. */
+    text?: Localizer;
 }
 
 /**
@@ -73,12 +85,14 @@ export async function runInk (story: string, knot: string | undefined, deps: Ink
         const line = engine.continue();
         if (line)
         {
-            if (line.text.trim()) await deps.message(line.text, typeof line.tagMap.speaker === 'string' ? line.tagMap.speaker : undefined);
+            const shown = translateInk(line, deps.text, engine, state) ?? line.text;
+            const speaker = typeof line.tagMap.speaker === 'string' ? translateSpeaker(line.tagMap.speaker, deps.text) : undefined;
+            if (shown.trim()) await deps.message(shown, speaker);
             continue;
         }
         const choices = engine.choices;
         if (!choices.length) break;
-        const picked = await deps.choose(null, choices.map((choice) => choice.text), -1);
+        const picked = await deps.choose(null, choices.map((choice) => translateInk(choice, deps.text, engine, state) ?? choice.text), -1);
         engine.choose(choices[Math.max(0, Math.min(picked, choices.length - 1))].index);
     }
     state.setDialogueState(story, engine.save());

@@ -1,0 +1,46 @@
+{
+    "$comment": "Length limits checked by npm run locales:validate. A row's own max column (English files) wins over these rules. max: 120px (one line), 2x120px (lines x width) or 12 (characters). samples: text measured in place of each placeholder; * for the others, # for plural numbers.",
+    "samples": {
+        "player": "WWWWWWWWWWWW",
+        "pokemon": "WWWWWWWWWWWW",
+        "species": "WWWWWWWWWWWW",
+        "trainer": "WWWWWWWWWWWW",
+        "language": "Português (Portugal)",
+        "count": "12",
+        "max": "12",
+        "number": "999",
+        "height": "99.9",
+        "weight": "999.9",
+        "level": "100",
+        "exp": "99,999",
+        "turn": "99",
+        "*": "WWWWWW",
+        "#": "999"
+    },
+    "rules": [
+        {
+            "keys": "system.yes",
+            "max": "64px"
+        },
+        {
+            "keys": "system.no",
+            "max": "64px"
+        },
+        {
+            "keys": "ui.keyboard.*",
+            "max": "48px"
+        },
+        {
+            "keys": "ink.speaker.*",
+            "max": "96px"
+        },
+        {
+            "keys": "ink.**",
+            "max": "4x232px"
+        },
+        {
+            "keys": "battle.stat.*",
+            "max": "20"
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+key,text,notes,max
+ui.language.title,Choose your language,Title of the New Game language menu (shown in every language at once).,200px
+ui.language.confirm,Play in {language}? The language of this save cannot be changed later.,"Asked after picking a language. {language}: its own name, e.g. ""Deutsch"".",
+ui.keyboard.upper,UPPER,Keyboard page tab.,48px
+ui.keyboard.lower,lower,Keyboard page tab.,48px
+ui.keyboard.others,Others,Keyboard page tab: numbers and symbols.,48px
+ui.keyboard.hiragana,Hira.,Japanese keyboard page tab.,48px
+ui.keyboard.hiragana_voiced,Hira.゛,Japanese keyboard page tab (voiced kana).,48px
+ui.keyboard.katakana,Kata.,Japanese keyboard page tab.,48px
+ui.keyboard.katakana_voiced,Kata.゛,Japanese keyboard page tab (voiced kana).,48px
+ui.keyboard.space,Space,Keyboard button.,62px
+ui.keyboard.back,Back,Keyboard button: delete the last character.,62px
+ui.keyboard.ok,OK,Keyboard button: confirm the name.,62px
+ui.keyboard.count,{count}/{max},Characters typed out of the most allowed.,48px
+ui.pokedex.number,No. {number},"National Pokédex number, already padded: ""No. 025"".",
+ui.pokedex.switch,L/R: language,Hint: change the language of the entry.,
+ui.pokedex.height,"HT {height, number} m","Height in metres, written the locale's way (0.7 / 0,7).",
+ui.pokedex.weight,"WT {weight, number} kg","Weight in kilograms, written the locale's way.",
+ui.pokedex.no_entry,No data for this Pokémon in this language.,,
+ui.battle.command.fight,FIGHT,Battle command button (drawn over ui/battle/cursor_command).,52px
+ui.battle.command.pokemon,POKéMON,Battle command button.,52px
+ui.battle.command.bag,BAG,Battle command button.,52px
+ui.battle.command.run,RUN,Battle command button.,52px
+ui.battle.command.call,CALL,Battle command button (Shadow Pokémon).,52px
+ui.battle.command.ball,BALL,Safari battle command button.,52px
+ui.battle.command.rock,ROCK,Safari battle command button.,52px
+ui.battle.command.bait,BAIT,Safari battle command button.,52px
+ui.battle.command.cancel,CANCEL,Battle command button.,52px
+ui.trainer_card.title,TRAINER CARD,Header of the Trainer Card (drawn over ui/trainer_card/card).,90px

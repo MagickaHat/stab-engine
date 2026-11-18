@@ -1,0 +1,77 @@
+key,text,notes
+battle.turn,Turn {turn},Start of a turn in the battle log.
+battle.switch.own,Go! {pokemon}!,The player sends out a Pokémon.
+battle.switch.foe,{trainer} sent out {pokemon}!,A trainer sends out a Pokémon. {trainer}: trainer name.
+battle.switch.wild,A wild {pokemon} appeared!,Start of a wild battle.
+battle.drag,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was dragged out!","Forced in by Roar, Dragon Tail…"
+battle.move,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} used {move}!","A Pokémon uses a move. {side}: own, foe or wild."
+battle.damage.from,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was hurt by {effect}!","Damage from a status, item or field effect. {effect}: battle.effect.* or an item/ability name."
+battle.heal,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} had its HP restored.",
+battle.heal.from,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} restored HP using its {effect}!",{effect}: usually an item or ability name.
+battle.supereffective,It's super effective!,
+battle.resisted,It's not very effective...,
+battle.immune,"It doesn't affect {side, select, foe {the opposing {pokemon}} wild {the wild {pokemon}} other {{pokemon}}}...",
+battle.crit,A critical hit!,
+battle.miss,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}}'s attack missed!",
+battle.fail,But it failed!,
+battle.status,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} is affected by {status}!",A status without its own key.
+battle.status.brn,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was burned!",
+battle.status.par,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} is paralyzed! It may be unable to move!",
+battle.status.slp,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} fell asleep!",
+battle.status.frz,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was frozen solid!",
+battle.status.psn,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was poisoned!",
+battle.status.tox,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was badly poisoned!",
+battle.curestatus,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was cured of its status condition!",
+battle.curestatus.slp,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} woke up!",
+battle.curestatus.frz,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} thawed out!",
+battle.curestatus.par,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} was cured of paralysis!",
+battle.boost,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}}'s {stat} {amount, plural, =0 {won't go any higher!} =1 {rose!} =2 {rose sharply!} other {rose drastically!}}","{stat}: battle.stat.*, with its grammar tags. {amount}: stages, 0 to 6."
+battle.unboost,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}}'s {stat} {amount, plural, =0 {won't go any lower!} =1 {fell!} =2 {harshly fell!} other {severely fell!}}","{stat}: battle.stat.*, with its grammar tags. {amount}: stages, 0 to 6."
+battle.terastallize,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} has Terastallized into the {type} type!",
+battle.ability,"({side, select, foe {the opposing {pokemon}} wild {the wild {pokemon}} other {{pokemon}}}'s {ability})",Shown when an ability activates. The UI font has no square brackets.
+battle.cant,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} can't move!",
+battle.cant.slp,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} is fast asleep.",
+battle.cant.par,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} is paralyzed! It can't move!",
+battle.cant.frz,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} is frozen solid!",
+battle.cant.flinch,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} flinched and couldn't move!",
+battle.cant.recharge,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} must recharge!",
+battle.faint,"{side, select, foe {The opposing {pokemon}} wild {The wild {pokemon}} other {{pokemon}}} fainted!",
+battle.weather.raindance.start,It started to rain!,
+battle.weather.raindance.upkeep,Rain continues to fall.,
+battle.weather.raindance.end,The rain stopped.,
+battle.weather.sunnyday.start,The sunlight turned harsh!,
+battle.weather.sunnyday.upkeep,The sunlight is strong.,
+battle.weather.sunnyday.end,The harsh sunlight faded.,
+battle.weather.sandstorm.start,A sandstorm kicked up!,
+battle.weather.sandstorm.upkeep,The sandstorm is raging.,
+battle.weather.sandstorm.end,The sandstorm subsided.,
+battle.weather.snow.start,It started to snow!,
+battle.weather.snow.upkeep,Snow continues to fall.,
+battle.weather.snow.end,The snow stopped.,
+battle.weather.hail.start,It started to hail!,
+battle.weather.hail.upkeep,Hail continues to fall.,
+battle.weather.hail.end,The hail stopped.,
+battle.weather.end,The weather returned to normal.,Any weather without its own key ended.
+battle.win,{trainer} won the battle!,
+battle.win.own,You won the battle!,The player won.
+battle.tie,The battle ended in a draw!,
+battle.exp.gained,{pokemon} gained {exp} Exp. Points!,Sent by the game after a foe faints. {exp} is already formatted.
+battle.exp.level,{pokemon} grew to Lv. {level}!,
+battle.move.learned,{pokemon} learned {move}!,
+battle.move.banked,{pokemon} learned {move}! It was stored in its move bank.,The Pokémon already knows four moves.
+battle.stat.atk,Attack,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.def,Defense,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.spa,Sp. Atk,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.spd,Sp. Def,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.spe,Speed,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.accuracy,accuracy,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.stat.evasion,evasiveness,Stat name in boost messages. Tag it for the articles battle.boost uses.
+battle.effect.psn,poison,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.tox,poison,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.brn,its burn,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.recoil,the recoil,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.stealthrock,pointed stones,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.spikes,the spikes,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.sandstorm,the sandstorm,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.hail,the hail,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."
+battle.effect.confusion,its confusion,"Fills {effect} in ""{pokemon} was hurt by {effect}!""."

@@ -1,0 +1,20 @@
+{
+    "types.bug.name": "むし",
+    "types.dark.name": "あく",
+    "types.dragon.name": "ドラゴン",
+    "types.electric.name": "でんき",
+    "types.fairy.name": "フェアリー",
+    "types.fighting.name": "かくとう",
+    "types.fire.name": "ほのお",
+    "types.flying.name": "ひこう",
+    "types.ghost.name": "ゴースト",
+    "types.grass.name": "くさ",
+    "types.ground.name": "じめん",
+    "types.ice.name": "こおり",
+    "types.normal.name": "ノーマル",
+    "types.poison.name": "どく",
+    "types.psychic.name": "エスパー",
+    "types.rock.name": "いわ",
+    "types.steel.name": "はがね",
+    "types.water.name": "みず"
+}

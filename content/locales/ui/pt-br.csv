@@ -1,0 +1,24 @@
+key,text,notes,tags,hash
+ui.language.title,Escolha seu idioma,,,4545ebf7
+ui.language.confirm,Jogar em {language}? O idioma deste jogo salvo não poderá ser alterado depois.,,,43489714
+ui.keyboard.upper,MAIÚSC.,,,ad4113e7
+ui.keyboard.lower,minúsc.,,,b51d04ba
+ui.keyboard.others,Outros,,,69bad712
+ui.keyboard.space,Espaço,,,c1c43225
+ui.keyboard.back,Apagar,,,c2954bc2
+ui.keyboard.ok,OK,,,85e4b82f
+ui.pokedex.number,Nº {number},,,a52a46ff
+ui.pokedex.switch,L/R: idioma,,,8350cdca
+ui.pokedex.height,"ALT. {height, number} m",,,a2c4e972
+ui.pokedex.weight,"PESO {weight, number} kg",,,64396b69
+ui.pokedex.no_entry,Não há dados deste Pokémon neste idioma.,,,1cecc39f
+ui.battle.command.fight,LUTAR,,,8fc60c69
+ui.battle.command.pokemon,POKéMON,,,f3fe757a
+ui.battle.command.bag,MOCHILA,,,a86e0e91
+ui.battle.command.run,FUGIR,,,ada7caaa
+ui.battle.command.call,CHAMAR,,,b14354e9
+ui.battle.command.ball,BOLA,,,e02559e4
+ui.battle.command.rock,PEDRA,,,776d7fb4
+ui.battle.command.bait,ISCA,,,fe325511
+ui.battle.command.cancel,VOLTAR,,,52fabbdb
+ui.trainer_card.title,CARTÃO TREINADOR,,,b064b734
