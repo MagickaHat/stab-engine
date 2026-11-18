@@ -5,14 +5,18 @@
 import { useEffect } from 'react';
 import { PhaserGame } from './PhaserGame';
 import { EventBus, GameEvents } from './bus/EventBus';
-import { EventDialogue, lockLandscape, PixelText, RotateDevicePrompt, UiAssetGate, UiLayer, useUiStore, VirtualPad, Window } from './ui';
+import { FRONT_END_SCENES } from './game/title/sceneKeys';
+import {
+    EventDialogue, lockLandscape, PixelText, RotateDevicePrompt, TitleUi, UiAssetGate, UiLayer, useUiStore, VirtualPad, Window,
+} from './ui';
 
 /**
  * @brief Sample HUD showing both directions of React ↔ Phaser communication.
  *
  * Only shown by `npm run dev`. The label shows the active scene, published by
  * the scene as plain data (Phaser → bus → UI store → React), and the button
- * asks the scene to shake the camera (React → bus → Phaser). Replace it with real UI.
+ * asks the overworld to shake the camera (React → bus → Phaser). Hidden on the
+ * intro and title screen. Replace it with real UI.
  *
  * @return The HUD elements.
  */
@@ -20,7 +24,7 @@ function SampleHud ()
 {
     const sceneKey = useUiStore((ui) => ui.sceneKey);
     const busy = useUiStore((ui) => ui.modalCount > 0);
-    if (busy) return null;
+    if (busy || !sceneKey || FRONT_END_SCENES.includes(sceneKey)) return null;
 
     return (
         <>
@@ -51,6 +55,7 @@ export default function App ()
             <UiLayer>
                 <UiAssetGate>
                     {import.meta.env.DEV && <SampleHud />}
+                    <TitleUi />
                     <EventDialogue />
                 </UiAssetGate>
                 <VirtualPad />

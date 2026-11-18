@@ -117,8 +117,7 @@ export function objectLayers (layers: readonly TiledLayer[]): TiledLayer[]
 
 /** @brief Names of the enums `npm run events:sync-tiled` writes into the Tiled project. */
 export type EnumName =
-    | 'Flag' | 'Variable' | 'Item' | 'Species' | 'Move' | 'TrainerId' | 'StoryMilestone' | 'StoryTrack' | 'InkStory'
-    | 'InkKnot' | 'TextKey' | 'Script' | 'CommonEvent' | 'Map' | 'TriggerType' | 'Direction' | 'MoveType' | 'Emote' | 'Native';
+    |'Flag'|'Variable'|'Item'|'Species'|'Move'|'TrainerId'|'StoryMilestone'|'StoryTrack'|'InkStory'|'InkKnot'|'TextKey'|'Script'|'CommonEvent'|'Map'|'TriggerType'|'Direction'|'MoveType'|'Emote'|'Native'|'Picture';
 
 /** @brief One property of an object class. */
 export interface MemberSpec

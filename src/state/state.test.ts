@@ -271,8 +271,15 @@ test('SaveManager: save, list, load and delete', () =>
     assert.deepEqual(saves.list().map((info) => info.status), ['empty', 'empty', 'empty']);
     const summary = saves.save(1, state);
     assert.deepEqual(summary, {
-        slot: 1, savedAt: '2026-01-02T03:04:05.000Z', playerName: 'Red', playTimeMs: 90_000,
-        map: 'route1', party: [{ species: 'pikachu', level: 50 }],
+        slot: 1,
+        savedAt: '2026-01-02T03:04:05.000Z',
+        playerName: 'Red',
+        playTimeMs: 90_000,
+        map: 'route1',
+        party: [{ species: 'pikachu', level: 50, shiny: false, gender: 'N' }],
+        badges: 0,
+        pokedexOwned: 1,
+        language: 'en',
     });
     assert.deepEqual(saves.list(), [{ slot: 0, status: 'empty' }, { slot: 1, status: 'ok', summary }, { slot: 2, status: 'empty' }]);
     assert.ok(storage.getItem('stab-engine:save:1'));

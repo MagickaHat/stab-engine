@@ -6,7 +6,8 @@
  * These checks go further and compare every name a script or map uses with
  * the registries (registries.ts): unknown flags, variables, items, species,
  * moves, trainers, text keys, ink knots, maps, common events, natives and
- * emotes are errors; untranslated text and risky autorun pages are warnings.
+ * emotes are errors; untranslated text, missing pictures and risky autorun
+ * pages are warnings.
  */
 import type { CompiledPage, EventBundle, Instruction } from '../../src/events/compile.ts';
 import { YES_NO_KEYS } from '../../src/events/compile.ts';
@@ -203,6 +204,13 @@ class Checker
             case 'move': this.route(at, command.route); break;
             case 'moveMany': for (const move of command.moves) this.route(at, move.route); break;
             case 'emote': this.known(at, 'Emote', command.emote, 'emote'); break;
+            case 'showPicture':
+                if (!this.sets.Picture.has(command.name))
+                    this.warn(
+                        at,
+                        `picture "${command.name}" not found (expected public/assets/img/pictures/${
+                            command.name}.png)`);
+                break;
             case 'cry': this.known(at, 'Species', command.species, 'species'); break;
             case 'warp': this.warp(at, command.map, command.spawn, command.x, command.y); break;
             case 'givePokemon':

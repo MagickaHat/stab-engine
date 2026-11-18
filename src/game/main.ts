@@ -1,6 +1,8 @@
 import { Battle } from './scenes/Battle';
-import { Game as MainGame } from './scenes/Game';
+import {Boot} from './scenes/Boot';
 import { Overworld } from './scenes/Overworld';
+import {Splash} from './scenes/Splash';
+import {Title} from './scenes/Title';
 import { AUTO, Core, Game, Scale, Types } from 'phaser';
 import { attachUiSounds } from './uiSounds';
 import { attachPixelScale } from './viewport';
@@ -15,7 +17,7 @@ const config: Types.Core.GameConfig = {
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#000000',
     // The game is drawn at a low resolution and scaled up, so keep pixels sharp.
     pixelArt: true,
     //  Keyboard, gamepad, mouse and touch are read by src/input instead (see docs/INPUT_SYSTEM.md).
@@ -24,17 +26,11 @@ const config: Types.Core.GameConfig = {
         gamepad: false,
     },
     //  Scaled by whole device pixels only, so pixels stay square and sharp (see src/game/viewport.ts).
-    scale: {
-        mode: Scale.NONE,
-        autoCenter: Scale.NO_CENTER
-    },
-    //  The first scene starts by itself. `Battle` is started with a team (see scenes/Battle.ts),
-    //  `Overworld` with a map (see scenes/Overworld.ts).
-    scene: [
-        MainGame,
-        Overworld,
-        Battle
-    ]
+    scale: { mode: Scale.NONE, autoCenter: Scale.NO_CENTER },
+    //  The first scene starts by itself: Boot → Splash (splashes, opening movie) → Title
+    //  (New Game / Continue) → Overworld. See src/game/title/titleConfig.ts and docs/TITLE_SCREEN.md.
+    //  `Battle` is started with a team (see scenes/Battle.ts), `Overworld` with a map (see scenes/Overworld.ts).
+    scene: [Boot, Splash, Title, Overworld, Battle]
 };
 
 /**

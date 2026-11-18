@@ -27,3 +27,12 @@ ui.battle.command.rock,ROCK,Safari battle command button.,52px
 ui.battle.command.bait,BAIT,Safari battle command button.,52px
 ui.battle.command.cancel,CANCEL,Battle command button.,52px
 ui.trainer_card.title,TRAINER CARD,Header of the Trainer Card (drawn over ui/trainer_card/card).,90px
+ui.title.press_start,PRESS START,"Title screen prompt, blinking under the logo.",200px
+ui.load.continue,CONTINUE,Header of a saved game's panel in the New Game / Continue menu.,120px
+ui.load.new_game,NEW GAME,New Game / Continue menu entry: start a new game.,170px
+ui.load.player,PLAYER,Continue panel label: the player's name follows.,60px
+ui.load.badges,BADGES,Continue panel label: the number of badges follows.,60px
+ui.load.pokedex,POKéDEX,Continue panel label: the number of Pokémon owned follows.,60px
+ui.load.time,TIME,Continue panel label: the play time (h:mm) follows.,60px
+ui.load.corrupt,This save file is damaged and cannot be loaded.,Shown in place of a save that cannot be read.,3x180px
+ui.load.newer,This save file is from a newer version of the game.,Shown in place of a save made by a newer version.,3x180px

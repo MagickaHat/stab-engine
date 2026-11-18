@@ -98,6 +98,20 @@ export type TextParams = z.infer<typeof TextParams>;
 /** @brief A colour as `#rrggbb`. */
 const Color = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'must be a colour like "#000000"');
 
+/** @brief Highest picture number. Pictures are drawn in number order, the highest on top. */
+export const MAX_PICTURES = 50;
+
+/** @brief Picture number, 1 to `MAX_PICTURES`. */
+const PictureId = z.number().int().min(1).max(MAX_PICTURES);
+
+/** @brief Point of a picture placed at `x`/`y`: its top-left corner or its centre. */
+export const PICTURE_ORIGINS = ['topLeft', 'center'] as const;
+export type PictureOrigin = (typeof PICTURE_ORIGINS)[number];
+
+/** @brief How a `movePicture` speeds up and slows down. */
+export const PICTURE_EASES = ['linear', 'in', 'out', 'inOut'] as const;
+export type PictureEase = (typeof PICTURE_EASES)[number];
+
 // ------------------------------------------------------------ Conditions
 
 /**
@@ -295,6 +309,37 @@ export type Command =
     | { cmd: 'fade'; dir: 'out' | 'in'; color?: string; ms?: number }
     | { cmd: 'tint'; color: string; alpha: number; ms?: number }
     | { cmd: 'flash'; color?: string; ms?: number }
+    |
+    {
+        cmd: 'showPicture';
+        id: number;
+        name: string;
+        x?: number;
+        y?: number;
+        origin?: PictureOrigin;
+        opacity?: number;
+        mirror?: boolean;
+        ms?: number;
+        wait?: boolean;
+    }
+    |
+    {
+        cmd: 'movePicture';
+        id: number;
+        x?: number;
+        y?: number;
+        opacity?: number;
+        ms?: number;
+        ease?: PictureEase;
+        wait?: boolean
+    }
+    |
+    {
+        cmd: 'erasePicture';
+        id: number|'all';
+        ms?: number;
+        wait?: boolean
+    }
     | { cmd: 'se'; name: string; volume?: number }
     | { cmd: 'bgm'; name: string | null; volume?: number; fadeMs?: number }
     | { cmd: 'me'; name: string; wait?: boolean }
@@ -343,122 +388,211 @@ const battleBranches = {
 export const Command: z.ZodType<Command> = z.lazy(() => z.discriminatedUnion('cmd', [
     // Flow
     z.strictObject({
-        cmd: z.literal('if'), cond: Condition, then: Commands,
-        elsif: z.array(z.strictObject({ cond: Condition, then: Commands })).optional(), else: Commands.optional(),
+        cmd: z.literal('if'),
+        cond: Condition,
+        then: Commands,
+        elsif: z.array(z.strictObject({cond: Condition, then: Commands})).optional(),
+        else: Commands.optional(),
     }),
     z.strictObject({
-        cmd: z.literal('switch'), var: Name,
-        cases: z.array(z.strictObject({ value: z.union([z.number(), z.string()]), then: Commands })),
+        cmd: z.literal('switch'),
+        var : Name,
+        cases: z.array(z.strictObject({value: z.union([z.number(), z.string()]), then: Commands})),
         default: Commands.optional(),
     }),
-    z.strictObject({ cmd: z.literal('loop'), body: Commands }),
-    z.strictObject({ cmd: z.literal('break') }),
-    z.strictObject({ cmd: z.literal('label'), name: Name }),
-    z.strictObject({ cmd: z.literal('goto'), label: Name }),
-    z.strictObject({ cmd: z.literal('wait'), ms: z.number().min(0) }),
-    z.strictObject({ cmd: z.literal('exit') }),
-    z.strictObject({ cmd: z.literal('callCommon'), id: Name }),
-    z.strictObject({ cmd: z.literal('parallel'), branches: z.array(Commands).min(1) }),
-    z.strictObject({ cmd: z.literal('lock') }),
-    z.strictObject({ cmd: z.literal('unlock') }),
-    z.strictObject({ cmd: z.literal('comment'), text: z.string() }),
+    z.strictObject({cmd: z.literal('loop'), body: Commands}),
+    z.strictObject({cmd: z.literal('break')}),
+    z.strictObject({cmd: z.literal('label'), name: Name}),
+    z.strictObject({cmd: z.literal('goto'), label: Name}),
+    z.strictObject({cmd: z.literal('wait'), ms: z.number().min(0)}),
+    z.strictObject({cmd: z.literal('exit')}),
+    z.strictObject({cmd: z.literal('callCommon'), id: Name}),
+    z.strictObject({cmd: z.literal('parallel'), branches: z.array(Commands).min(1)}),
+    z.strictObject({cmd: z.literal('lock')}),
+    z.strictObject({cmd: z.literal('unlock')}),
+    z.strictObject({cmd: z.literal('comment'), text: z.string()}),
     z.strictObject({
-        cmd: z.literal('native'), name: Name, args: z.record(z.string(), ValueRef).optional(), resultVar: Name.optional(),
+        cmd: z.literal('native'),
+        name: Name,
+        args: z.record(z.string(), ValueRef).optional(),
+        resultVar: Name.optional(),
     }),
     // State
-    z.strictObject({ cmd: z.literal('setFlag'), flag: Name, value: z.boolean().optional() }),
+    z.strictObject({cmd: z.literal('setFlag'), flag: Name, value: z.boolean().optional()}),
     z.strictObject({
-        cmd: z.literal('setVar'), var: Name, op: z.enum(['set', 'add', 'sub', 'mul', 'div', 'mod']).optional(), value: ValueRef,
+        cmd: z.literal('setVar'),
+        var : Name,
+        op: z.enum(['set', 'add', 'sub', 'mul', 'div', 'mod']).optional(),
+        value: ValueRef,
     }),
     z.strictObject({
         cmd: z.literal('setSelfSwitch'), switch: SelfSwitchLetter, value: z.boolean().optional(),
         event: z.number().int().min(0).optional(),
     }),
-    z.strictObject({ cmd: z.literal('setStory'), milestone: Name, track: Name.optional() }),
-    z.strictObject({ cmd: z.literal('addMoney'), amount: ValueRef }),
+    z.strictObject({cmd: z.literal('setStory'), milestone: Name, track: Name.optional()}),
+    z.strictObject({cmd: z.literal('addMoney'), amount: ValueRef}),
     // Dialogue
-    z.strictObject({ cmd: z.literal('message'), key: Name, params: TextParams.optional(), speaker: Name.optional() }),
+    z.strictObject({cmd: z.literal('message'), key: Name, params: TextParams.optional(), speaker: Name.optional()}),
     z.strictObject({
-        cmd: z.literal('choice'), key: Name.optional(), params: TextParams.optional(),
-        options: z.array(z.strictObject({ key: Name, then: Commands })).min(1),
+        cmd: z.literal('choice'),
+        key: Name.optional(),
+        params: TextParams.optional(),
+        options: z.array(z.strictObject({key: Name, then: Commands})).min(1),
         cancel: z.number().int().min(-1).optional(),
     }),
     z.strictObject({
-        cmd: z.literal('yesNo'), key: Name, params: TextParams.optional(), yes: Commands.optional(), no: Commands.optional(),
+        cmd: z.literal('yesNo'),
+        key: Name,
+        params: TextParams.optional(),
+        yes: Commands.optional(),
+        no: Commands.optional(),
     }),
-    z.strictObject({ cmd: z.literal('ink'), story: Name, knot: z.string().min(1).optional() }),
-    z.strictObject({ cmd: z.literal('nameInput'), var: Name, key: Name.optional(), max: z.number().int().min(1).optional() }),
-    z.strictObject({ cmd: z.literal('nickname'), slot: z.number().int().min(0).max(5).optional(), key: Name.optional() }),
-    z.strictObject({ cmd: z.literal('pokedexEntry'), species: Id }),
+    z.strictObject({cmd: z.literal('ink'), story: Name, knot: z.string().min(1).optional()}),
+    z.strictObject(
+        {cmd: z.literal('nameInput'), var : Name, key: Name.optional(), max: z.number().int().min(1).optional()}),
+    z.strictObject({cmd: z.literal('nickname'), slot: z.number().int().min(0).max(5).optional(), key: Name.optional()}),
+    z.strictObject({cmd: z.literal('pokedexEntry'), species: Id}),
     // Cutscene
     z.strictObject({
-        cmd: z.literal('move'), target: Target, route: z.array(RouteStep), wait: z.boolean().optional(),
+        cmd: z.literal('move'),
+        target: Target,
+        route: z.array(RouteStep),
+        wait: z.boolean().optional(),
         skipBlocked: z.boolean().optional(),
     }),
     z.strictObject({
-        cmd: z.literal('moveMany'), moves: z.array(z.strictObject({ target: Target, route: z.array(RouteStep) })).min(1),
-        wait: z.boolean().optional(), skipBlocked: z.boolean().optional(),
+        cmd: z.literal('moveMany'),
+        moves: z.array(z.strictObject({target: Target, route: z.array(RouteStep)})).min(1),
+        wait: z.boolean().optional(),
+        skipBlocked: z.boolean().optional(),
     }),
-    z.strictObject({ cmd: z.literal('waitMoves') }),
+    z.strictObject({cmd: z.literal('waitMoves')}),
     z.strictObject({
-        cmd: z.literal('pathTo'), target: Target,
-        to: z.union([z.strictObject({ x: z.number().int(), y: z.number().int() }), z.strictObject({ target: Target })]),
-        wait: z.boolean().optional(), adjacent: z.boolean().optional(),
+        cmd: z.literal('pathTo'),
+        target: Target,
+        to: z.union([z.strictObject({x: z.number().int(), y: z.number().int()}), z.strictObject({target: Target})]),
+        wait: z.boolean().optional(),
+        adjacent: z.boolean().optional(),
     }),
-    z.strictObject({ cmd: z.literal('face'), target: Target, dir: Direction.optional(), towards: Target.optional() }),
+    z.strictObject({cmd: z.literal('face'), target: Target, dir: Direction.optional(), towards: Target.optional()}),
     z.strictObject({
         cmd: z.literal('camera'),
-        to: z.union([z.literal('player'), z.strictObject({ x: z.number(), y: z.number() }), z.strictObject({ target: Target })]),
-        ms: z.number().min(0).optional(), wait: z.boolean().optional(),
-    }),
-    z.strictObject({
-        cmd: z.literal('shake'), intensity: z.number().min(0).optional(), ms: z.number().min(0).optional(),
+        to: z.union(
+            [z.literal('player'), z.strictObject({x: z.number(), y: z.number()}), z.strictObject({target: Target})]),
+        ms: z.number().min(0).optional(),
         wait: z.boolean().optional(),
     }),
-    z.strictObject({ cmd: z.literal('emote'), target: Target, emote: Name, wait: z.boolean().optional() }),
-    z.strictObject({ cmd: z.literal('fade'), dir: z.enum(['out', 'in']), color: Color.optional(), ms: z.number().min(0).optional() }),
-    z.strictObject({ cmd: z.literal('tint'), color: Color, alpha: z.number().min(0).max(1), ms: z.number().min(0).optional() }),
-    z.strictObject({ cmd: z.literal('flash'), color: Color.optional(), ms: z.number().min(0).optional() }),
-    z.strictObject({ cmd: z.literal('se'), name: z.string().min(1), volume: z.number().min(0).max(1).optional() }),
     z.strictObject({
-        cmd: z.literal('bgm'), name: z.string().min(1).nullable(), volume: z.number().min(0).max(1).optional(),
+        cmd: z.literal('shake'),
+        intensity: z.number().min(0).optional(),
+        ms: z.number().min(0).optional(),
+        wait: z.boolean().optional(),
+    }),
+    z.strictObject({cmd: z.literal('emote'), target: Target, emote: Name, wait: z.boolean().optional()}),
+    z.strictObject({
+        cmd: z.literal('fade'),
+        dir: z.enum(['out', 'in']),
+        color: Color.optional(),
+        ms: z.number().min(0).optional()
+    }),
+    z.strictObject(
+        {cmd: z.literal('tint'), color: Color, alpha: z.number().min(0).max(1), ms: z.number().min(0).optional()}),
+    z.strictObject({cmd: z.literal('flash'), color: Color.optional(), ms: z.number().min(0).optional()}),
+    z.strictObject({
+        cmd: z.literal('showPicture'),
+        id: PictureId,
+        name: Name,
+        x: z.number().int().optional(),
+        y: z.number().int().optional(),
+        origin: z.enum(PICTURE_ORIGINS).optional(),
+        opacity: z.number().min(0).max(1).optional(),
+        mirror: z.boolean().optional(),
+        ms: z.number().min(0).optional(),
+        wait: z.boolean().optional(),
+    }),
+    z.strictObject({
+        cmd: z.literal('movePicture'),
+        id: PictureId,
+        x: z.number().int().optional(),
+        y: z.number().int().optional(),
+        opacity: z.number().min(0).max(1).optional(),
+        ms: z.number().min(0).optional(),
+        ease: z.enum(PICTURE_EASES).optional(),
+        wait: z.boolean().optional(),
+    }),
+    z.strictObject({
+        cmd: z.literal('erasePicture'),
+        id: z.union([PictureId, z.literal('all')]),
+        ms: z.number().min(0).optional(),
+        wait: z.boolean().optional(),
+    }),
+    z.strictObject({cmd: z.literal('se'), name: z.string().min(1), volume: z.number().min(0).max(1).optional()}),
+    z.strictObject({
+        cmd: z.literal('bgm'),
+        name: z.string().min(1).nullable(),
+        volume: z.number().min(0).max(1).optional(),
         fadeMs: z.number().min(0).optional(),
     }),
-    z.strictObject({ cmd: z.literal('me'), name: z.string().min(1), wait: z.boolean().optional() }),
-    z.strictObject({ cmd: z.literal('cry'), species: Id, wait: z.boolean().optional() }),
-    z.strictObject({ cmd: z.literal('show'), target: Target }),
-    z.strictObject({ cmd: z.literal('hide'), target: Target }),
-    z.strictObject({ cmd: z.literal('erase'), target: Target.optional() }),
+    z.strictObject({cmd: z.literal('me'), name: z.string().min(1), wait: z.boolean().optional()}),
+    z.strictObject({cmd: z.literal('cry'), species: Id, wait: z.boolean().optional()}),
+    z.strictObject({cmd: z.literal('show'), target: Target}),
+    z.strictObject({cmd: z.literal('hide'), target: Target}),
+    z.strictObject({cmd: z.literal('erase'), target: Target.optional()}),
     z.strictObject({
-        cmd: z.literal('setPosition'), target: Target, x: z.number().int(), y: z.number().int(), dir: Direction.optional(),
+        cmd: z.literal('setPosition'),
+        target: Target,
+        x: z.number().int(),
+        y: z.number().int(),
+        dir: Direction.optional(),
     }),
-    z.strictObject({ cmd: z.literal('setGraphic'), target: Target, graphic: z.string() }),
+    z.strictObject({cmd: z.literal('setGraphic'), target: Target, graphic: z.string()}),
     z.strictObject({
-        cmd: z.literal('warp'), map: z.string().min(1), x: z.number().int().optional(), y: z.number().int().optional(),
-        spawn: z.string().min(1).optional(), dir: Direction.optional(), transition: z.enum(['fade', 'none']).optional(),
+        cmd: z.literal('warp'),
+        map: z.string().min(1),
+        x: z.number().int().optional(),
+        y: z.number().int().optional(),
+        spawn: z.string().min(1).optional(),
+        dir: Direction.optional(),
+        transition: z.enum(['fade', 'none']).optional(),
     }),
-    z.strictObject({ cmd: z.literal('playerControl'), enabled: z.boolean() }),
+    z.strictObject({cmd: z.literal('playerControl'), enabled: z.boolean()}),
     // Pokémon, items and the player
     z.strictObject({
-        cmd: z.literal('givePokemon'), species: Id, level: ValueRef, ability: Id.optional(), moves: z.array(Id).max(4).optional(),
-        nickname: z.string().min(1).optional(), shiny: z.boolean().optional(), item: Id.optional(), nature: Id.optional(),
-        gender: z.enum(['M', 'F', 'N']).optional(), silent: z.boolean().optional(),
+        cmd: z.literal('givePokemon'),
+        species: Id,
+        level: ValueRef,
+        ability: Id.optional(),
+        moves: z.array(Id).max(4).optional(),
+        nickname: z.string().min(1).optional(),
+        shiny: z.boolean().optional(),
+        item: Id.optional(),
+        nature: Id.optional(),
+        gender: z.enum(['M', 'F', 'N']).optional(),
+        silent: z.boolean().optional(),
         language: z.enum(POKEMON_LANGUAGE_IDS).optional(),
-        ot: z.strictObject({ name: z.string().min(1), id: z.number().int().min(0).max(999999) }).optional(),
+        ot: z.strictObject({name: z.string().min(1), id: z.number().int().min(0).max(999999)}).optional(),
     }),
-    z.strictObject({ cmd: z.literal('removePokemon'), species: Id }),
-    z.strictObject({ cmd: z.literal('heal') }),
-    z.strictObject({ cmd: z.literal('giveItem'), item: Id, quantity: ValueRef.optional(), silent: z.boolean().optional() }),
-    z.strictObject({ cmd: z.literal('takeItem'), item: Id, quantity: ValueRef.optional() }),
+    z.strictObject({cmd: z.literal('removePokemon'), species: Id}),
+    z.strictObject({cmd: z.literal('heal')}),
+    z.strictObject(
+        {cmd: z.literal('giveItem'), item: Id, quantity: ValueRef.optional(), silent: z.boolean().optional()}),
+    z.strictObject({cmd: z.literal('takeItem'), item: Id, quantity: ValueRef.optional()}),
     z.strictObject({
-        cmd: z.literal('teachMove'), species: Id.optional(), slot: z.number().int().min(0).max(5).optional(), move: Id,
+        cmd: z.literal('teachMove'),
+        species: Id.optional(),
+        slot: z.number().int().min(0).max(5).optional(),
+        move: Id,
     }),
-    z.strictObject({ cmd: z.literal('setPlayerName'), name: ValueRef }),
+    z.strictObject({cmd: z.literal('setPlayerName'), name: ValueRef}),
     // Battles
-    z.strictObject({ cmd: z.literal('trainerBattle'), trainer: Name, ...battleBranches }),
+    z.strictObject({cmd: z.literal('trainerBattle'), trainer: Name, ...battleBranches}),
     z.strictObject({
-        cmd: z.literal('wildBattle'), species: Id, level: ValueRef, shiny: z.boolean().optional(),
-        moves: z.array(Id).max(4).optional(), ...battleBranches,
+        cmd: z.literal('wildBattle'),
+        species: Id,
+        level: ValueRef,
+        shiny: z.boolean().optional(),
+        moves: z.array(Id).max(4).optional(),
+        ...battleBranches,
     }),
 ]));
 

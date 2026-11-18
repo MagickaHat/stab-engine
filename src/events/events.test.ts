@@ -18,7 +18,8 @@ import { DIRECTION_DELTA, findPath } from './pathfinding.ts';
 import { EventManager } from './runtime/EventManager.ts';
 import type { EventDefinition } from './runtime/GameEvent.ts';
 import { hookMatches } from './runtime/battleHooks.ts';
-import type { Actor, BattleRequest, WarpRequest, WorldHost } from './runtime/host.ts';
+import type {Actor, BattleRequest, PictureMove, PictureRequest, WarpRequest, WorldHost} from './runtime/host.ts';
+import {WORLD_ONLY_COMMANDS} from './runtime/Interpreter.ts';
 import type { BattleResult, Command, Condition, Direction, EventFile, Page } from './schema.ts';
 import { parseCsv, parseLocaleCsv, TextStore } from './text.ts';
 import { instantiateMap } from './tiled.ts';
@@ -127,6 +128,20 @@ class FakeHost implements WorldHost
     async fade (): Promise<void> {}
     async tint (): Promise<void> {}
     async flash (): Promise<void> {}
+    /** Every picture call, in order: `show`, `move` or `erase` with its arguments. */
+    readonly pictures: unknown[][] = [];
+    async showPicture(picture: PictureRequest): Promise<void>
+    {
+        this.pictures.push(['show', picture]);
+    }
+    async movePicture(id: number, to: PictureMove, ms: number, ease: string): Promise<void>
+    {
+        this.pictures.push(['move', id, to, ms, ease]);
+    }
+    async erasePicture(id: number|'all', ms: number): Promise<void>
+    {
+        this.pictures.push(['erase', id, ms]);
+    }
     playSe (): void {}
     playBgm (): void {}
     async playMe (): Promise<void> {}
@@ -814,4 +829,36 @@ test('pokedexEntry passes the unlocked languages, the game\'s first', async () =
     w.manager.playerAction();
     await settle(w.manager);
     assert.deepEqual(shown, [['eevee', ['fr', 'ko']]]);
+});
+
+test('pictures: show, move and erase reach the host with their defaults', async () => {
+    const { host } = await runCommands([
+        { cmd: 'showPicture', id: 2, name: 'introoak', x: 128, y: 96, origin: 'center', ms: 300 },
+        { cmd: 'showPicture', id: 1, name: 'introbg' },
+        { cmd: 'movePicture', id: 2, x: 160, ms: 400, ease: 'out' },
+        { cmd: 'movePicture', id: 2, opacity: 0.5, wait: false },
+        { cmd: 'erasePicture', id: 'all', ms: 200 },
+    ]);
+    assert.deepEqual(host.pictures, [
+        ['show', { id: 2, name: 'introoak', x: 128, y: 96, origin: 'center', opacity: 1, mirror: false, ms: 300 }],
+        ['show', { id: 1, name: 'introbg', x: 0, y: 0, origin: 'topLeft', opacity: 1, mirror: false, ms: 0 }],
+        ['move', 2, { x: 160, y: undefined, opacity: undefined }, 400, 'out'],
+        ['move', 2, { x: undefined, y: undefined, opacity: 0.5 }, 0, 'linear'],
+        ['erase', 'all', 200],
+    ]);
+});
+
+test('pictures: bad numbers and options are rejected, and battle hooks cannot use them', () => {
+    const bad = compileFile(
+        talk([
+            { cmd: 'showPicture', id: 0, name: 'introbg' } as Command,
+            { cmd: 'movePicture', id: 51 } as Command,
+            { cmd: 'showPicture', id: 1, name: 'introbg', origin: 'middle' } as unknown as Command,
+            { cmd: 'erasePicture', id: 'every' } as unknown as Command,
+        ]),
+        'pictures.json');
+    assert.ok(bad.issues.length >= 4, bad.issues.join('\n'));
+    assert.ok(
+        WORLD_ONLY_COMMANDS.has('showPicture') && WORLD_ONLY_COMMANDS.has('movePicture')
+        && WORLD_ONLY_COMMANDS.has('erasePicture'));
 });

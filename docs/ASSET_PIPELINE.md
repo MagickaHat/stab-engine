@@ -208,7 +208,8 @@ For a pack with a different folder layout, copy the file, adjust it, register it
 ## 9. Other graphics: tilesets, UI, characters…
 
 `npm run assets:graphics` imports the rest of an Essentials project's (or a correctly laid-out
-asset pack's) `Graphics/` folder into `public/assets/img/`. It is the same importer with
+asset pack's) `Graphics/` folder into `public/assets/img/`, except tileset images, which go
+straight to the Tiled project in `src/tiled/tilesets/` (see **Tilesets** below). It is the same importer with
 `--format graphics`, so `--dry-run`, `--only`, `--force`, `--out`, layering several `--pack`s and
 the incremental re-runs all work the same way.
 
@@ -224,12 +225,19 @@ npm run assets:graphics -- --pack <dir> --exclude "Graphics/UI/Mining" --exclude
 style: lower case, accents dropped, anything else that is not a letter or digit becomes one `_`.
 
 ```
-Graphics/Tilesets/Poke Centre interior.png      → img/tilesets/poke_centre_interior.png
+Graphics/Tilesets/Poke Centre interior.png      → src/tiled/tilesets/poke_centre_interior.png
 Graphics/Characters/trainer_POKEMONTRAINER_Red.png → img/characters/trainer_pokemontrainer_red.png
 Graphics/UI/Town Map/mapPlayer000.png           → img/ui/town_map/mapplayer000.png
 Graphics/Transitions/021-Normal01.png           → img/transitions/021_normal01.png
 Graphics/Battle animations/ballBurst_ring4.bmp  → img/battle_animations/ballburst_ring4.png
 ```
+
+**Tilesets.** Maps are made in Tiled and bundled with their tilesets, so tileset images belong to
+the Tiled project, not to `public/`: `Graphics/Tilesets/Outside.png` is written to
+`src/tiled/tilesets/outside.png`, next to the `.tsj` tilesets that use it (see
+`docs/EVENT_SYSTEM.md` §13). This is `OUTPUT_REDIRECTS` in `tools/assets/config.ts`; add an entry
+there to send another folder somewhere else. Redirects only apply with the default output
+folder: with `--out <dir>` everything, tilesets included, stays inside `<dir>`.
 
 Character sheets land in `img/characters/`, which is where the overworld loads them from (an
 event's graphic `npc_01` is `img/characters/npc_01.png`). `.bmp` files are converted to PNG.

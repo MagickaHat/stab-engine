@@ -8,6 +8,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { decodeBmp } from './bmp.ts';
+import {OUTPUT_REDIRECTS, TILESETS_DIR} from './config.ts';
+import {outputPath, outputRoot} from './destinations.ts';
 import { assetName, excludedBy, formKey, parseAssetName, parseFormNames } from './essentials.ts';
 import { chooseFilter, detectScale, reduceAverage, reduceDominant, sampleRegion, transform } from './image.ts';
 import { gen9 } from './packs/gen9.ts';
@@ -463,4 +465,15 @@ test('image: frames that touch their edge share one grid, so no seams open', () 
     assert.deepEqual([result.image.width, result.image.height], [10, 10]);
     assert.ok(result.notes.includes('realigned'));
     assert.ok(!result.notes.includes('resampled'));
+});
+
+test('destinations: tileset images are written to the Tiled project, everything else to the output folder', () => {
+    const out = path.join(os.tmpdir(), 'assets-out');
+    assert.equal(outputPath(out, 'img/tilesets/outside.png', OUTPUT_REDIRECTS), path.join(TILESETS_DIR, 'outside.png'));
+    assert.equal(outputRoot(out, 'img/tilesets/outside.png', OUTPUT_REDIRECTS), TILESETS_DIR);
+    assert.equal(outputPath(out, 'img/ui/bag/bg.png', OUTPUT_REDIRECTS), path.join(out, 'img/ui/bag/bg.png'));
+    //  Only whole folder names match.
+    assert.equal(outputPath(out, 'img/tilesets_old/a.png', OUTPUT_REDIRECTS), path.join(out, 'img/tilesets_old/a.png'));
+    //  Without redirects (a custom --out) everything stays inside the output folder.
+    assert.equal(outputPath(out, 'img/tilesets/outside.png', []), path.join(out, 'img/tilesets/outside.png'));
 });

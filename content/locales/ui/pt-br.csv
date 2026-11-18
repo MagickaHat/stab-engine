@@ -22,3 +22,12 @@ ui.battle.command.rock,PEDRA,,,776d7fb4
 ui.battle.command.bait,ISCA,,,fe325511
 ui.battle.command.cancel,VOLTAR,,,52fabbdb
 ui.trainer_card.title,CARTÃO TREINADOR,,,b064b734
+ui.title.press_start,APERTE START,,,019999d0
+ui.load.continue,CONTINUAR,,,71395504
+ui.load.new_game,NOVO JOGO,,,c81d14d1
+ui.load.player,JOGADOR,,,bd490d80
+ui.load.badges,INSÍGNIAS,,,83265091
+ui.load.pokedex,POKéDEX,,,dfa761d1
+ui.load.time,TEMPO,,,22befb24
+ui.load.corrupt,Este jogo salvo está danificado e não pode ser carregado.,,,22f31a47
+ui.load.newer,Este jogo salvo é de uma versão mais recente do jogo.,,,0fc10ce8

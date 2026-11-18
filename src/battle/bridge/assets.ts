@@ -42,6 +42,12 @@ export interface SpriteSubject
 /** @brief Which battle sprite: `front` for the opponent, `back` for the player. */
 export type SpriteFacing = 'front' | 'back';
 
+/**
+ * @brief Which sprite file: a battle sprite, or `icon` (the party/menu icon,
+ *        two square frames side by side, e.g. 64×32).
+ */
+export type SpriteKind = SpriteFacing|'icon';
+
 /** @brief Folder of Pokémon sprites, relative to the assets folder. */
 export const POKEMON_SPRITE_DIR = 'img/pokemon';
 
@@ -49,7 +55,7 @@ export const POKEMON_SPRITE_DIR = 'img/pokemon';
 export const CRY_DIR = 'sound/se/cries';
 
 /**
- * @brief Find the battle sprite of a Pokémon.
+ * @brief Find a sprite of a Pokémon (battle sprite or icon).
  *
  * Uses the closest file that exists, in this order: the forme's own sprite
  * before the base species', the shiny sprite before the normal one, the
@@ -57,11 +63,11 @@ export const CRY_DIR = 'sound/se/cries';
  *
  * @param manifest The parsed manifest.json.
  * @param pokemon The Pokémon.
- * @param facing `'front'` or `'back'`.
+ * @param facing `'front'`, `'back'` or `'icon'`.
  * @return Path relative to the assets folder, e.g. `"img/pokemon/charizard/megax/back_shiny.png"`,
  *         or `null` if the species has no such sprite at all.
  */
-export function spritePath (manifest: AssetManifest, pokemon: SpriteSubject, facing: SpriteFacing): string | null
+export function spritePath(manifest: AssetManifest, pokemon: SpriteSubject, facing: SpriteKind): string|null
 {
     const entry = manifest.pokemon[pokemon.baseSpeciesId];
     if (!entry) return null;
@@ -86,6 +92,32 @@ export function spritePath (manifest: AssetManifest, pokemon: SpriteSubject, fac
         }
     }
     return null;
+}
+
+/**
+ * @brief Split a species ID that includes its forme (as saves store it) into
+ *        the base species and forme the sprite folders use.
+ *
+ * Uses the manifest, so no Pokédex data is needed: `rotomwash` is `rotom` +
+ * `wash` when `img/pokemon/rotom/wash/` exists. An ID the manifest does not
+ * know is returned as a base species without a forme.
+ *
+ * @param manifest The parsed manifest.json.
+ * @param speciesId Showdown ID, e.g. `"charizardmegax"` or `"pikachu"`.
+ * @return `{ baseSpeciesId, formeId }`, e.g. `{ baseSpeciesId: "charizard", formeId: "megax" }`.
+ */
+export function splitSpeciesId(
+    manifest: AssetManifest, speciesId: string): Pick<SpriteSubject, 'baseSpeciesId'|'formeId'>
+{
+    if (manifest.pokemon[speciesId]) return { baseSpeciesId: speciesId, formeId: '' };
+    //  The longest base species whose forme folder makes up the rest of the ID.
+    for (let cut = speciesId.length - 1; cut > 0; cut--)
+    {
+        const base = speciesId.slice(0, cut);
+        const forme = speciesId.slice(cut);
+        if (manifest.pokemon[base]?.formes?.[forme]) return { baseSpeciesId: base, formeId: forme };
+    }
+    return { baseSpeciesId: speciesId, formeId: '' };
 }
 
 /**

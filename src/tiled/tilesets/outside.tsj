@@ -1,0 +1,15 @@
+{
+ "columns": 8,
+ "image": "outside.png",
+ "imageheight": 8032,
+ "imagewidth": 128,
+ "margin": 0,
+ "name": "outside",
+ "spacing": 0,
+ "tilecount": 4016,
+ "tiledversion": "1.12.2",
+ "tileheight": 16,
+ "tilewidth": 16,
+ "type": "tileset",
+ "version": "1.10"
+}

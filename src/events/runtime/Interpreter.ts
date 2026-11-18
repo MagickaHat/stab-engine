@@ -40,9 +40,11 @@ export interface Frame
  * there with a warning.
  */
 export const WORLD_ONLY_COMMANDS: ReadonlySet<CommandName> = new Set<CommandName>([
-    'move', 'moveMany', 'waitMoves', 'pathTo', 'face', 'camera', 'shake', 'emote', 'fade', 'tint', 'flash', 'show', 'hide',
-    'erase', 'setPosition', 'setGraphic', 'warp', 'playerControl', 'lock', 'unlock', 'trainerBattle', 'wildBattle', 'ink',
-    'nameInput', 'nickname', 'pokedexEntry',
+    'move',     'moveMany',     'waitMoves',     'pathTo',      'face',         'camera',
+    'shake',    'emote',        'fade',          'tint',        'flash',        'show',
+    'hide',     'erase',        'setPosition',   'setGraphic',  'warp',         'playerControl',
+    'lock',     'unlock',       'trainerBattle', 'wildBattle',  'ink',          'nameInput',
+    'nickname', 'pokedexEntry', 'showPicture',   'movePicture', 'erasePicture',
 ]);
 
 /**
@@ -457,6 +459,32 @@ export class Interpreter
                 return host.tint(command.color, command.alpha, command.ms ?? 0);
             case 'flash':
                 return host.flash(command.color ?? '#ffffff', command.ms ?? 300);
+            case 'showPicture':
+            {
+                const shown = host.showPicture({
+                    id: command.id,
+                    name: command.name,
+                    x: command.x ?? 0,
+                    y: command.y ?? 0,
+                    origin: command.origin ?? 'topLeft',
+                    opacity: command.opacity ?? 1,
+                    mirror: command.mirror ?? false,
+                    ms: command.ms ?? 0,
+                });
+                return (command.wait ?? true) ? shown : void this.track(shown);
+            }
+            case 'movePicture':
+            {
+                const moved = host.movePicture(
+                    command.id, { x: command.x, y: command.y, opacity: command.opacity }, command.ms ?? 0,
+                    command.ease ?? 'linear');
+                return (command.wait ?? true) ? moved : void this.track(moved);
+            }
+            case 'erasePicture':
+            {
+                const erased = host.erasePicture(command.id, command.ms ?? 0);
+                return (command.wait ?? true) ? erased : void this.track(erased);
+            }
             case 'se':
                 host.playSe(command.name, command.volume);
                 return;

@@ -57,6 +57,7 @@ The code lives in `src/state/`. It imports neither Phaser nor React.
 | `src/state/pokemon.ts` | `createPokemon()`, `isFainted()`, `healed()`. |
 | `src/state/SaveManager.ts` | `SaveManager`: slots, storage, versions, export/import. `SaveError`. |
 | `src/state/session.ts` | `getGameState()`, `setGameState()`: the game in progress. |
+| `src/state/saves.ts` | `getSaveManager()`, `setSaveManager()`: the game's shared `SaveManager`. |
 | `src/state/battle.ts` | `partyBattle()`: takes the party into a battle and brings the result back. |
 | `src/state/experience.ts` | `expForLevel()`, `levelForExp()`, `expGain()`, `addEvs()`, `levelUpMoves()`: growth curves, the experience formula, effort values and level-up moves. |
 | `src/state/evolution.ts` | `findEvolution()`, `evolvePokemon()`, `evolvedAbility()`: evolving on level-up. |
@@ -224,8 +225,13 @@ state.updatePokemon(uid, ({ status, ...rest }) => rest);     // remove an option
 
 ## 7. Saving and loading
 
+The game shares one manager, `getSaveManager()` (`src/state/saves.ts`): the title screen's
+Continue menu reads it, and anything that saves should use it too. It keeps saves in
+`localStorage`, or in memory (with a warning) where there is none. Call
+`setSaveManager({ slots: 5 })` (or pass a `SaveManager`) before the title screen to change it.
+
 ```ts
-const saves = new SaveManager();        // 3 slots (0, 1, 2) in localStorage
+const saves = getSaveManager();         // or new SaveManager(): 3 slots (0, 1, 2) in localStorage
 
 saves.save(0, state);                   // write
 const state = saves.load(0);            // read into a new GameState
@@ -234,7 +240,8 @@ saves.delete(0);
 
 `load()` returns a new `GameState`; call `setGameState()` to make it the game in progress.
 
-For a "Continue" screen, `list()` describes every slot without throwing:
+For a "Continue" screen, `list()` describes every slot without throwing (the title screen's
+New Game / Continue menu is built on it, see `docs/TITLE_SCREEN.md`):
 
 ```ts
 for (const info of saves.list())
@@ -242,7 +249,8 @@ for (const info of saves.list())
     if (info.status === 'empty') { /* "New game" */ }
     else if (info.status === 'ok')
     {
-        const { playerName, playTimeMs, map, party, savedAt } = info.summary;
+        const { playerName, playTimeMs, map, party, savedAt, badges, pokedexOwned, language } = info.summary;
+        //  party: [{ species, level, shiny, gender }], first Pokémon first
     }
     else { /* info.error.code: the file cannot be read */ }
 }
@@ -506,6 +514,9 @@ update (_time: number, delta: number)
 }
 ```
 
+The overworld already counts play time this way (adding it once a second, so the state's
+listeners are not woken every frame), which is what the Continue panel shows.
+
 In a component, `useGameState()` returns the current data and re-renders when it changes:
 
 ```tsx
@@ -546,6 +557,11 @@ To change something from a component, call the methods of `getGameState()`.
 | `has(slot)`, `delete(slot)` | Whether a slot holds anything; erase it. |
 | `list()` | One `SlotInfo` per slot: `empty`, `ok` (with `summary`) or `error`. |
 | `exportSave(slot)`, `importSave(slot, json)` | Save file text out and in. |
+| `getSaveManager()`, `setSaveManager(options)` | The game's shared manager (`src/state/saves.ts`). |
+
+A `SaveSummary` holds `slot`, `savedAt`, `playerName`, `playTimeMs`, `map`, `party`
+(`{ species, level, shiny, gender }` each), `badges` (the `badges` variable), `pokedexOwned`
+and `language`: what a Continue panel shows, without loading the save.
 
 **Functions**
 

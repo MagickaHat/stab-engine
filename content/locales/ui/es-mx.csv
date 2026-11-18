@@ -1,2 +1,11 @@
 key,text,notes,tags,hash
 ui.language.title,Elige tu idioma,,,4545ebf7
+ui.title.press_start,PRESIONA START,,,019999d0
+ui.load.continue,CONTINUAR,,,71395504
+ui.load.new_game,NUEVA PARTIDA,,,c81d14d1
+ui.load.player,JUGADOR,,,bd490d80
+ui.load.badges,MEDALLAS,,,83265091
+ui.load.pokedex,POKéDEX,,,dfa761d1
+ui.load.time,TIEMPO,,,22befb24
+ui.load.corrupt,Esta partida guardada está dañada y no se puede cargar.,,,22f31a47
+ui.load.newer,Esta partida guardada es de una versión más reciente del juego.,,,0fc10ce8

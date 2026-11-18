@@ -32,6 +32,9 @@ export const TILED_DIR = path.join(ROOT, 'src/tiled');
 /** @brief The Tiled project file. */
 export const TILED_PROJECT = path.join(TILED_DIR, 'stab.tiled-project');
 
+/** @brief Pictures for the `showPicture` command (`assets/img/pictures/<name>.png`). */
+export const PICTURES_DIR = path.join(ROOT, 'public/assets/img/pictures');
+
 /** @brief Folder of the Tiled maps. */
 export const MAPS_DIR = path.join(TILED_DIR, 'maps');
 

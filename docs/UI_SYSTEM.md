@@ -40,6 +40,8 @@ index.html
             ├── #game-container   Phaser puts its canvas here
             └── <UiLayer>     sits exactly on top of the canvas   (src/ui/UiLayer.tsx)
                 └── <UiAssetGate>  waits for the font and skins (src/ui/assets/UiAssetGate.tsx)
+                    ├── <TitleUi>       opening movie, title text, New Game / Continue menu
+                    ├── <EventDialogue> messages, choices, name entry, language menu
                     └── your components
 ```
 
@@ -97,6 +99,8 @@ for game code only.
 | `TEXT_SPEED_CHANGED` | anyone | `{ speed }`: `'slow'`, `'mid'`, `'fast'` or `'instant'`. |
 | `UI_SHAKE` | React → Phaser | none (sample). |
 | `DIALOGUE_MESSAGE`, `DIALOGUE_CHOICE`, `DIALOGUE_NAME_INPUT` | Phaser → React | Requests from `src/world/dialogue.ts`. |
+| `DIALOGUE_LANGUAGE`, `DIALOGUE_POKEDEX_ENTRY` | Phaser → React | The New Game language menu and Pokédex entries (`src/world/dialogue.ts`). |
+| `TITLE_MOVIE`, `TITLE_LOAD_MENU` | Phaser → React | The opening movie and the New Game / Continue menu (`src/game/title/requests.ts`, see `docs/TITLE_SCREEN.md`). |
 | `BATTLE_START`, `BATTLE_RESULT`, `BATTLE_EVOLUTIONS`, `BATTLE_END` | Phaser → anyone | See `docs/BATTLE_SYSTEM.md`. |
 | `INPUT_DEVICE_CHANGED` | input → anyone | `InputDevice`. |
 
@@ -396,6 +400,11 @@ D-pad moves, A types, B deletes, L/R or Select change page, Start confirms; clic
 switches to a physical or phone keyboard. The simpler **`<NameEntry>`** (prompt plus a field)
 is still exported.
 
+**`<LoadMenu slots onPick>`** — the New Game / Continue menu (`ui/load` graphics): a panel per
+save with the player, badges, Pokédex, play time and party icons, then NEW GAME. Its layout is in
+`src/ui/menus/loadMenuLayout.ts`; **`<OpeningMovie>`** plays the opening movie. Both are shown by
+`<TitleUi>`; see [TITLE_SCREEN.md](TITLE_SCREEN.md).
+
 **`<LanguageSelect>`** — the New Game language menu: every UI language by its own name, then a
 confirmation, since a save's language never changes. **`<PokedexEntry>`** — a species' entry,
 switchable with L/R between the languages the player has unlocked.
@@ -558,8 +567,9 @@ stab.name('Your name?', 'RED', 7);
 stab.textSpeed('slow');                        // 'slow' | 'mid' | 'fast' | 'instant'
 ```
 
-The dev build also shows a sample HUD (the scene name, and a SHAKE button that sends
-`UI_SHAKE` to the scene). Neither is in production builds.
+The dev build also shows a sample HUD on the overworld (the scene name, and a SHAKE button that
+sends `UI_SHAKE` to the scene); it stays hidden on the intro and title screen. Neither is in
+production builds. Add `?map=<id>` to the URL to skip the intro and title and open a map.
 
 ## 15. Android notes
 

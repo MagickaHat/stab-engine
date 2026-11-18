@@ -87,3 +87,14 @@ export { LanguageSelect } from './menus/LanguageSelect';
 export type { LanguageSelectProps } from './menus/LanguageSelect';
 export { PokedexEntry } from './menus/PokedexEntry';
 export type { PokedexEntryProps } from './menus/PokedexEntry';
+
+// Title screen: opening movie, title text, New Game / Continue menu (docs/TITLE_SCREEN.md).
+export {TitleUi} from './title/TitleUi';
+export {TitleOverlay} from './title/TitleOverlay';
+export {OpeningMovie} from './title/OpeningMovie';
+export type {OpeningMovieProps} from './title/OpeningMovie';
+export {useMenuText} from './title/useMenuText';
+export {LoadMenu, LOAD_MENU_ENTRIES, layoutRows, partyIconUrl} from './menus/LoadMenu';
+export type {LoadMenuEntry, LoadMenuProps} from './menus/LoadMenu';
+export {LOAD_MENU_LAYOUT} from './menus/loadMenuLayout';
+export type {PanelFrame} from './menus/loadMenuLayout';

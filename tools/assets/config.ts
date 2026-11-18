@@ -4,6 +4,7 @@
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type {OutputRedirect} from './destinations.ts';
 import type { PackDefinition } from './pack.ts';
 import { animations } from './packs/animations.ts';
 import { gen9 } from './packs/gen9.ts';
@@ -17,6 +18,23 @@ export const PBS_DIR = path.join(ROOT, 'content/pbs');
 
 /** @brief Default output folder. Served by Vite/Phaser as `assets/`. */
 export const ASSETS_DIR = path.join(ROOT, 'public/assets');
+
+/**
+ * @brief Tileset images. They are read by Tiled and bundled with the maps
+ *        (src/world/maps.ts), so they live next to the Tiled tilesets instead
+ *        of in the output folder.
+ */
+export const TILESETS_DIR = path.join(ROOT, 'src/tiled/tilesets');
+
+/**
+ * @brief Outputs written outside the output folder: an output path starting
+ *        with `prefix` (e.g. `img/tilesets/outside.png`) is written to `dir`
+ *        instead (`src/tiled/tilesets/outside.png`). Only used with the default
+ *        output folder; with `--out` everything stays inside that folder.
+ */
+export const OUTPUT_REDIRECTS: OutputRedirect[] = [
+    {prefix: 'img/tilesets', dir: TILESETS_DIR},
+];
 
 /** @brief Folder (inside the output folder) holding one folder of sprites per species. */
 export const POKEMON_DIR = 'img/pokemon';

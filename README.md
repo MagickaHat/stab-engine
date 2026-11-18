@@ -33,11 +33,15 @@ The party, PC, bag, flags, variables and the player's position are one plain-dat
 
 ## Events, Scripting and Maps
 
-Maps are made in [Tiled](https://www.mapeditor.org/) (`src/tiled/stab.tiled-project`) and events follow Pokémon Essentials / RPG Maker XP: each event has pages with conditions, a trigger and commands, plus self switches A–D. Scripts are JSON files in `content/events/` (no code is ever evaluated at run time, so it works in Android WebViews), compiled and checked at build time. The overworld scene (`src/game/scenes/Overworld.ts`) draws the map, moves the player and runs cutscenes: movement routes for several characters at once, pathfinding, camera pans and shakes, emotes, fades, tints, music, sound effects and cries, trainer battles with teams built at battle time, battle hooks, global listeners, and translated text. Saving is blocked while a cutscene runs. See **[docs/EVENT_SYSTEM.md](docs/EVENT_SYSTEM.md)**.
+Maps are made in [Tiled](https://www.mapeditor.org/) (`src/tiled/stab.tiled-project`) and events follow Pokémon Essentials / RPG Maker XP: each event has pages with conditions, a trigger and commands, plus self switches A–D. Scripts are JSON files in `content/events/` (no code is ever evaluated at run time, so it works in Android WebViews), compiled and checked at build time. The overworld scene (`src/game/scenes/Overworld.ts`) draws the map, moves the player and runs cutscenes: movement routes for several characters at once, pathfinding, camera pans and shakes, emotes, fades, tints, screen pictures, music, sound effects and cries, trainer battles with teams built at battle time, battle hooks, global listeners, and translated text. Saving is blocked while a cutscene runs. See **[docs/EVENT_SYSTEM.md](docs/EVENT_SYSTEM.md)**.
 
 ## UI
 
 The UI is built with [React](https://react.dev) on top of the Phaser canvas, so it works in desktop browsers and in Android WebViews. React and Phaser never touch each other: scenes publish plain data on a typed event bus (`src/bus/EventBus.ts`) and React reads it from small stores (`useUiStore()`, `useGameState()`, `useBattle()`). The game and the UI are scaled by whole device pixels only, so everything stays pixel perfect. Windows are drawn from the imported Essentials windowskins as tiled nine-slices (any size, no stretched pixels) and all text uses the FRLG pixel font, drawn into canvases so it cannot be selected or copied. The FRLG-style message box (typewriter, two-line pages, pause arrow, speaker name box), choice window and name entry are ready, with UI sound cues. See **[docs/UI_SYSTEM.md](docs/UI_SYSTEM.md)**.
+
+## Intro and title screen
+
+The game boots through two splash screens (reserved for the engine's and the game's creators) and an optional opening movie (drop `public/assets/video/intro.webm` or `.mp4` in) to a data-driven title screen whose layers (images, blinking, scrolling, bobbing, translated text) are listed in one file, `src/game/title/titleConfig.ts`. Start opens the New Game / Continue menu built on the save slots, with each save's player, badges, Pokédex, play time and party icons. New games ask for the game's language first, then open the intro map, where an autorun event runs the professor's speech. See **[docs/TITLE_SCREEN.md](docs/TITLE_SCREEN.md)**.
 
 ## Input
 
@@ -115,7 +119,8 @@ We have provided a default project structure to get you started:
 | `src/game/main.ts`           | Game entry point: configures and starts the game.          |
 | `src/game/config.ts`         | Game resolution (256×192).                                 |
 | `src/game/EventBus.ts`       | Re-export of the event bus (`src/bus`) for game code.      |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        |
+| `src/game/scenes`            | Folder with all Phaser game scenes (`Boot` → `Splash` → `Title` → `Overworld`, `Battle`). |
+| `src/game/title`             | Intro and title screen settings (`titleConfig.ts`), layer kinds, movie lookup. See `docs/TITLE_SCREEN.md`. |
 | `src/battle`                 | Battle system (Pokémon Showdown integration). See `docs/BATTLE_SYSTEM.md`. |
 | `src/dialogue`               | Dialogue system (inkjs integration). See `docs/DIALOGUE_SYSTEM.md`. |
 | `src/state`                  | Game state and save system (party, PC, bag, flags, position). See `docs/SAVE_SYSTEM.md`. |

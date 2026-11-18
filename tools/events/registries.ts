@@ -12,6 +12,7 @@
  * | InkStory, InkKnot | content/dialogue/*.ink                                     |
  * | TextKey          | content/locales/<category>/en.csv                           |
  * | Map              | src/tiled/maps/**\/*.tmj                                     |
+ * | Picture          | public/assets/img/pictures/*.png                            |
  *
  * `npm run events:sync-tiled` writes these into the Tiled project and
  * `npm run events:validate` checks scripts and maps against them.
@@ -29,7 +30,7 @@ import type { EnumName } from '../../src/events/tiled.ts';
 import { FALLBACK_LOCALE, parseLocaleCsv } from '../../src/events/text.ts';
 import { readCustomLayers, readTables } from '../pbs/io.ts';
 import { CUSTOM_DIR, GENERATED_DIR } from '../pokeapi/config.ts';
-import { DIALOGUE_DIR, listFiles, loadEvents, LOCALES_DIR, mapId, MAPS_DIR } from './content.ts';
+import {DIALOGUE_DIR, listFiles, loadEvents, LOCALES_DIR, mapId, MAPS_DIR, PICTURES_DIR} from './content.ts';
 
 /** @brief Every list, by enum name, each sorted (except fixed enums, which keep their order). */
 export type Registries = Record<EnumName, string[]>;
@@ -109,7 +110,8 @@ export function collectRegistries (bundle: EventBundle = loadEvents().bundle): R
         StoryMilestone: Object.values(STORY).flat(),
         StoryTrack: Object.keys(STORY),
         InkStory: sorted(stories.map((file) => path.basename(file, '.ink'))),
-        InkKnot: sorted(stories.flatMap((file) => inkKnots(file).map((knot) => `${path.basename(file, '.ink')}.${knot}`))),
+        InkKnot:
+            sorted(stories.flatMap((file) => inkKnots(file).map((knot) => `${path.basename(file, '.ink')}.${knot}`))),
         TextKey: textKeys(),
         Script: sorted(Object.keys(bundle.scripts)),
         CommonEvent: sorted(Object.keys(bundle.common)),
@@ -119,5 +121,8 @@ export function collectRegistries (bundle: EventBundle = loadEvents().bundle): R
         MoveType: [...FIXED_ENUMS.MoveType!],
         Emote: Object.keys(EMOTES),
         Native: sorted(Object.keys(NATIVES)),
+        Picture: sorted(
+            listFiles(PICTURES_DIR, ['.png'])
+                .map((file) => path.relative(PICTURES_DIR, file).split(path.sep).join('/').replace(/\.png$/, ''))),
     };
 }

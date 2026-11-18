@@ -19,8 +19,11 @@ import type {AndroidDevice, BrowserContext, Page} from '@playwright/test';
 
 /** @brief Port the build is served on, on this machine and on the device. */
 const PORT = 4173;
-/** @brief Key of the scene the game starts in (src/game/scenes/Game.ts). */
-const FIRST_SCENE = 'Game';
+/**
+ * @brief Key of the first scene that stays on screen: `Boot` loads the intro's
+ *        images and hands over to the splashes at once (src/game/title/sceneKeys.ts).
+ */
+const FIRST_SCENE = 'Splash';
 /** @brief Chrome's package name. */
 const CHROME = 'com.android.chrome';
 /** @brief The whole test fails after this long (ms), rather than hang the CI job. */

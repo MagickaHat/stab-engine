@@ -39,5 +39,5 @@ export { BattleHookRunner, hookMatches, momentsOf } from './runtime/battleHooks.
 export type { HookMoment } from './runtime/battleHooks.ts';
 export { neighbour, runRoute } from './runtime/route.ts';
 export type { RouteContext } from './runtime/route.ts';
-export type { Actor, BattleRequest, RuntimeData, WarpRequest, WorldHost } from './runtime/host.ts';
+export type {Actor, BattleRequest, PictureMove, PictureRequest, RuntimeData, WarpRequest, WorldHost} from './runtime/host.ts';
 export * from './registry/index.ts';

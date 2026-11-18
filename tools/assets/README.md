@@ -4,7 +4,8 @@ Imports battle sprites, icons, overworld sprites, footprints, cries and item ico
 Pokémon Essentials resource pack into `public/assets/`, renamed to Showdown IDs and reduced to
 1× pixel scale. `npm run assets:graphics` imports the rest of `Graphics/` (tilesets, autotiles,
 characters, trainers, UI, battlebacks…) into `public/assets/img/`, renamed to engine style and
-halved to the 256×192 resolution.
+halved to the 256×192 resolution. Tileset images go to the Tiled project instead,
+`src/tiled/tilesets/` (`OUTPUT_REDIRECTS` in `config.ts`, applied by `destinations.ts`).
 
 ```bash
 npm run assets:import -- --pack <extracted pack folder>             # import everything
@@ -13,7 +14,7 @@ npm run assets:import -- --pack <dir> --only front,back,item,cry    # some kinds
 npm run assets:import -- --pack <dir> --pack <add-on dir>           # layer packs; later ones win
 npm run assets:import -- --pack <dir> --force                       # convert unchanged files again
 npm run assets:import -- --manifest-only                            # rebuild manifest.json only
-npm run assets:graphics -- --pack <Essentials project or pack>      # tilesets, UI, characters… → img/
+npm run assets:graphics -- --pack <Essentials project or pack>      # UI, characters… → img/, tilesets → src/tiled/tilesets/
 npm run assets:graphics -- --pack <dir> --only tilesets,ui --exclude "Graphics/UI/Mining"
 npm run assets:animations -- --pack <animation pack>                # animation sheets + sounds
 npm test                                                            # run the importer's tests
@@ -27,9 +28,10 @@ The pack must be extracted first (`.rar`/`.zip` → folder). Pass the folder tha
 | `import.ts` | CLI entry: plan → convert → clean up → manifest, credits, report. |
 | `packs/gen9.ts` | **Edit this.** Pack layout: which folder becomes which file, target sizes, form aliases. |
 | `packs/graphics.ts` | **Edit this.** Layout for the rest of `Graphics/`: what is left out, scale and filter. |
+| `destinations.ts` | Where each output is written: the output folder, or a redirect such as `src/tiled/tilesets/`. |
 | `packs/animations.ts` | Layout for `Graphics/Animations` and `Audio/SE/Anim` (data: see `tools/animations`). |
 | `pack.ts` | Types for pack definitions. Add a file in `packs/` and register it in `config.ts` for a new layout. |
-| `config.ts` | Paths and the list of known pack layouts. |
+| `config.ts` | Paths (including `OUTPUT_REDIRECTS`) and the list of known pack layouts. |
 | `plan.ts` | Decides the destination of every file. |
 | `resolve.ts` | Essentials names → Showdown species/forme IDs, using `content/pbs`. |
 | `essentials.ts` | Essentials file-name and PBS `FormName` parsing. |
